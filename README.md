@@ -1,5 +1,7 @@
 # DataLad extension module template
 
+[![Travis tests status](https://secure.travis-ci.org/datalad/datalad-module-template.png?branch=master)](https://travis-ci.org/datalad/datalad-module-template) [![codecov.io](https://codecov.io/github/datalad/datalad-module-template/coverage.svg?branch=master)](https://codecov.io/github/datalad/datalad-module-template?branch=master)
+
 This repository contains a module template that can serve as a starting point
 for implementing a [DataLad](http://datalad.org) extension. A module can
 provide any number of additional DataLad commands that are automatically
