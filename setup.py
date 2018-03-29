@@ -13,7 +13,8 @@ setup(
     install_requires=[
         # in general datalad will be a requirement, unless the datalad extension
         # aspect is an optional component of a larger project
-        'datalad',
+        # disable for now as we currently need a Git snapshot (requirements.txt)
+        #'datalad',
     ],
     entry_points = {
         # 'datalad.modules' is THE entrypoint inspected by the datalad API builders

@@ -22,6 +22,9 @@ env:
     # Special settings/helper for combined coverage from special remotes execution
     - COVERAGE=coverage
     - DATALAD_DATASETS_TOPURL=http://datasets-tests.datalad.org
+  matrix:
+    - DATALAD_REPO_DIRECT=yes
+    - DATALAD_REPO_VERSION=5
 
 
 before_install:
@@ -31,8 +34,6 @@ before_install:
   - bash <(wget -q -O- http://neuro.debian.net/_files/neurodebian-travis.sh)
   - travis_retry sudo apt-get update -qq
   - travis_retry sudo apt-get install eatmydata  # to speedup some installations
-  - sudo eatmydata tools/ci/prep-travis-forssh-sudo.sh
-  - tools/ci/prep-travis-forssh.sh
 
 install:
   # Install standalone build of git-annex for the recent enough version
@@ -41,7 +42,7 @@ install:
   - git config --global user.email "test@travis.land"
   - git config --global user.name "Travis Almighty"
   - cd ..; pip install -q codecov; cd -
-  - pip install -r requirements-devel.txt
+  - pip install -r requirements.txt
   #- pip install 'sphinx>=1.6.2'
   # So we could test under sudo -E with PATH pointing to installed location
   - sudo sed -i -e 's/^Defaults.*secure_path.*$//' /etc/sudoers
@@ -49,20 +50,20 @@ install:
 script:
   # Verify that setup.py build doesn't puke
   - python setup.py build
+  # Test installation system-wide
+  - sudo pip install .
   # Run tests
   - http_proxy=
     PATH=$PWD/tools/coverage-bin:$PATH
     $NOSE_WRAPPER `which nosetests` $NOSE_OPTS
       -v -A "$NOSE_SELECTION_OP(integration or usecase or slow)"
       --with-doctest
-      --with-cov --cover-package datalad
+      --with-cov --cover-package dmhelloworld
       --logging-level=INFO
       $TESTS_TO_PERFORM
   #- if [ ! "${DATALAD_LOG_LEVEL:-}" = 2 ]; then
   #      PYTHONPATH=$PWD $NOSE_WRAPPER make -C docs html doctest;
   #  fi
-  # Test installation system-wide
-  - sudo pip install .
   # Report WTF information using system wide installed version
   - datalad wtf
 
