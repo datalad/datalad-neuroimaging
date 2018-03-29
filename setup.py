@@ -14,7 +14,9 @@ setup(
         # in general datalad will be a requirement, unless the datalad extension
         # aspect is an optional component of a larger project
         'datalad',
-        'datalad-webapp',
+        # TODO: use this, whenever that package is actually available and remove from requirements.txt
+        #'datalad-webapp',
+        'CherryPy',
     ],
     entry_points = {
         # 'datalad.modules' is THE entrypoint inspected by the datalad API builders
