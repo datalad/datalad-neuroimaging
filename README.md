@@ -1,3 +1,5 @@
+[![Travis tests status](https://secure.travis-ci.org/datalad/datalad-medicalimaging.png?branch=master)](https://travis-ci.org/datalad/datalad-medicalimaging) [![codecov.io](https://codecov.io/github/datalad/datalad-medicalimaging/coverage.svg?branch=master)](https://codecov.io/github/datalad/datalad-medicalimaging?branch=master) 
+
 # DataLad extension module template
 
 This repository contains a module template that can serve as a starting point
