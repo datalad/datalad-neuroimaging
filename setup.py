@@ -5,12 +5,12 @@ from setuptools import find_packages
 
 setup(
     # basic project properties can be set arbitrarily
-    name="dmhelloworld",
+    name="datalad_helloworld",
     author="The DataLad Team and Contributors",
     author_email="team@datalad.org",
     version='0.1',
     description="demo DataLad module package",
-    packages=[pkg for pkg in find_packages('.') if pkg.startswith('dmhelloworld')],
+    packages=[pkg for pkg in find_packages('.') if pkg.startswith('datalad')],
     # datalad command suite specs from here
     install_requires=[
         # in general datalad will be a requirement, unless the datalad extension
@@ -24,7 +24,7 @@ setup(
             # the label in front of '=' is the command suite label
             # the entrypoint can point to any symbol of any name, as long it is
             # valid datalad interface specification (see demo in this module)
-            'hello=dmhelloworld:module_suite',
+            'helloworld=datalad_helloworld:module_suite',
         ]
     },
 )

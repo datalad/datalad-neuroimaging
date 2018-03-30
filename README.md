@@ -21,5 +21,5 @@ DataLad will now expose a new command suite with `hello...` commands.
 
 To start implementing your own extension module, fork this project and adjust
 as necessary. The comments in [setup.py](setup.py) and
-[__init__.py](dmhelloworld/__init__.py) illustrate the purpose of the various
+[__init__.py](datalad_helloworld/__init__.py) illustrate the purpose of the various
 aspects of a command implementation and the setup of an extension package. 

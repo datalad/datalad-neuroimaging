@@ -24,9 +24,9 @@ module_suite = (
         # specification of a command, any number of commands can be defined
         (
             # importable module that contains the command implementation
-            'dmhelloworld',
+            'datalad_helloworld',
             # name of the command class implementation in above module
-            'DMHelloWorld',
+            'HelloWorld',
             # optional name of the command in the cmdline API
             'hello-cmd',
             # optional name of the command in the Python API
@@ -39,7 +39,7 @@ module_suite = (
 # decoration auto-generates standard help
 @build_doc
 # all commands must be derived from Interface
-class DMHelloWorld(Interface):
+class HelloWorld(Interface):
     # first docstring line is used a short description in the cmdline help
     # the rest is put in the verbose help and manpage
     """Short description of the command
