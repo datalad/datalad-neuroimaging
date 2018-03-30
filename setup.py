@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from setuptools import setup
+from setuptools import find_packages
 
 setup(
     # basic project properties can be set arbitrarily
@@ -9,6 +10,7 @@ setup(
     author_email="team@datalad.org",
     version='0.1',
     description="demo DataLad module package",
+    packages=[pkg for pkg in find_packages('.') if pkg.startswith('dmhelloworld')],
     # datalad command suite specs from here
     install_requires=[
         # in general datalad will be a requirement, unless the datalad extension
