@@ -65,7 +65,8 @@ script:
   #      PYTHONPATH=$PWD $NOSE_WRAPPER make -C docs html doctest;
   #  fi
   # Report WTF information using system wide installed version
-  - datalad wtf
+  # Disabled due to https://github.com/datalad/datalad/issues/2365
+  #- datalad wtf
 
 after_success:
   - coverage combine -a /tmp/.coverage-entrypoints-*
