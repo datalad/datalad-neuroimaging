@@ -18,7 +18,14 @@ setup(
         # for now we need git snapshots (requirements.txt)
         #'datalad',
         #'datalad-webapp',
+        'pydicom',  # DICOM metadata
+        'pybids>=0.5.1',  # BIDS metadata
+        'nibabel',  # NIfTI metadata
+        'pandas',  # bids2scidata export
     ],
+    package_data={
+        'datalad_neuroimaging':
+            findsome(opj('tests', 'data'), {'dcm', 'gz'})},
     entry_points = {
         # 'datalad.modules' is THE entrypoint inspected by the datalad API builders
         'datalad.modules': [
@@ -29,6 +36,12 @@ setup(
         ],
         'datalad.webapps': [
             'pork=webapp.app:Pork',
+        ],
+        'datalad.metadata.extractors': [
+            'bids=datalad.metadata.extractors.bids:MetadataExtractor',
+            'dicom=datalad.metadata.extractors.dicom:MetadataExtractor',
+            'nidm=datalad.metadata.extractors.nidm:MetadataExtractor',
+            'nifti1=datalad.metadata.extractors.nifti1:MetadataExtractor',
         ],
     },
 )
