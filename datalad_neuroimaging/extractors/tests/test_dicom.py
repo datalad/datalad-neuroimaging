@@ -10,7 +10,7 @@
 
 from datalad.tests.utils import SkipTest
 try:
-    import datalad.metadata.extractors.dicom
+    import datalad_neuroimaging.extractors.dicom
 except ImportError:
     raise SkipTest
 

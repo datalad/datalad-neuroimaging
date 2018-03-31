@@ -19,7 +19,7 @@ from datalad.tests.utils import assert_in
 from datalad.tests.utils import skip_if_no_module
 skip_if_no_module('bids')
 
-from datalad.metadata.extractors.bids import MetadataExtractor
+from datalad_neuroimaging.extractors.bids import MetadataExtractor
 
 bids_template = {
     '.datalad': {
