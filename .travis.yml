@@ -60,7 +60,7 @@ script:
     $NOSE_WRAPPER `which nosetests` $NOSE_OPTS
       -v -A "$NOSE_SELECTION_OP(integration or usecase or slow)"
       --with-doctest
-      --with-cov --cover-package datalad_helloworld
+      --with-cov --cover-package datalad_neuroimaging
       --logging-level=INFO
       $TESTS_TO_PERFORM
   #- if [ ! "${DATALAD_LOG_LEVEL:-}" = 2 ]; then
