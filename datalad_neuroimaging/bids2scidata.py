@@ -12,23 +12,37 @@ __docformat__ = 'restructuredtext'
 
 
 import logging
-lgr = logging.getLogger('datalad.plugin.bids2scidata')
+lgr = logging.getLogger('datalad.neuroimaging.bids2scidata')
 
 from collections import OrderedDict
 import os
 import re
+from datetime import datetime
+from io import open
 from os.path import exists
 from os.path import relpath
 from os.path import abspath
+from os.path import dirname
 from os.path import join as opj
 from os.path import split as psplit
 
+import datalad
+import datalad_neuroimaging
+from datalad import cfg
+from datalad.coreapi import metadata
+from datalad.distribution.dataset import require_dataset
 from datalad.interface.base import Interface
 from datalad.interface.base import build_doc
+from datalad.support.param import Parameter
+from datalad.distribution.dataset import datasetmethod
+from datalad.interface.utils import eval_results
+from datalad.distribution.dataset import EnsureDataset
+from datalad.support.constraints import EnsureNone
 from datalad.utils import assure_list
 from six.moves.urllib.parse import urlsplit
 from six.moves.urllib.parse import urlunsplit
 from posixpath import split as posixsplit
+
 
 try:
     import pandas as pd
@@ -550,12 +564,6 @@ def convert(
 @build_doc
 class BIDS2Scidata(Interface):
     """BIDS to ISA-Tab converter"""
-    from datalad.support.param import Parameter
-    from datalad.distribution.dataset import datasetmethod
-    from datalad.interface.utils import eval_results
-    from datalad.distribution.dataset import EnsureDataset
-    from datalad.support.constraints import EnsureNone, EnsureStr
-
     _params_ = dict(
         dataset=Parameter(
             args=("-d", "--dataset"),
@@ -588,23 +596,11 @@ class BIDS2Scidata(Interface):
     @datasetmethod(name='bids2scidata')
     @eval_results
     def __call__(repo_name, repo_accession, repo_url, path=None, output=None, dataset=None):
-        from os.path import dirname
-        from os.path import join as opj
-        from datetime import datetime
-        from io import open
-        import logging
-        lgr = logging.getLogger('datalad.plugin.bids2scidata')
-        import datalad
-        from datalad import cfg
-        from datalad.plugin.bids2scidata import convert
-        from datalad.coreapi import metadata
-        from datalad.distribution.dataset import require_dataset
-
         # we need this resource file, no point in starting without it
         itmpl_path = cfg.obtain(
             'datalad.plugin.bids2scidata.investigator.template',
             default=opj(
-                dirname(datalad.__file__),
+                dirname(datalad_neuroimaging.__file__),
                 'resources', 'isatab', 'scidata_bids_investigator.txt'))
 
         if path and dataset is None:
@@ -698,6 +694,3 @@ class BIDS2Scidata(Interface):
             type='directory',
             action='bids2scidata',
             logger=lgr)
-
-
-__datalad_plugin__ = BIDS2Scidata
