@@ -55,10 +55,10 @@ setup(
             'pork=webapp.app:Pork',
         ],
         'datalad.metadata.extractors': [
-            'bids=datalad.metadata.extractors.bids:MetadataExtractor',
-            'dicom=datalad.metadata.extractors.dicom:MetadataExtractor',
-            'nidm=datalad.metadata.extractors.nidm:MetadataExtractor',
-            'nifti1=datalad.metadata.extractors.nifti1:MetadataExtractor',
+            'bids=datalad_neuroimaging.extractors.bids:MetadataExtractor',
+            'dicom=datalad_neuroimaging.extractors.dicom:MetadataExtractor',
+            'nidm=datalad_neuroimaging.extractors.nidm:MetadataExtractor',
+            'nifti1=datalad_neuroimaging.extractors.nifti1:MetadataExtractor',
         ],
     },
 )
