@@ -2,6 +2,23 @@
 
 from setuptools import setup
 from setuptools import find_packages
+from setuptools import findall
+
+from os.path import join as opj
+from os.path import sep as pathsep
+from os.path import splitext
+
+
+def findsome(subdir, extensions):
+    """Find files under subdir having specified extensions
+
+    Leading directory (datalad) gets stripped
+    """
+    return [
+        f.split(pathsep, 1)[1] for f in findall(opj('datalad', subdir))
+        if splitext(f)[-1].lstrip('.') in extensions
+    ]
+
 
 setup(
     # basic project properties can be set arbitrarily
@@ -32,7 +49,7 @@ setup(
             # the label in front of '=' is the command suite label
             # the entrypoint can point to any symbol of any name, as long it is
             # valid datalad interface specification (see demo in this module)
-            'neuroimaging=datalad_helloworld:module_suite',
+            'neuroimaging=datalad_neuroimaging:module_suite',
         ],
         'datalad.webapps': [
             'pork=webapp.app:Pork',
