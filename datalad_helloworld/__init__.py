@@ -24,7 +24,7 @@ module_suite = (
         # specification of a command, any number of commands can be defined
         (
             # importable module that contains the command implementation
-            'dmhelloworld',
+            'datalad_helloworld',
             # name of the command class implementation in above module
             'HelloWorld',
             # optional name of the command in the cmdline API
