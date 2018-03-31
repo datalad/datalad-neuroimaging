@@ -34,6 +34,8 @@ before_install:
   - bash <(wget -q -O- http://neuro.debian.net/_files/neurodebian-travis.sh)
   - travis_retry sudo apt-get update -qq
   - travis_retry sudo apt-get install eatmydata  # to speedup some installations
+  - travis_retry sudo eatmydata apt-get install git-annex-standalone
+
 
 install:
   # Install standalone build of git-annex for the recent enough version
