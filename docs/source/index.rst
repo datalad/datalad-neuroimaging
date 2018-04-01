@@ -15,8 +15,16 @@ Demos
 
    usecases/index
 
-Commands and API
+Command line API
 ================
+
+.. toctree::
+   :maxdepth: 1
+
+   generated/man/datalad-bids2scidata.rst
+
+Python API
+==========
 
 .. toctree::
    :maxdepth: 2

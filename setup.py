@@ -27,7 +27,7 @@ def findsome(subdir, extensions):
 version = get_version()
 
 cmdclass = {
-#    'build_manpage': BuildManPage,
+    'build_manpage': BuildManPage,
     'build_examples': BuildRSTExamplesFromScripts,
 }
 

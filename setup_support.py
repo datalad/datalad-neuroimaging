@@ -91,7 +91,7 @@ class BuildManPage(Command):
                                 (fmt.RSTManPageFormatter, self.rstpath, 'rst')):
             if not os.path.exists(opath):
                 os.makedirs(opath)
-            for cmdname in self._parser:
+            for cmdname in ('bids2scidata',):
                 p = self._parser[cmdname]
                 cmdname = "{0}{1}".format(
                     'datalad-' if cmdname != 'datalad' else '',
