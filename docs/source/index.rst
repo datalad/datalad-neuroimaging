@@ -15,21 +15,15 @@ Demos
 
    usecases/index
 
-Command line API
-================
+API
+===
 
 .. toctree::
    :maxdepth: 1
 
+   modref
    generated/man/datalad-bids2scidata.rst
 
-Python API
-==========
-
-.. toctree::
-   :maxdepth: 2
-
-   modref
 
 Metadata
 ========
