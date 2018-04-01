@@ -60,5 +60,8 @@ setup(
             'nidm=datalad_neuroimaging.extractors.nidm:MetadataExtractor',
             'nifti1=datalad_neuroimaging.extractors.nifti1:MetadataExtractor',
         ],
+        'datalad.tests': [
+            'neuroimaging=datalad_neuroimaging',
+        ],
     },
 )
