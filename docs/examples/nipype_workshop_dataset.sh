@@ -44,7 +44,7 @@ URL=http://www.onerussian.com/tmp/fake_ds114.tar.gz
 # For more information about the workshop, please visit
 # http://nipy.org/workshops/2017-03-boston/index.html .
 # As we will present git-annex and DataLad, I have decided to prepare a DataLad
-# :term:`dataset` from the tarball Satrajit Ghosh has shared URL to.  That tarball
+# dataset from the tarball Satrajit Ghosh has shared URL to.  That tarball
 # is a trimmed down version of OpenfMRI_ ds000114_
 # dataset which we also crawl and provide as a
 # `DataLad dataset <http://datasets.datalad.org/?dir=/openfmri/ds000114>`__.
@@ -55,14 +55,14 @@ URL=http://www.onerussian.com/tmp/fake_ds114.tar.gz
 # Deriving (cloning) a dataset
 # ============================
 #
-# I have decided to first create a :term:`superdataset` for the workshop (may be
-# more datasets besides ds114 will be later) outside of our master :term:`superdataset`
+# I have decided to first create a superdataset for the workshop (may be
+# more datasets besides ds114 will be later) outside of our master superdataset
 # which we distribute from http://datasets.datalad.org .
-# So I just created a new :term:`dataset` in a random directory.
+# So I just created a new dataset in a random directory.
 # I wanted our ds114 dataset to be "derived" from original openfmri ds000114 dataset
 # so we could readily reuse all the knowledge git-annex has about where files
 # might be coming from. To achieve that I have just installed existing ds000114 dataset
-# into our :term:`superdataset`:
+# into our superdataset:
 #
 #%
 
@@ -164,7 +164,7 @@ git annex whereis derivatives
 # Having succeeded with construction of the dataset, I have decided to share it
 # as a part of our bigger super dataset at http://datasets.datalad.org .
 # This dataset was the first workshop dataset which was not part of some bigger
-# collection, so I have decided to establish a new :term:`subdataset` `workshops`
+# collection, so I have decided to establish a new subdataset `workshops`
 # within it, and move our nipy workshop superdataset into it.
 #%
 
@@ -187,7 +187,7 @@ datalad add -d . nipype-2017
 #
 # If you ever ran `datalad search <http://docs.datalad.org/en/latest/generated/man/datalad-search.html>`_
 # you know that one of the goals of DataLad
-# is to use :ref:`chap_metadata` associated with the datasets.
+# is to use metadata associated with the datasets.
 #%
 
 # created some dataset_description.json (following BIDS format lazy me)
@@ -213,7 +213,7 @@ datalad aggregate-metadata
 # NB instructions here might diverge a little from what was actually performed
 #
 # Now it was time to publish this dataset as a part of our larger super-dataset.
-# Because our demo superdataset is just a clone (or :term:`sibling`) of original
+# Because our demo superdataset is just a clone (or sibling) of original
 # one, it does not have information about where it must be published to. So
 # we first can create a sibling on remote server where we want also to deploy our
 # web-frontend and then create similar siblings for every

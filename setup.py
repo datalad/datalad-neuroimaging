@@ -8,6 +8,10 @@ from os.path import join as opj
 from os.path import sep as pathsep
 from os.path import splitext
 
+from setup_support import BuildManPage
+from setup_support import BuildRSTExamplesFromScripts
+from setup_support import get_version
+
 
 def findsome(subdir, extensions):
     """Find files under subdir having specified extensions
@@ -19,13 +23,21 @@ def findsome(subdir, extensions):
         if splitext(f)[-1].lstrip('.') in extensions
     ]
 
+# extension version
+version = get_version()
+
+cmdclass = {
+#    'build_manpage': BuildManPage,
+    'build_examples': BuildRSTExamplesFromScripts,
+}
+
 
 setup(
     # basic project properties can be set arbitrarily
     name="datalad_neuroimaging",
     author="The DataLad Team and Contributors",
     author_email="team@datalad.org",
-    version='0.1',
+    version=version,
     description="DataLad extension package for neuro/medical imaging",
     packages=[pkg for pkg in find_packages('.') if pkg.startswith('datalad')],
     # datalad command suite specs from here
@@ -40,6 +52,7 @@ setup(
         'nibabel',  # NIfTI metadata
         'pandas',  # bids2scidata export
     ],
+    cmdclass=cmdclass,
     package_data={
         'datalad_neuroimaging':
             findsome(opj('tests', 'data'), {'dcm', 'gz'})},

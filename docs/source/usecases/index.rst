@@ -8,3 +8,4 @@ Data management use cases
    :maxdepth: 1
 
    reproducible_analysis
+   ../generated/examples/nipype_workshop_dataset

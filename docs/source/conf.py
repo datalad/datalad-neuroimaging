@@ -37,9 +37,8 @@ for setup_py_path in (opj(pardir, 'setup.py'),  # travis
     if exists(setup_py_path):
         sys.path.insert(0, os.path.abspath(dirname(setup_py_path)))
         try:
-            # disable until we have that infrastructure
-            #for cmd in 'manpage', 'cfginfo', 'examples', 'schema':
-            for cmd in []:
+            #for cmd in 'manpage', 'examples':
+            for cmd in ('examples',):
                 os.system('{} build_{}'.format(setup_py_path, cmd))
         except:
             # shut up and do your best
