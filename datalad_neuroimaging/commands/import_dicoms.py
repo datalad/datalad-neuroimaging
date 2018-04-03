@@ -81,9 +81,19 @@ def _create_subds_from_tarball(tarball, targetdir):
     importds.install(path=opj(".datalad","environments","import-container"),
                      source="http://psydata.ovgu.de/cbbs-imaging/conv-container/.git")
 
+    return importds
 
-def _guess_session_and_move():
-    pass
+
+def _guess_session_and_move(ds):
+
+    raise NotImplemented
+    # TODO
+    # SES=$(datalad --output-format="{metadata[dicom][Series][0][PatientID]}" metadata -d "$SUB_TMP/dicoms" --reporton=datasets)
+    #     # move subdataset from TMP to actual mount point
+    #     mv "$SUB_TMP/" "$SES/"
+
+    return new_ds
+
 
 @build_doc
 class ImportDicoms(Interface):
@@ -128,21 +138,16 @@ class ImportDicoms(Interface):
             ses_dir = opj(ds.path, session)
             makedirs(ses_dir, exist_ok=True)
 
-            _create_subds_from_tarball()
+            dicom_ds = _create_subds_from_tarball(path, ses_dir)
 
-            dicom_ds =
         else:
             # we don't know the session yet => create in tmp
             from tempfile import mkdtemp
             ses_dir = mkdtemp(dir=True)
 
             try:
-                _create_subds_from_tarball()
-                _guess_session_and_move()
-                # SES=$(datalad --output-format="{metadata[dicom][Series][0][PatientID]}" metadata -d "$SUB_TMP/dicoms" --reporton=datasets)
-                #     # move subdataset from TMP to actual mount point
-                #     mv "$SUB_TMP/" "$SES/"
-                dicom_ds =
+                dicom_ds = _create_subds_from_tarball(path, ses_dir)
+                dicom_ds = _guess_session_and_move(dicom_ds)
             except Exception as e:
                 # remove tmp and reraise
                 from datalad.utils import rmtree
@@ -150,11 +155,10 @@ class ImportDicoms(Interface):
                 # TODO: reraise()
                 raise
 
-
         ds.add(dicom_ds.path)
         ds.aggregate_metadata(dicom_ds.path)
 
-
+        # TODO
         # # initialize study specification
         # cd "$SES/dicoms"
         # prepare_study_spec.py
