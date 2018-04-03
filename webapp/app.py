@@ -50,7 +50,7 @@ class Pork(object):
           </head>
           <body>
             {inputs}
-            <button id=\"submit_spec\" onclick=\"submit_spec({session})\">Save</button>
+            <button id=\"submit_spec\" onclick=\"submit_spec('{session}')\">Save</button>
           </body>
         </html>""".format(inputs=input_div, session=session)
 
