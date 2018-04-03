@@ -17,5 +17,17 @@ module_suite = (
             'BIDS2Scidata',
             'bids2scidata',
         ),
+        (
+            'datalad_neuroimaging.commands.create_study',
+            'CreateStudy',
+            'ni-create-study',
+            'ni_create_study',
+        ),
+        (
+            'datalad_neuroimaging.commands.import_dicoms',
+            'ImportDicoms',
+            'ni-import-dicomtarball',
+            'ni_import_dicomtarball',
+        ),
     ]
 )
