@@ -1,1 +1,5 @@
+# If you want to develop, use requirements-devel.txt
+#git+https://github.com/datalad/datalad.git
+git+https://github.com/mih/datalad.git@rf-nodicom
+# not needed ATM
 git+https://github.com/datalad/datalad-webapp.git

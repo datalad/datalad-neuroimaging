@@ -1,0 +1,9 @@
+.pybuild/
+.coverage
+/.tox
+*.egg-info
+*.py[coe]
+.#*
+.*.swp
+docs/build
+docs/source/generated
