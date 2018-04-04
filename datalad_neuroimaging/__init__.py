@@ -29,5 +29,11 @@ module_suite = (
             'ni-import-dicomtarball',
             'ni_import_dicomtarball',
         ),
+        (
+            'datalad_neuroimaging.commands.dicom2spec',
+            'Dicom2Spec',
+            'ni-dicom2spec',
+            'ni_dicom2spec',
+        ),
     ]
 )
