@@ -59,12 +59,12 @@ class Dicom2Spec(Interface):
             no dataset is given, an attempt is made to identify the dataset
             based on the current working directory and/or the `path` given""",
                     constraints=EnsureDataset() | EnsureNone()),
-            path=Parameter(
+            source=Parameter(
                     args=("source",),
                     metavar='SOURCE',
                     doc="""path of the dicom archive to be imported.""",
                     constraints=EnsureStr() | EnsureNone()),
-            session=Parameter(
+            spec=Parameter(
                     args=("spec",),
                     metavar="SPEC",
                     doc="""session identifier for the imported DICOM files. If not 
