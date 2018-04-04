@@ -7,7 +7,6 @@
 
 from datalad.support import json_py
 from os.path import join as opj, exists, pardir
-import dicom2bids_rules  # TODO: RF?
 
 from datalad.interface.base import build_doc, Interface
 from datalad.support.constraints import EnsureStr
@@ -134,7 +133,8 @@ class Dicom2Spec(Interface):
             })
 
         # get rules to apply:
-        rules = dicom2bids_rules.get_rules_from_metadata(
+        from dicom2bids_rules import get_rules_from_metadata  # TODO: RF?
+        rules = get_rules_from_metadata(
                 ds_metadata['metadata']['dicom']['Series'])
         for rule_cls in rules:
             rule = rule_cls(ds_metadata['metadata']['dicom']['Series'])
@@ -149,11 +149,12 @@ class Dicom2Spec(Interface):
                         zip(spec_series_list, range(len(spec_series_list)))
                         if s['uid'] == series['uid']]
             if existing:
-                print "Updating existing spec for image series %s" % series['uid']
+                lgr.debug("Updating existing spec for image series %s",
+                          series['uid'])
                 # we already had data of that series in the spec;
                 spec_series_list[existing[0]].update(series)
             else:
-                print "Creating spec for image series %s" % series['uid']
+                lgr.debug("Creating spec for image series %s", series['uid'])
                 spec_series_list.append(series)
 
         # TODO: unify
