@@ -53,65 +53,59 @@ class Dicom2Spec(Interface):
 
             dataset=Parameter(
                     args=("-d", "--dataset"),
-                    metavar='PATH',
-                    doc="""specify the study dataset.  If
+                    doc="""specify the dataset containing the DICOM files. If
             no dataset is given, an attempt is made to identify the dataset
-            based on the current working directory and/or the `path` given""",
+            based on the current working directory""",
                     constraints=EnsureDataset() | EnsureNone()),
-            source=Parameter(
-                    args=("source",),
-                    metavar='SOURCE',
-                    doc="""path of the dicom archive to be imported.""",
-                    constraints=EnsureStr() | EnsureNone()),
             spec=Parameter(
                     args=("spec",),
                     metavar="SPEC",
-                    doc="""session identifier for the imported DICOM files. If not 
-            specified, an attempt will be made to derive SESSION from DICOM 
-            headers.""",
+                    doc="""file to store the specification in. Default is 
+                    ../studyspec.json relative to DATASET's root directory""",
                     constraints=EnsureStr() | EnsureNone()),
     )
 
     @staticmethod
     @datasetmethod(name='ni_dicom2spec')
     @eval_results
-    def __call__(source=None, spec=None, dataset=None):
+    def __call__(spec=None, dataset=None):
 
-        if not source:
-            dicom_ds = require_dataset(dataset, check_installed=True,
-                                       purpose="dicom2spec")
-        if source and not dataset:
-            dicom_ds = require_dataset(source, check_installed=True,
-                                       purpose="dicom2spec")
+        dicom_ds = require_dataset(dataset, check_installed=True,
+                                   purpose="dicom metadata query")
 
-        if source and dataset:
-            # TODO: Don't know yet
-            raise ValueError
-
+        # TODO: Should `spec` be interpreted relative to `dataset`?
         # TODO: Naming. It's actually not a study specification but only a
         # "session" or "acquisition" or "scan" specification.
         spec_file = opj(dicom_ds.path, pardir, 'studyspec.json') if not spec \
             else spec
 
-        # TODO: Proper result yielding. Particularly errors!
-        ##################################################################
-
         # get a dataset level metadata:
+        # TODO: error handling
         ds_metadata = dicom_ds.metadata(reporton='datasets')[0]
 
         if 'dicom' not in ds_metadata['metadata']:
-            lgr.error("Found no DICOM metadata in %s", dicom_ds)
-            exit(1)
+            yield dict(
+                    status='error',
+                    message=("found no DICOM metadata for %s", dicom_ds.path),
+                    path=dicom_ds.path,
+                    type='dataset',
+                    action='dicom2spec',
+                    logger=lgr)
+            return
 
         if 'Series' not in ds_metadata['metadata']['dicom'] or \
                 not ds_metadata['metadata']['dicom']['Series']:
-            lgr.error("No image series detected in DICOM metadata of %s",
-                      dicom_ds)
-            exit(1)
+            yield dict(
+                    status='error',
+                    message=("no image series detected in DICOM metadata of %s", dicom_ds.path),
+                    path=dicom_ds.path,
+                    type='dataset',
+                    action='dicom2spec',
+                    logger=lgr)
+            return
 
         spec_series_list = json_py.load(spec_file) if exists(spec_file) \
             else list()
-        #protocol_counter = dict()
 
         lgr.debug("Discovered %s image series.",
                   len(ds_metadata['metadata']['dicom']['Series']))
@@ -157,18 +151,25 @@ class Dicom2Spec(Interface):
                 lgr.debug("Creating spec for image series %s", series['uid'])
                 spec_series_list.append(series)
 
+        lgr.debug("Storing specification (%s)", spec_file)
         # TODO: unify
         import json
         json.dump(spec_series_list, open(spec_file, 'w'), indent=4)
+
         from datalad.distribution.add import Add
 
+        # TODO: error handling
         Add.__call__(spec_file, save=True,
                      message="[DATALAD-NI] Added study specification snippet "
                              "for %s" % dicom_ds.path)
+                     # TODO return_type='generator' ?
 
-
-# TODO: Apply bids rules for naming (heuristic also!)
-# checkout python bids-validator, which might provide them
+        yield dict(
+                status='ok',
+                path=spec_file,
+                type='file',
+                action='dicom2spec',
+                logger=lgr)
 
 
 
