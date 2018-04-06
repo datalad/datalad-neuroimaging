@@ -124,8 +124,6 @@ class MetadataExtractor(BaseMetadataExtractor):
             'Series': [info for info, files in imgseries.values()]
         }
         return (
-            # no dataset metadata (for now), a summary of all DICOM values will
-            # from generic code upstairs
             dsmeta,
             # yield the corresponding series description for each file
             imgs.items() if content else []
