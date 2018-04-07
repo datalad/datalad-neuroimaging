@@ -1,0 +1,5 @@
+datalad-neuroimaging (0.0.1-1) UNRELEASED; urgency=low
+
+  * Initial Debian packaging
+
+ -- Michael Hanke <mih@debian.org>  Sat, 07 Apr 2018 19:34:56 +0200

@@ -1,0 +1,34 @@
+Source: datalad-neuroimaging
+Section: science
+Priority: optional
+Maintainer: NeuroDebian Team <team@neuro.debian.net>
+Uploaders:
+ Yaroslav Halchenko <debian@onerussian.com>,
+ Michael Hanke <mih@debian.org>
+Build-Depends:
+ debhelper (>= 9),
+ dh-python,
+ python-all,
+ python-nose,
+ python-setuptools,
+Standards-Version: 3.9.8
+Homepage: http://datalad.org
+Vcs-Git: git://github.com/datalad/datalad-neuroimaging -b debian
+Vcs-Browser: https://github.com/datalad/datalad-neuroimaging/
+
+Package: python-datalad-neuroimaging
+Architecture: all
+Section: python
+Provides: ${python:Provides}
+Depends:
+ datalad (>=0.10~dev.1),
+ python-bids,
+ python-dicom,
+ python-nibabel,
+ python-nose,
+ python-numpy,
+ python-pandas,
+ ${misc:Depends},
+ ${python:Depends},
+Description: DataLad extension for neuroimaging data and workflows
+ TODO
