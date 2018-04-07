@@ -59,10 +59,7 @@ setup(
     packages=[pkg for pkg in find_packages('.') if pkg.startswith('datalad')],
     # datalad command suite specs from here
     install_requires=[
-        # in general datalad will be a requirement, unless the datalad extension
-        # aspect is an optional component of a larger project
-        # for now we need git snapshots (requirements.txt)
-        #'datalad',
+        'datalad>=0.10.0.dev1',
         #'datalad-webapp',
         'pydicom',  # DICOM metadata
         'pybids>=0.5.1',  # BIDS metadata
