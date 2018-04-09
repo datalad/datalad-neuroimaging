@@ -55,7 +55,7 @@ def test_dicom2spec(path):
 
     ds = Dataset.create(path)
     ds.install(source=dicoms, path='acq100')
-    ds.aggregate_metadata(recursive=True)
+    ds.aggregate_metadata(recursive=True, update_mode='all')
     # ### END SETUP ###
 
     res = ds.ni_dicom2spec(path='acq100', spec='spec_structural.json')
