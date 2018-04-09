@@ -60,7 +60,7 @@ script:
   # Verify that setup.py build doesn't puke
   - python setup.py build
   # Test installation system-wide
-  - sudo pip install .
+  - sudo pip install -e .
   # Run tests
   - http_proxy=
     PATH=$PWD/tools/coverage-bin:$PATH
