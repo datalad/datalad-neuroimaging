@@ -51,6 +51,58 @@ def series_is_valid(series):
     return True
 
 
+def add_to_spec(ds_metadata, spec_list):
+    lgr.debug("Discovered %s image series.",
+              len(ds_metadata['metadata']['dicom']['Series']))
+
+    # generate a list of dicts, with the "rule-proof" entries:
+    base_list = []
+    for series in ds_metadata['metadata']['dicom']['Series']:
+        base_list.append({
+            # Note: The first 4 entries aren't a dict and have no
+            # "approved flag", since they are automatically managed
+            'type': 'dicomseries',
+            'status': None,  # TODO: process state convention; flags
+            'location': ds_metadata['path'],
+            'uid': series['SeriesInstanceUID'],
+            'dataset_id': ds_metadata['dsid'],
+            'dataset_refcommit': ds_metadata['refcommit'],
+            'converter': {
+                'value': 'heudiconv' if series_is_valid(series) else 'ignore',
+                # TODO: not clear yet, what exactly to specify here
+                'approved': False},
+        })
+
+    # get rules to apply:
+    from datalad_neuroimaging.commands.dicom2bids_rules import \
+        get_rules_from_metadata  # TODO: RF?
+
+    rules = get_rules_from_metadata(
+            ds_metadata['metadata']['dicom']['Series'])
+    for rule_cls in rules:
+        rule = rule_cls(ds_metadata['metadata']['dicom']['Series'])
+        for idx, values in zip(range(len(base_list)), rule()):
+            for k in values.keys():
+                base_list[idx][k] = {'value': values[k],
+                                     'approved': False}
+
+    # merge with existing spec:
+    for series in base_list:
+        existing = [i for s, i in
+                    zip(spec_list, range(len(spec_list)))
+                    if s['uid'] == series['uid']]
+        if existing:
+            lgr.debug("Updating existing spec for image series %s",
+                      series['uid'])
+            # we already had data of that series in the spec;
+            spec_list[existing[0]].update(series)
+        else:
+            lgr.debug("Creating spec for image series %s", series['uid'])
+            spec_list.append(series)
+
+    return spec_list
+
+
 @build_doc
 class Dicom2Spec(Interface):
     """Derives a specification snippet from DICOM metadata and stores it in a
@@ -70,15 +122,16 @@ class Dicom2Spec(Interface):
             path=Parameter(
                     args=("path",),
                     metavar="PATH",
-                    doc="""path to DICOM files"""
-            ),
+                    nargs="+",
+                    doc="""path to DICOM files""",
+                    constraints=EnsureStr() | EnsureNone()),
             spec=Parameter(
                     args=("spec",),
                     metavar="SPEC",
                     doc="""file to store the specification in""",
                     constraints=EnsureStr() | EnsureNone()),
             recursive=recursion_flag,
-            recursion_limit=recursion_limit,
+            recursion_limit=recursion_limit,  # TODO: invalid, since datalad-metadata doesn't support it
     )
 
     @staticmethod
@@ -112,9 +165,11 @@ class Dicom2Spec(Interface):
         #spec_file = opj(dicom_ds.path, pardir, 'studyspec.json') if not spec \
         #    else spec
 
+        spec_series_list = json_py.load(spec) if exists(spec) \
+            else list()
+
         # get dataset level metadata:
-        # TODO: error handling
-        ds_metadata = None
+        found_some = False
         for meta in metadata(
                 path,
                 dataset=dataset,
@@ -152,70 +207,18 @@ class Dicom2Spec(Interface):
                         logger=lgr)
                 continue
 
+            found_some = True
+            spec_series_list = add_to_spec(meta, spec_series_list)
 
-            # ATTENTION! JOIN INSTEAD! OR ONE SPEC PER DATASET?
-            if ds_metadata is not None:
-                lgr.warn(
-                    'Found metadata for more than one datasets, '
-                    'ignoring their dataset-level metadata')
-                continue
-            ds_metadata = meta
-
-
-        # ERROR
-        # if no metadata
-
-
-
-        spec_series_list = json_py.load(spec) if exists(spec) \
-            else list()
-
-        lgr.debug("Discovered %s image series.",
-                  len(ds_metadata['metadata']['dicom']['Series']))
-
-        # generate a list of dicts, with the "rule-proof" entries:
-        base_list = []
-        for series in ds_metadata['metadata']['dicom']['Series']:
-            base_list.append({
-                # Note: The first 4 entries aren't a dict and have no
-                # "approved flag", since they are automatically managed
-                'type': 'dicomseries',
-                'status': None,  # TODO: process state convention; flags
-                'location': path,
-                'uid': series['SeriesInstanceUID'],
-                'dataset_id': ds_metadata['dsid'],
-                'dataset_refcommit': ds_metadata['refcommit'],
-                'converter': {
-                    'value': 'heudiconv' if series_is_valid(series) else 'ignore',
-                    # TODO: not clear yet, what exactly to specify here
-                    'approved': False},
-            })
-
-        # get rules to apply:
-        from datalad_neuroimaging.commands.dicom2bids_rules import get_rules_from_metadata  # TODO: RF?
-
-        rules = get_rules_from_metadata(
-                ds_metadata['metadata']['dicom']['Series'])
-        for rule_cls in rules:
-            rule = rule_cls(ds_metadata['metadata']['dicom']['Series'])
-            for idx, values in zip(range(len(base_list)), rule()):
-                for k in values.keys():
-                    base_list[idx][k] = {'value': values[k],
-                                         'approved': False}
-
-        # merge with existing spec:
-        for series in base_list:
-            existing = [i for s, i in
-                        zip(spec_series_list, range(len(spec_series_list)))
-                        if s['uid'] == series['uid']]
-            if existing:
-                lgr.debug("Updating existing spec for image series %s",
-                          series['uid'])
-                # we already had data of that series in the spec;
-                spec_series_list[existing[0]].update(series)
-            else:
-                lgr.debug("Creating spec for image series %s", series['uid'])
-                spec_series_list.append(series)
+        if not found_some:
+            yield dict(status='impossible',
+                       message="found no DICOM metadata",
+                       # TODO: What to return here in terms of "path" and "type"?
+                       path=path,
+                       type='file',
+                       action='dicom2spec',
+                       ogger=lgr)
+            return
 
         lgr.debug("Storing specification (%s)", spec)
         # TODO: unify
