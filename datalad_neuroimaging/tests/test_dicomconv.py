@@ -61,3 +61,5 @@ def test_dicom2spec(path):
     res = ds.ni_dicom2spec(path='acq100', spec='spec_structural.json')
     assert_result_count(res, 1)
     assert_result_count(res, 1, path=opj(ds.path, 'spec_structural.json'))
+    ok_clean_git(ds.path)
+

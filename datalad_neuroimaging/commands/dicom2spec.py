@@ -207,8 +207,12 @@ class Dicom2Spec(Interface):
                 r['action'] = 'dicom2spec'
                 r['logger'] = lgr
                 yield r
+            elif r['type'] == 'dataset':
+                # 'ok' or 'notneeded' for a dataset is okay, since we commit
+                # the spec. But it's not a result to yield
+                continue
             else:
-                # shouldn't happen
+                # anything else shouldn't happen
                 yield dict(status='error',
                            message=("unexpected result from Add: %s", r),
                            path=spec,
