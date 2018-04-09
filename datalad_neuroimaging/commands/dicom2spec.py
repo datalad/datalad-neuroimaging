@@ -143,8 +143,10 @@ class Dicom2Spec(Interface):
         dataset = require_dataset(dataset, check_installed=True,
                                   purpose="spec from dicoms")
 
+        from datalad.utils import assure_list
         if path is not None:
-            path = resolve_path(path, dataset)
+            path = assure_list(path)
+            path = [resolve_path(p, dataset) for p in path]
         else:
             raise InsufficientArgumentsError(
                 "insufficient arguments for dicom2spec: a path is required")
@@ -165,7 +167,7 @@ class Dicom2Spec(Interface):
         #spec_file = opj(dicom_ds.path, pardir, 'studyspec.json') if not spec \
         #    else spec
 
-        spec_series_list = json_py.load(spec) if exists(spec) \
+        spec_series_list = [r for r in json_py.load_stream(spec)] if exists(spec) \
             else list()
 
         # get dataset level metadata:
@@ -221,11 +223,7 @@ class Dicom2Spec(Interface):
             return
 
         lgr.debug("Storing specification (%s)", spec)
-        # TODO: unify
-
-        # TODO: STREAM instead of list
-        import json
-        json.dump(spec_series_list, open(spec, 'w'), indent=4)
+        json_py.dump2stream(spec_series_list, spec)
 
         from datalad.distribution.add import Add
 
