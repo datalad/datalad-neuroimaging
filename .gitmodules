@@ -1,0 +1,3 @@
+[submodule "datalad_neuroimaging/tests/data/dicoms/structural"]
+	path = datalad_neuroimaging/tests/data/dicoms/structural
+	url = git@github.com:datalad/example-dicom-structural.git
