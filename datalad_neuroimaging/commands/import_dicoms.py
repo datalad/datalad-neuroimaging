@@ -13,14 +13,12 @@ from datalad.interface.utils import eval_results
 from datalad.distribution.create import Create
 from datalad.dochelpers import exc_str
 
+import logging
+lgr = logging.getLogger('datalad.neuroimaging.import_dicoms')
+
 
 def _import_dicom_tarball(target_ds, tarball, filename):
 
-    # # $1 path to tarball
-    # # $2 target filename to use
-    # local path="$1"
-    # local filename="$2"
-    #
     # # TODO: doesn't work for updates yet:
     # # - branches are expected to not exist yet
     target_ds.repo.checkout('incoming', options=['-b'])
@@ -30,7 +28,7 @@ def _import_dicom_tarball(target_ds, tarball, filename):
                                      'autoenable=true',
                                      'uuid=%s' % DATALAD_SPECIAL_REMOTES_UUIDS[ARCHIVES_SPECIAL_REMOTE]
                                      ]
-                            )
+                          )
 
     target_ds.add_url_to_file(file_=filename, url=tarball)
     target_ds.commit(msg="Retrieved %s" % tarball)
@@ -38,22 +36,21 @@ def _import_dicom_tarball(target_ds, tarball, filename):
     if target_ds.repo.dirty:
         target_ds.repo.remove('.', r=True, f=True)
 
-
-    # git merge incoming -s ours --no-commit
-    # git read-tree -m -u incoming
     target_ds.repo.merge('incoming', options=["-s", "ours", "--no-commit"],
                          expect_stderr=True)
     target_ds.repo._git_custom_command([], "git read-tree -m -u incoming")
 
     # # TODO: Reconsider value of --existing
-    
-    target_ds.add_archive_content()
-    # datalad add-archive-content --existing archive-suffix --delete --no-commit --allow-dirty "$filename"
-
+    target_ds.add_archive_content(archive=filename,
+                                  existing='archive-suffix',
+                                  delete=True,
+                                  commit=False,
+                                  allow_dirty=True)
 
     target_ds.repo.commit(msg="Extracted %s" % tarball)
     target_ds.repo.checkout('master')
     target_ds.repo.merge('incoming-processed', options=["--allow-unrelated"])
+
 
 def _create_subds_from_tarball(tarball, targetdir):
 
@@ -158,14 +155,16 @@ class ImportDicoms(Interface):
         ds.add(dicom_ds.path)
         ds.aggregate_metadata(dicom_ds.path)
 
-        # TODO
-        # # initialize study specification
-        # cd "$SES/dicoms"
-        # prepare_study_spec.py
-        # cd "$OLD_PWD"
+        from os.path import pardir
+        ds.dicom2spec(path=dicom_ds.path, spec=opj(dicom_ds.path, pardir,
+                                                   "studyspec.json"))
 
-        # TODO:
-        # yield
+        # TODO: yield error results etc.
+        yield dict(status='ok',
+                   path=dicom_ds.path,
+                   type='dataset',
+                   action='import DICOM tarball',
+                   logger=lgr)
 
 
 
