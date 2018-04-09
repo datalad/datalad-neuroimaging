@@ -5,16 +5,25 @@
 # Note: ATM to be called from within the subdataset containing the dicoms,
 # although it will store the studyspec one level up.
 
+
+
+from datalad.coreapi import metadata
+
 from datalad.support import json_py
 from os.path import join as opj, exists, pardir
+
+
 
 from datalad.interface.base import build_doc, Interface
 from datalad.support.constraints import EnsureStr
 from datalad.support.constraints import EnsureNone
 from datalad.support.param import Parameter
 from datalad.distribution.dataset import datasetmethod, EnsureDataset, \
-    require_dataset
+    require_dataset, resolve_path
+from datalad.support.exceptions import InsufficientArgumentsError
 from datalad.interface.utils import eval_results
+from datalad.interface.common_opts import recursion_flag
+from datalad.interface.common_opts import recursion_limit
 
 import logging
 lgr = logging.getLogger('datalad.neuroimaging.dicom2spec')
@@ -44,7 +53,8 @@ def series_is_valid(series):
 
 @build_doc
 class Dicom2Spec(Interface):
-    """TODO
+    """Derives a specification snippet from DICOM metadata and stores it in a
+    JSON file
     """
 
     _params_ = dict(
@@ -57,54 +67,107 @@ class Dicom2Spec(Interface):
             no dataset is given, an attempt is made to identify the dataset
             based on the current working directory""",
                     constraints=EnsureDataset() | EnsureNone()),
+            path=Parameter(
+                    args=("path",),
+                    metavar="PATH",
+                    doc="""path to DICOM files"""
+            ),
             spec=Parameter(
                     args=("spec",),
                     metavar="SPEC",
-                    doc="""file to store the specification in. Default is 
-                    ../studyspec.json relative to DATASET's root directory""",
+                    doc="""file to store the specification in""",
                     constraints=EnsureStr() | EnsureNone()),
+            recursive=recursion_flag,
+            recursion_limit=recursion_limit,
     )
 
     @staticmethod
     @datasetmethod(name='ni_dicom2spec')
     @eval_results
-    def __call__(spec=None, dataset=None):
+    def __call__(path=None, spec=None, dataset=None, recursive=False,
+                 recursion_limit=None):
 
-        dicom_ds = require_dataset(dataset, check_installed=True,
-                                   purpose="dicom metadata query")
+        dataset = require_dataset(dataset, check_installed=True,
+                                  purpose="spec from dicoms")
+
+        if path is not None:
+            path = resolve_path(path, dataset)
+        else:
+            raise InsufficientArgumentsError(
+                "insufficient arguments for dicom2spec: a path is required")
+
+        if not spec:
+            raise InsufficientArgumentsError(
+                "insufficient arguments for dicom2spec: a file is required")
+        else:
+            spec = resolve_path(spec, dataset)
+
+        #refds_path = Interface.get_refds_path(dataset)
+        #dicom_ds = require_dataset(dataset, check_installed=True,
+        #                           purpose="dicom metadata query")
 
         # TODO: Should `spec` be interpreted relative to `dataset`?
         # TODO: Naming. It's actually not a study specification but only a
         # "session" or "acquisition" or "scan" specification.
-        spec_file = opj(dicom_ds.path, pardir, 'studyspec.json') if not spec \
-            else spec
+        #spec_file = opj(dicom_ds.path, pardir, 'studyspec.json') if not spec \
+        #    else spec
 
-        # get a dataset level metadata:
+        # get dataset level metadata:
         # TODO: error handling
-        ds_metadata = dicom_ds.metadata(reporton='datasets')[0]
+        ds_metadata = None
+        for meta in metadata(
+                path,
+                dataset=dataset,
+                recursive=recursive,
+                #recursion_limit=recursion_limit,
+                reporton='datasets',
+                return_type='generator',
+                result_renderer='disabled'):
+            if meta.get('status', None) not in ['ok', 'notneeded']:
+                yield meta
+                continue
 
-        if 'dicom' not in ds_metadata['metadata']:
-            yield dict(
-                    status='error',
-                    message=("found no DICOM metadata for %s", dicom_ds.path),
-                    path=dicom_ds.path,
-                    type='dataset',
-                    action='dicom2spec',
-                    logger=lgr)
-            return
+            if 'dicom' not in meta['metadata']:
 
-        if 'Series' not in ds_metadata['metadata']['dicom'] or \
-                not ds_metadata['metadata']['dicom']['Series']:
-            yield dict(
-                    status='error',
-                    message=("no image series detected in DICOM metadata of %s", dicom_ds.path),
-                    path=dicom_ds.path,
-                    type='dataset',
-                    action='dicom2spec',
-                    logger=lgr)
-            return
+                # TODO: Really "notneeded" or simply not a result at all?
+                yield dict(
+                        status='notneeded',
+                        message=("found no DICOM metadata for %s",
+                                 meta['path']),
+                        path=meta['path'],
+                        type='dataset',
+                        action='dicom2spec',
+                        logger=lgr)
+                continue
 
-        spec_series_list = json_py.load(spec_file) if exists(spec_file) \
+            if 'Series' not in meta['metadata']['dicom'] or \
+                    not meta['metadata']['dicom']['Series']:
+                yield dict(
+                        status='impossible',
+                        message=("no image series detected in DICOM metadata of"
+                                 " %s", meta['path']),
+                        path=meta['path'],
+                        type='dataset',
+                        action='dicom2spec',
+                        logger=lgr)
+                continue
+
+
+            # ATTENTION! JOIN INSTEAD! OR ONE SPEC PER DATASET?
+            if ds_metadata is not None:
+                lgr.warn(
+                    'Found metadata for more than one datasets, '
+                    'ignoring their dataset-level metadata')
+                continue
+            ds_metadata = meta
+
+
+        # ERROR
+        # if no metadata
+
+
+
+        spec_series_list = json_py.load(spec) if exists(spec) \
             else list()
 
         lgr.debug("Discovered %s image series.",
@@ -118,8 +181,10 @@ class Dicom2Spec(Interface):
                 # "approved flag", since they are automatically managed
                 'type': 'dicomseries',
                 'status': None,  # TODO: process state convention; flags
-                'location': dicom_ds.path,
+                'location': path,
                 'uid': series['SeriesInstanceUID'],
+                'dataset_id': ds_metadata['dsid'],
+                'dataset_refcommit': ds_metadata['refcommit'],
                 'converter': {
                     'value': 'heudiconv' if series_is_valid(series) else 'ignore',
                     # TODO: not clear yet, what exactly to specify here
@@ -127,7 +192,8 @@ class Dicom2Spec(Interface):
             })
 
         # get rules to apply:
-        from dicom2bids_rules import get_rules_from_metadata  # TODO: RF?
+        from datalad_neuroimaging.commands.dicom2bids_rules import get_rules_from_metadata  # TODO: RF?
+
         rules = get_rules_from_metadata(
                 ds_metadata['metadata']['dicom']['Series'])
         for rule_cls in rules:
@@ -151,22 +217,24 @@ class Dicom2Spec(Interface):
                 lgr.debug("Creating spec for image series %s", series['uid'])
                 spec_series_list.append(series)
 
-        lgr.debug("Storing specification (%s)", spec_file)
+        lgr.debug("Storing specification (%s)", spec)
         # TODO: unify
+
+        # TODO: STREAM instead of list
         import json
-        json.dump(spec_series_list, open(spec_file, 'w'), indent=4)
+        json.dump(spec_series_list, open(spec, 'w'), indent=4)
 
         from datalad.distribution.add import Add
 
         # TODO: error handling
-        Add.__call__(spec_file, save=True,
+        Add.__call__(spec, save=True,
                      message="[DATALAD-NI] Added study specification snippet "
-                             "for %s" % dicom_ds.path)
+                             "for %s" % dataset.path)
                      # TODO return_type='generator' ?
 
         yield dict(
                 status='ok',
-                path=spec_file,
+                path=spec,
                 type='file',
                 action='dicom2spec',
                 logger=lgr)
