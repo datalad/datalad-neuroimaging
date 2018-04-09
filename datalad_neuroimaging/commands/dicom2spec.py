@@ -29,29 +29,11 @@ import logging
 lgr = logging.getLogger('datalad.neuroimaging.dicom2spec')
 
 
-def series_is_valid(series):
-    # filter "Series" entries from dataset metadata here, in order to get rid of
-    # things, that aren't relevant image series
-    # TODO: RF: Move to rules definition
-
-    # Note:
-    # In 3T_visloc, SeriesNumber 0 is associated with ProtocolNames
-    # 'DEFAULT PRESENTATION STATE' and 'ExamCard'.
-    # All other SeriesNumbers have 1:1 relation to ProtocolNames and have 3-4
-    # digits.
-    # In 7T_ad there is no SeriesNumber 0 and the SeriesNumber doesn't have a 1:1
-    # relation to ProtocolNames
-    # Note: There also is a SeriesNumber 99 with protocol name 'Phoenix Document'?
-
-    # Philips 3T Achieva
-    if series['SeriesNumber'] == 0 and \
-                    series['ProtocolName'] in ['DEFAULT PRESENTATION STATE',
-                                               'ExamCard']:
-        return False
-    return True
-
-
 def add_to_spec(ds_metadata, spec_list):
+
+    from datalad_neuroimaging.commands.dicom2bids_rules import \
+        get_rules_from_metadata, series_is_valid  # TODO: RF?
+
     lgr.debug("Discovered %s image series.",
               len(ds_metadata['metadata']['dicom']['Series']))
 
@@ -74,9 +56,6 @@ def add_to_spec(ds_metadata, spec_list):
         })
 
     # get rules to apply:
-    from datalad_neuroimaging.commands.dicom2bids_rules import \
-        get_rules_from_metadata  # TODO: RF?
-
     rules = get_rules_from_metadata(
             ds_metadata['metadata']['dicom']['Series'])
     for rule_cls in rules:
@@ -131,7 +110,8 @@ class Dicom2Spec(Interface):
                     doc="""file to store the specification in""",
                     constraints=EnsureStr() | EnsureNone()),
             recursive=recursion_flag,
-            recursion_limit=recursion_limit,  # TODO: invalid, since datalad-metadata doesn't support it
+            # TODO: invalid, since datalad-metadata doesn't support it:
+            # recursion_limit=recursion_limit,
     )
 
     @staticmethod
@@ -157,16 +137,6 @@ class Dicom2Spec(Interface):
         else:
             spec = resolve_path(spec, dataset)
 
-        #refds_path = Interface.get_refds_path(dataset)
-        #dicom_ds = require_dataset(dataset, check_installed=True,
-        #                           purpose="dicom metadata query")
-
-        # TODO: Should `spec` be interpreted relative to `dataset`?
-        # TODO: Naming. It's actually not a study specification but only a
-        # "session" or "acquisition" or "scan" specification.
-        #spec_file = opj(dicom_ds.path, pardir, 'studyspec.json') if not spec \
-        #    else spec
-
         spec_series_list = [r for r in json_py.load_stream(spec)] if exists(spec) \
             else list()
 
@@ -176,7 +146,6 @@ class Dicom2Spec(Interface):
                 path,
                 dataset=dataset,
                 recursive=recursive,
-                #recursion_limit=recursion_limit,
                 reporton='datasets',
                 return_type='generator',
                 result_renderer='disabled'):
