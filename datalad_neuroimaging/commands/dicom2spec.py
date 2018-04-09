@@ -188,7 +188,7 @@ class Dicom2Spec(Interface):
                        path=path,
                        type='file',
                        action='dicom2spec',
-                       ogger=lgr)
+                       logger=lgr)
             return
 
         lgr.debug("Storing specification (%s)", spec)
@@ -196,18 +196,27 @@ class Dicom2Spec(Interface):
 
         from datalad.distribution.add import Add
 
-        # TODO: error handling
-        Add.__call__(spec, save=True,
-                     message="[DATALAD-NI] Added study specification snippet "
-                             "for %s" % dataset.path)
-                     # TODO return_type='generator' ?
+        for r in Add.__call__(spec,
+                              save=True,
+                              message="[DATALAD-NI] Added study specification "
+                                      "snippet for %s" % dataset.path,
+                              return_type='generator',
+                              result_renderer='disabled'):
+            if r.get('status', None) not in ['ok', 'notneeded']:
+                yield r
+            elif r['path'] == spec and r['type'] == 'file':
+                r['action'] = 'dicom2spec'
+                r['logger'] = lgr
+                yield r
+            else:
+                # shouldn't happen
+                yield dict(status='error',
+                           message=("unexpected result from Add: %s", r),
+                           path=spec,
+                           type='file',
+                           action='dicom2spec',
+                           logger=lgr)
 
-        yield dict(
-                status='ok',
-                path=spec,
-                type='file',
-                action='dicom2spec',
-                logger=lgr)
 
 
 
