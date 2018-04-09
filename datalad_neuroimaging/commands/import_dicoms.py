@@ -156,7 +156,7 @@ class ImportDicoms(Interface):
         ds.aggregate_metadata(dicom_ds.path)
 
         from os.path import pardir
-        ds.dicom2spec(path=dicom_ds.path, spec=opj(dicom_ds.path, pardir,
+        ds.ni_dicom2spec(path=dicom_ds.path, spec=opj(dicom_ds.path, pardir,
                                                    "studyspec.json"))
 
         # TODO: yield error results etc.

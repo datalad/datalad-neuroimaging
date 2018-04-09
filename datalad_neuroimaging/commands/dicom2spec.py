@@ -117,8 +117,7 @@ class Dicom2Spec(Interface):
     @staticmethod
     @datasetmethod(name='ni_dicom2spec')
     @eval_results
-    def __call__(path=None, spec=None, dataset=None, recursive=False,
-                 recursion_limit=None):
+    def __call__(path=None, spec=None, dataset=None, recursive=False):
 
         dataset = require_dataset(dataset, check_installed=True,
                                   purpose="spec from dicoms")

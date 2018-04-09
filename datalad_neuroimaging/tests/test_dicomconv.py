@@ -45,3 +45,19 @@ def test_dicom_metadata_aggregation(path):
     res = ds.metadata(get_aggregates=True)
     assert_result_count(res, 2)
     assert_result_count(res, 1, path=opj(ds.path, 'acq100'))
+
+
+@with_tempfile
+def test_dicom2spec(path):
+
+    # ###  SETUP ###
+    dicoms = get_dicom_dataset('structural')
+
+    ds = Dataset.create(path)
+    ds.install(source=dicoms, path='acq100')
+    ds.aggregate_metadata(recursive=True)
+    # ### END SETUP ###
+
+    res = ds.ni_dicom2spec(path='acq100', spec='spec_structural.json')
+    assert_result_count(res, 1)
+    assert_result_count(res, 1, path=opj(ds.path, 'spec_structural.json'))
