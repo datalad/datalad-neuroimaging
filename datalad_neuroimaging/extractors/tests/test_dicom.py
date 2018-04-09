@@ -10,7 +10,7 @@
 
 from datalad.tests.utils import SkipTest
 try:
-    import datalad_neuroimaging.extractors.dicom
+    from datalad_neuroimaging.extractors.dicom import MetadataExtractor as DicomExtractor
 except ImportError:
     raise SkipTest
 
@@ -61,10 +61,14 @@ def test_dicom(path):
 
     # for this artificial case pretty much the same info also comes out as
     # unique props, but wrapped in lists
+    ucp = res[0]['metadata']["datalad_unique_content_properties"]['dicom']
     assert_dict_equal(
         {k: [v]
-         for k, v in dsmeta['Series'][0].items()},
-        res[0]['metadata']["datalad_unique_content_properties"]['dicom'])
+         for k, v in dsmeta['Series'][0].items()
+         if k not in DicomExtractor._unique_exclude and k in ucp},
+        {k: v
+         for k, v in ucp.items()
+         if k not in DicomExtractor._unique_exclude})
 
     # buuuut, if we switch of file-based metadata storage
     ds.config.add('datalad.metadata.aggregate-content-dicom', 'false', where='dataset')

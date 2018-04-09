@@ -7,6 +7,7 @@ from setuptools import findall
 from os.path import join as opj
 from os.path import sep as pathsep
 from os.path import splitext
+from os.path import dirname
 
 from setup_support import BuildManPage
 from setup_support import BuildRSTExamplesFromScripts
@@ -31,6 +32,21 @@ cmdclass = {
     'build_examples': BuildRSTExamplesFromScripts,
 }
 
+# PyPI doesn't render markdown yet. Workaround for a sane appearance
+# https://github.com/pypa/pypi-legacy/issues/148#issuecomment-227757822
+README = opj(dirname(__file__), 'README.md')
+try:
+    import pypandoc
+    long_description = pypandoc.convert(README, 'rst')
+except (ImportError, OSError) as exc:
+    # attempting to install pandoc via brew on OSX currently hangs and
+    # pypandoc imports but throws OSError demanding pandoc
+    print(
+        "WARNING: pypandoc failed to import or thrown an error while converting"
+        " README.md to RST: %r   .md version will be used as is" % exc
+    )
+    long_description = open(README).read()
+
 
 setup(
     # basic project properties can be set arbitrarily
@@ -39,30 +55,36 @@ setup(
     author_email="team@datalad.org",
     version=version,
     description="DataLad extension package for neuro/medical imaging",
+    long_description=long_description,
     packages=[pkg for pkg in find_packages('.') if pkg.startswith('datalad')],
     # datalad command suite specs from here
     install_requires=[
-        # in general datalad will be a requirement, unless the datalad extension
-        # aspect is an optional component of a larger project
-        # for now we need git snapshots (requirements.txt)
-        #'datalad',
+        'datalad>=0.10.0.dev1',
         #'datalad-webapp',
         'pydicom',  # DICOM metadata
         'pybids>=0.5.1',  # BIDS metadata
         'nibabel',  # NIfTI metadata
         'pandas',  # bids2scidata export
     ],
+    extras_require={
+        'devel-docs': [
+            # used for converting README.md -> .rst for long_description
+            'pypandoc',
+            # Documentation
+            'sphinx',
+            'sphinx-rtd-theme',
+        ]},
     cmdclass=cmdclass,
     package_data={
         'datalad_neuroimaging':
             findsome(opj('tests', 'data'), {'dcm', 'gz'})},
     entry_points = {
-        # 'datalad.modules' is THE entrypoint inspected by the datalad API builders
-        'datalad.modules': [
+        # 'datalad.extensions' is THE entrypoint inspected by the datalad API builders
+        'datalad.extensions': [
             # the label in front of '=' is the command suite label
             # the entrypoint can point to any symbol of any name, as long it is
-            # valid datalad interface specification (see demo in this module)
-            'neuroimaging=datalad_neuroimaging:module_suite',
+            # valid datalad interface specification (see demo in this extension)
+            'neuroimaging=datalad_neuroimaging:command_suite',
         ],
         'datalad.webapps': [
             'pork=webapp.app:Pork',

@@ -55,6 +55,24 @@ def _struct2dict(struct):
 
 
 class MetadataExtractor(BaseMetadataExtractor):
+
+    _unique_exclude = {
+        "AcquisitionTime",
+        "ContentTime",
+        "InstanceCreationTime",
+        "InstanceNumber",
+        # this one is actually debatable, if there is a reasonable use case
+        # where one would know such a UID and needed to find the dataset with
+        # this file, we should keep it in -- but I don't know any ATM
+        # and we do still have SeriesInstanceUID
+        "SOPInstanceUID",
+        "SliceLocation",
+        "TemporalPositionIdentifier",
+        "TriggerTime",
+        "WindowCenter",
+        "WindowWidth",
+    }
+
     def get_metadata(self, dataset, content):
         imgseries = {}
         imgs = {}
@@ -106,8 +124,6 @@ class MetadataExtractor(BaseMetadataExtractor):
             'Series': [info for info, files in imgseries.values()]
         }
         return (
-            # no dataset metadata (for now), a summary of all DICOM values will
-            # from generic code upstairs
             dsmeta,
             # yield the corresponding series description for each file
             imgs.items() if content else []
