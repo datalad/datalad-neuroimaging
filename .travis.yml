@@ -2,6 +2,10 @@
 # travis-ci.org definition for DataLad build
 language: python
 
+git:
+  # we use submodules to be managed with datalad
+  submodules: false
+
 python:
   - 2.7
   - 3.5
