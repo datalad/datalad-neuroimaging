@@ -2,6 +2,10 @@
 # travis-ci.org definition for DataLad build
 language: python
 
+git:
+  # we use submodules to be managed with datalad
+  submodules: false
+
 python:
   - 2.7
   - 3.5
@@ -56,7 +60,7 @@ script:
   # Verify that setup.py build doesn't puke
   - python setup.py build
   # Test installation system-wide
-  - sudo pip install .
+  - sudo pip install -e .
   # Run tests
   - http_proxy=
     PATH=$PWD/tools/coverage-bin:$PATH

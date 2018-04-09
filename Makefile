@@ -10,7 +10,7 @@ all: clean test
 
 clean:
 	$(PYTHON) setup.py clean
-	rm -rf dist build bin
+	rm -rf dist build bin docs/build docs/source/generated
 	-find . -name '*.pyc' -delete
 	-find . -name '__pycache__' -type d -delete
 
