@@ -61,5 +61,15 @@ def test_dicom2spec(path):
     res = ds.ni_dicom2spec(path='acq100', spec='spec_structural.json')
     assert_result_count(res, 1)
     assert_result_count(res, 1, path=opj(ds.path, 'spec_structural.json'))
-    ok_clean_git(ds.path)
+    if ds.repo.is_direct_mode():
+        # Note:
+        # in direct mode we got an issue determining whether or not sth is
+        # "dirty". In this particular case, this is about having a superdataset
+        # in direct mode, while the subdataset is a plain git repo.
+        # However, at least assert both are clean themselves:
+        ok_clean_git(ds.path, ignore_submodules=True)
+        ok_clean_git(opj(ds.path, 'acq100'))
+
+    else:
+        ok_clean_git(ds.path)
 
