@@ -142,13 +142,16 @@ class ImportDicoms(Interface):
     @eval_results
     def __call__(path, session=None, dataset=None):
 
+        from os.path import exists
         ds = require_dataset(dataset, check_installed=True,
                              purpose="import DICOM session")
 
         if session:
             # session was specified => we know where to create subds
             ses_dir = opj(ds.path, session)
-            makedirs(ses_dir, exist_ok=True)
+            if not exists(ses_dir):
+                makedirs(ses_dir)
+            # TODO: if exists: needs to be empty?
 
             dicom_ds = _create_subds_from_tarball(path, ses_dir)
 
@@ -156,7 +159,6 @@ class ImportDicoms(Interface):
             # we don't know the session yet => create in tmp
 
             ses_dir = opj(ds.path, 'datalad_ni_import')
-            from os.path import exists
             assert not exists(ses_dir)
             # TODO: don't assert; check and adapt instead
 
@@ -178,7 +180,7 @@ class ImportDicoms(Interface):
         from os.path import pardir
 
         from datalad.api import Dataset
-        from datalad.api import ni_import_dicomtarball
+        from datalad.api import ni_dicom2spec
 
         ds.ni_dicom2spec(path=dicom_ds.path, spec=opj(dicom_ds.path, pardir,
                                                       "studyspec.json"))

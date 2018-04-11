@@ -1,4 +1,4 @@
-from os.path import dirname, normpath, join as opj, pardir
+from os.path import dirname, normpath, join as opj, pardir, basename
 
 from datalad.api import Dataset
 from datalad.coreapi import install
@@ -22,5 +22,5 @@ def create_dicom_tarball(flavor, path):
     import tarfile
     ds = get_dicom_dataset(flavor=flavor)
     with tarfile.open(path, "w:gz") as tar:
-        tar.add(ds.path)
+        tar.add(ds.path, arcname=basename(ds.path))
     return path
