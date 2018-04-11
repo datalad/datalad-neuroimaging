@@ -1,12 +1,3 @@
-#!/usr/bin/python
-#
-# this script derives a studyspec draft from dataset's dicom metadata
-#
-# Note: ATM to be called from within the subdataset containing the dicoms,
-# although it will store the studyspec one level up.
-
-
-
 from datalad.coreapi import metadata
 
 from datalad.support import json_py
@@ -89,14 +80,11 @@ class Dicom2Spec(Interface):
     """
 
     _params_ = dict(
-
-            # TODO: dataset may be should be the dicom subds if given
-
             dataset=Parameter(
                     args=("-d", "--dataset"),
-                    doc="""specify the dataset containing the DICOM files. If
-            no dataset is given, an attempt is made to identify the dataset
-            based on the current working directory""",
+                    doc="""specify a dataset containing the DICOM metadata to be 
+                    used. If no dataset is given, an attempt is made to identify 
+                    the dataset based on the current working directory""",
                     constraints=EnsureDataset() | EnsureNone()),
             path=Parameter(
                     args=("path",),

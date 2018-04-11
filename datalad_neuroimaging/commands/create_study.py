@@ -12,7 +12,7 @@ class CreateStudy(Create):
     # Note: _params_ inherited from create!
 
     @staticmethod
-    @datasetmethod(name='create_study_raw')
+    @datasetmethod(name='ni_create_study')
     @eval_results
     def __call__(
             path=None,
