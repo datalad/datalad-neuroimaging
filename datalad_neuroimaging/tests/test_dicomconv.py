@@ -10,29 +10,15 @@
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Test DICOM conversion tools"""
 
-
-from os.path import pardir
-from os.path import dirname
-from os.path import normpath
 from os.path import join as opj
 
-import datalad_neuroimaging
 from datalad.api import Dataset
-from datalad.api import install
-
+from datalad.tests.utils import assert_result_count
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import with_tempfile
-from datalad.tests.utils import assert_result_count
 
-
-def get_dicom_dataset(flavor):
-    modpath = dirname(datalad_neuroimaging.__file__)
-    ds = install(
-        dataset=normpath(opj(modpath, pardir)),
-        path=opj(modpath, 'tests', 'data', 'dicoms', flavor))
-    # fail on any "surprising" changes made to this dataset
-    ok_clean_git(ds.path)
-    return ds
+import datalad_neuroimaging
+from datalad_neuroimaging.tests.utils import get_dicom_dataset
 
 
 @with_tempfile
