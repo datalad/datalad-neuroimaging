@@ -12,6 +12,7 @@ from datalad.distribution.dataset import datasetmethod, EnsureDataset, \
 from datalad.interface.utils import eval_results
 from datalad.distribution.create import Create
 from datalad.dochelpers import exc_str
+from datalad.support.network import get_local_file_url
 
 import logging
 lgr = logging.getLogger('datalad.neuroimaging.import_dicoms')
@@ -22,7 +23,7 @@ def _import_dicom_tarball(target_ds, tarball, filename):
     # # TODO: doesn't work for updates yet:
     # # - branches are expected to not exist yet
     target_ds.repo.checkout('incoming', options=['-b'])
-    target_ds.init_remote(ARCHIVES_SPECIAL_REMOTE,
+    target_ds.repo.init_remote(ARCHIVES_SPECIAL_REMOTE,
                             options=['encryption=none', 'type=external',
                                      'externaltype=%s' % ARCHIVES_SPECIAL_REMOTE,
                                      'autoenable=true',
@@ -30,9 +31,9 @@ def _import_dicom_tarball(target_ds, tarball, filename):
                                      ]
                           )
 
-    target_ds.add_url_to_file(file_=filename, url=tarball)
-    target_ds.commit(msg="Retrieved %s" % tarball)
-    target_ds.checkout('incoming-processed', options=['--orphan'])
+    target_ds.repo.add_url_to_file(file_=filename, url=get_local_file_url(tarball))
+    target_ds.repo.commit(msg="Retrieved %s" % tarball)
+    target_ds.repo.checkout('incoming-processed', options=['--orphan'])
     if target_ds.repo.dirty:
         target_ds.repo.remove('.', r=True, f=True)
 
@@ -40,12 +41,14 @@ def _import_dicom_tarball(target_ds, tarball, filename):
                          expect_stderr=True)
     target_ds.repo._git_custom_command([], "git read-tree -m -u incoming")
 
+    from datalad.coreapi import add_archive_content
     # # TODO: Reconsider value of --existing
-    target_ds.add_archive_content(archive=filename,
-                                  existing='archive-suffix',
-                                  delete=True,
-                                  commit=False,
-                                  allow_dirty=True)
+    add_archive_content(archive=filename,
+                        annex=target_ds.repo,
+                        existing='archive-suffix',
+                        delete=True,
+                        commit=False,
+                        allow_dirty=True)
 
     target_ds.repo.commit(msg="Extracted %s" % tarball)
     target_ds.repo.checkout('master')
@@ -69,27 +72,38 @@ def _create_subds_from_tarball(tarball, targetdir):
     _import_dicom_tarball(importds, tarball, filename)
 
     importds.config.add(var="datalad.metadata.aggregate-content-dicom",
-                        value=False,where="dataset")
-    importds.config.add(var="datalad.metadata.maxfieldsize", value=10000000,
+                        value='false', where="dataset")
+    # TODO: file an issue: config.add can't convert False to 'false' on its own
+    # (But vice versa while reading IIRC)
+    importds.config.add(var="datalad.metadata.maxfieldsize", value='10000000',
                         where="dataset")
     importds.add(opj(".datalad", "config"), save=True,
                  message="[DATALAD] initial config for DICOM metadata")
     importds.aggregate_metadata()
-    importds.install(path=opj(".datalad","environments","import-container"),
+    importds.install(path=opj(".datalad", "environments", "import-container"),
                      source="http://psydata.ovgu.de/cbbs-imaging/conv-container/.git")
 
     return importds
 
 
-def _guess_session_and_move(ds):
+def _guess_session_and_move(ds, target_ds):
+    from datalad.coreapi import metadata
 
-    raise NotImplemented
-    # TODO
-    # SES=$(datalad --output-format="{metadata[dicom][Series][0][PatientID]}" metadata -d "$SUB_TMP/dicoms" --reporton=datasets)
-    #     # move subdataset from TMP to actual mount point
-    #     mv "$SUB_TMP/" "$SES/"
+    res = ds.metadata(reporton='datasets', return_type='item-or-list',
+                      result_renderer='disabled')
+    # there should be exactly one result and therefore a dict
+    assert isinstance(res, dict)
+    # TODO: This should be part of the rule set
+    ses = res['metadata']['dicom']['Series'][0]['PatientID']
 
-    return new_ds
+    from os import rename
+    rename(opj(target_ds.path, 'datalad_ni_import'), opj(target_ds.path, ses))
+
+#    from datalad.utils import rmtree
+#    rmtree(ses_dir)
+
+    from datalad.coreapi import Dataset
+    return Dataset(opj(target_ds.path, ses, 'dicoms'))
 
 
 @build_doc
@@ -119,11 +133,12 @@ class ImportDicoms(Interface):
             doc="""session identifier for the imported DICOM files. If not 
             specified, an attempt will be made to derive SESSION from DICOM 
             headers.""",
+            nargs="?",
             constraints=EnsureStr() | EnsureNone()),
     )
 
     @staticmethod
-    @datasetmethod(name='create_study_raw')
+    @datasetmethod(name='ni_import_dicomtarball')
     @eval_results
     def __call__(path, session=None, dataset=None):
 
@@ -139,14 +154,19 @@ class ImportDicoms(Interface):
 
         else:
             # we don't know the session yet => create in tmp
-            from tempfile import mkdtemp
-            ses_dir = mkdtemp(dir=True)
+
+            ses_dir = opj(ds.path, 'datalad_ni_import')
+            from os.path import exists
+            assert not exists(ses_dir)
+            # TODO: don't assert; check and adapt instead
 
             try:
                 dicom_ds = _create_subds_from_tarball(path, ses_dir)
-                dicom_ds = _guess_session_and_move(dicom_ds)
+                dicom_ds = _guess_session_and_move(dicom_ds, ds)
             except Exception as e:
                 # remove tmp and reraise
+                lgr.debug("Exception branch: Killing temp dataset ...")
+
                 from datalad.utils import rmtree
                 rmtree(ses_dir)
                 # TODO: reraise()
@@ -156,8 +176,12 @@ class ImportDicoms(Interface):
         ds.aggregate_metadata(dicom_ds.path)
 
         from os.path import pardir
+
+        from datalad.api import Dataset
+        from datalad.api import ni_import_dicomtarball
+
         ds.ni_dicom2spec(path=dicom_ds.path, spec=opj(dicom_ds.path, pardir,
-                                                   "studyspec.json"))
+                                                      "studyspec.json"))
 
         # TODO: yield error results etc.
         yield dict(status='ok',
