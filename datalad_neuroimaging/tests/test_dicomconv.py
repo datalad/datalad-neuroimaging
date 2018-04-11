@@ -59,3 +59,9 @@ def test_dicom2spec(path):
     else:
         ok_clean_git(ds.path)
 
+
+
+def dummy_test():
+
+    import heudiconv.cli.run
+    heudiconv.cli.run.main()
