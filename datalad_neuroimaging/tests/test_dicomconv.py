@@ -60,8 +60,59 @@ def test_dicom2spec(path):
         ok_clean_git(ds.path)
 
 
+@with_tempfile
+def dummy_test(path):
+    # ###  SETUP ###
+    session = 'sub02_acq100'  # TODO: ATM heudiconv call requires {subject}
 
-def dummy_test():
+    dicoms = get_dicom_dataset('structural')
+    ds = Dataset.create(path)
+    ds.install(source=dicoms, path=opj(session, 'dicoms'))
+    ds.aggregate_metadata(recursive=True, update_mode='all')
+    ds.ni_dicom2spec(path=opj(session, 'dicoms'),
+                     spec=opj(session, 'spec_structural.json'))
+    # ### END SETUP ###
 
+    subject = session.split('_')[0]
+    spec_file = opj(session, 'spec_structural.json')
+
+    import datalad_neuroimaging.commands.cbbs_heuristic
+    arg_list = ['-d', ds.path + "/{subject}_acq100/dicoms/*/*"]
+    arg_list += ['-s', subject]
+    arg_list += ['-c', 'dcm2niix']
+    arg_list += ['-b']
+    arg_list += ['-f', datalad_neuroimaging.commands.cbbs_heuristic.__file__]
+    arg_list += ['-o', opj(ds.path, "converted")]
+
+    from mock import patch
     import heudiconv.cli.run
-    heudiconv.cli.run.main()
+    with patch.dict('os.environ', {'CBBS_STUDY_SPEC': opj(ds.path, spec_file)}):
+        heudiconv.cli.run.main(arg_list)
+
+    # TODO: heudiconv is (at least locally) currently failing. However,
+    # sub-sub02_ses-anatT1w_task-anatT1w_run-1_bold.nii.gz (and *.json)
+    # was created:
+
+    # INFO: stdout 2018-04-16T11:41:14.576055:Conversion required 4.175391 seconds (4.174333 for core code).
+    # INFO: [Node] Finished "convert".
+    # Traceback (most recent call last):
+    #   File "/home/ben/cbbs_imaging/datalad-neuroimaging/venv/bin/heudiconv", line 11, in <module>
+    #     load_entry_point('heudiconv', 'console_scripts', 'heudiconv')()
+    #   File "/home/ben/cbbs_imaging/heudiconv/heudiconv/cli/run.py", line 120, in main
+    #     process_args(args)
+    #   File "/home/ben/cbbs_imaging/heudiconv/heudiconv/cli/run.py", line 330, in process_args
+    #     overwrite=args.overwrite,)
+    #   File "/home/ben/cbbs_imaging/heudiconv/heudiconv/convert.py", line 194, in prep_conversion
+    #     overwrite=overwrite,)
+    #   File "/home/ben/cbbs_imaging/heudiconv/heudiconv/convert.py", line 288, in convert
+    #     save_scans_key(item, bids_outfiles)
+    #   File "/home/ben/cbbs_imaging/heudiconv/heudiconv/bids.py", line 212, in save_scans_key
+    #     rows[f_name] = get_formatted_scans_key_row(item)
+    #   File "/home/ben/cbbs_imaging/heudiconv/heudiconv/bids.py", line 296, in get_formatted_scans_key_row
+    #     date = mw.dcm_data.ContentDate
+    #   File "/home/ben/cbbs_imaging/datalad-neuroimaging/venv/lib/python3.5/site-packages/dicom/dataset.py", line 257, in __getattr__
+    #     "'{0:s}'.".format(name))
+    # AttributeError: Dataset does not have attribute 'ContentDate'.
+
+
+
