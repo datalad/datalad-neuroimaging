@@ -84,7 +84,7 @@ class DefaultRules(object):
         return {
                 'description': record['SeriesDescription'],
                 'comment': '',
-                'subject': apply_bids_label_restrictions(record.get('PatientName', None)),
+                'subject': apply_bids_label_restrictions(record.get('PatientID', None)),
                 'session': apply_bids_label_restrictions(protocol_name),
                 'task': apply_bids_label_restrictions(protocol_name),
                 'run': self.runs[protocol_name],
