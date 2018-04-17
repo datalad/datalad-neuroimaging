@@ -90,4 +90,3 @@ def dummy_test(path):
         heudiconv.cli.run.main(arg_list)
 
 
-
