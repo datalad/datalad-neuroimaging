@@ -27,7 +27,7 @@ from datalad.api import Dataset
 from datalad.api import search
 from datalad.metadata import search as search_mod
 try:
-    from datalad.metadata.extractors.tests.test_bids import bids_template
+    from datalad_neuroimaging.extractors.tests.test_bids import bids_template
 except (ImportError, SkipTest):
     # pybids might be absent which would preclude this import
     bids_template = None
