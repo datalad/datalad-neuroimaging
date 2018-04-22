@@ -29,12 +29,39 @@ from datalad.metadata.extractors.base import BaseMetadataExtractor
 
 
 def _is_good_type(v):
-    if isinstance(v, (int, float, string_types)):
+    if isinstance(
+            v,
+            (int, float, string_types, dcm.valuerep.DSfloat, dcm.valuerep.IS,
+             dcm.valuerep.PersonName3)):
         return True
     elif isinstance(v, (list, tuple)):
         return all(map(_is_good_type, v))
+
+
+def _sanitize_unicode(s):
+    return s.replace(u"\u0000", "").strip()
+
+
+def _convert_value(v):
+    t = type(v)
+    if t in (int, float):
+        cv = v
+    elif t == str:
+        cv = _sanitize_unicode(v)
+    elif t == bytes:
+        s = v.decode('ascii', 'replace')
+        cv = _sanitize_unicode(s)
+    elif t == dcm.valuerep.DSfloat:
+        cv = float(v)
+    elif t == dcm.valuerep.IS:
+        cv = int(v)
+    elif t == dcm.valuerep.PersonName3:
+        cv = str(v)
+    elif isinstance(v, (list, tuple)):
+        cv = list(map(_convert_value, v))
     else:
-        return False
+        cv = v
+    return cv
 
 
 context = {
@@ -48,7 +75,7 @@ context = {
 
 
 def _struct2dict(struct):
-    return {k: getattr(struct, k)
+    return {k: _convert_value(getattr(struct, k))
             for k in struct.dir()
             if hasattr(struct, k) and
             _is_good_type(getattr(struct, k))}

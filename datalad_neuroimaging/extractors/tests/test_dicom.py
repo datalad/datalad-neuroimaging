@@ -6,7 +6,7 @@
 #   copyright and license terms.
 #
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
-"""Test audio extractor"""
+"""Test DICOM extractor"""
 
 from datalad.tests.utils import SkipTest
 try:
@@ -48,6 +48,11 @@ def test_dicom(path):
     # no point in testing ALL keys, but we got plenty
     assert(len(meta.keys()) > 70)
     eq_(meta['SeriesDate'], '20070205')
+    # make sure we have PatientName -- this is not using a basic data type, but
+    # dicom.valuerep.PersonName3 -- conversion should have handled that
+    # we can only test if the key is there, the source dicom has an empty
+    # string as value
+    eq_(meta['PatientName'], '')
 
     # now ask for the dataset metadata, which should have both the unique props
     # and a list of imageseries (one in this case, but a list)
