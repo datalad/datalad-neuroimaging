@@ -56,7 +56,13 @@ unit_map = {
 # to serve as a default for when expect 0 to be consumable by np.asscalar
 _array0 = np.array(0)
 
+
 class MetadataExtractor(BaseMetadataExtractor):
+
+    _unique_exclude = {
+        'cal_min',
+        'cal_max',
+    }
 
     _key2stdkey = {
         'descrip': 'description',
