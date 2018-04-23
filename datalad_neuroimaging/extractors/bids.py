@@ -169,12 +169,12 @@ class MetadataExtractor(BaseMetadataExtractor):
 def yield_participant_info(bids):
     for bidsvars in bids.get_collections(
             level='dataset')[0].to_df().to_dict(orient='records'):
-        props = dict(id=bidsvars.pop('subject'))
+        props = dict(id=assure_unicode(bidsvars.pop('subject')))
         for p in bidsvars:
             # take away some ambiguity
-            normk = p.lower()
+            normk = assure_unicode(p).lower()
             hk = content_metakey_map.get(normk, normk)
-            val = bidsvars[p]
+            val = assure_unicode(bidsvars[p])
             if hk in ('sex', 'gender'):
                 val = sex_label_map.get(val.lower(), val.lower())
             if val:
