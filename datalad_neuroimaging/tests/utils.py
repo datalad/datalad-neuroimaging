@@ -93,6 +93,7 @@ def get_bids_dataset():
     # stuff on record
     bids_ds.aggregate_metadata(recursive=False, incremental=True)
     ok_clean_git(bids_ds.path)
+    return bids_ds
 
 
 def create_dicom_tarball(flavor, path):
