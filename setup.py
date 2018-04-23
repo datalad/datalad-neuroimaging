@@ -92,6 +92,7 @@ setup(
         'datalad.metadata.extractors': [
             'bids=datalad_neuroimaging.extractors.bids:MetadataExtractor',
             'dicom=datalad_neuroimaging.extractors.dicom:MetadataExtractor',
+            'fslfeat=datalad_neuroimaging.extractors.fslfeat:MetadataExtractor',
             'nidm=datalad_neuroimaging.extractors.nidm:MetadataExtractor',
             'nifti1=datalad_neuroimaging.extractors.nifti1:MetadataExtractor',
         ],
