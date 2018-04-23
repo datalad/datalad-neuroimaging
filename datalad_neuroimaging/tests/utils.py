@@ -86,7 +86,9 @@ def get_bids_dataset():
                        where='dataset', reload=False)
     bids_ds.config.add('datalad.metadata.nativetype', 'nifti1',
                        where='dataset', reload=True)
-    bids_ds.save(message='Metadata type config')
+    # XXX need to give path specifically to make it work in direct mode
+    #bids_ds.save(message='Metadata type config')
+    bids_ds.add('.', message='Metadata type config')
     # loose dicom dataset
     bids_ds.uninstall(dicom_ds.path, check=False)
     # no need for recursion, we already have the dicom dataset's
