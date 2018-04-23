@@ -25,6 +25,7 @@ from datalad import cfg
 
 import logging
 lgr = logging.getLogger('datalad.metadata.extractors.bids')
+from datalad.log import log_progress
 
 
 vocabulary = {
@@ -133,9 +134,24 @@ class MetadataExtractor(BaseMetadataExtractor):
                     exc_str(exc)
                 )
 
+        log_progress(
+            lgr.info,
+            'extractorbids',
+            'Start BIDS metadata extraction from %s', self.ds,
+            total=len(self.paths),
+            label='BIDS metadata extraction',
+            unit=' Files',
+        )
         # now go over all files in the dataset and query pybids for its take
         # on each of them
         for f in self.paths:
+            absfp = opj(self.ds.path, f)
+            log_progress(
+                lgr.info,
+                'extractorbids',
+                'Extract BIDS metadata from %s', absfp,
+                update=1,
+                increment=True)
             # BIDS carries a substantial portion of its metadata in JSON
             # sidecar files. we ignore them here completely
             # this might yield some false-negatives in theory, but
@@ -164,6 +180,11 @@ class MetadataExtractor(BaseMetadataExtractor):
                 if rx.match(f):
                     md.update(path_props[rx])
             yield f, md
+        log_progress(
+            lgr.info,
+            'extractorbids',
+            'Finished BIDS metadata extraction from %s', self.ds
+        )
 
 
 def yield_participant_info(bids):
