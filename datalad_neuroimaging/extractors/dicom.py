@@ -13,6 +13,7 @@ from six import string_types
 from os.path import join as opj, basename
 import logging
 lgr = logging.getLogger('datalad.metadata.extractors.dicom')
+from datalad.log import log_progress
 
 try:
     # renamed for 1.0 release
@@ -103,8 +104,23 @@ class MetadataExtractor(BaseMetadataExtractor):
     def get_metadata(self, dataset, content):
         imgseries = {}
         imgs = {}
-        lgr.info("Attempting to extract DICOM metadata from %i files", len(self.paths))
+        log_progress(
+            lgr.info,
+            'extractordicom',
+            'Start DICOM metadata extraction from %s', self.ds,
+            total=len(self.paths),
+            label='DICOM metadata extraction',
+            unit=' Files',
+        )
         for f in self.paths:
+            absfp = opj(self.ds.path, f)
+            log_progress(
+                lgr.info,
+                'extractordicom',
+                'Extract DICOM metadata from %s', absfp,
+                update=1,
+                increment=True)
+
             if basename(f).startswith('PSg'):
                 # ignore those dicom files, since they appear to not contain
                 # any relevant metadata for image series, but causing trouble
@@ -114,7 +130,7 @@ class MetadataExtractor(BaseMetadataExtractor):
                 continue
 
             try:
-                d = dcm.read_file(opj(self.ds.path, f), stop_before_pixels=True)
+                d = dcm.read_file(absfp, stop_before_pixels=True)
             except InvalidDicomError:
                 # we can only ignore
                 lgr.debug('"%s" does not look like a DICOM file, skipped', f)
@@ -145,6 +161,11 @@ class MetadataExtractor(BaseMetadataExtractor):
             series_files.append(f)
             # store
             imgseries[d.SeriesInstanceUID] = (series, series_files)
+        log_progress(
+            lgr.info,
+            'extractordicom',
+            'Finished DICOM metadata extraction from %s', self.ds
+        )
 
         dsmeta = {
             '@context': context,
