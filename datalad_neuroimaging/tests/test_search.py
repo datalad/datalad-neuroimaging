@@ -27,7 +27,7 @@ from datalad.api import Dataset
 from datalad.api import search
 from datalad.metadata import search as search_mod
 try:
-    from datalad.metadata.extractors.tests.test_bids import bids_template
+    from datalad_neuroimaging.extractors.tests.test_bids import bids_template
 except (ImportError, SkipTest):
     # pybids might be absent which would preclude this import
     bids_template = None
@@ -115,13 +115,12 @@ bids.fundedby
 bids.license
 bids.modality
 bids.name
-bids.participant.age(years)
-bids.participant.gender
-bids.participant.handedness
-bids.participant.hearing_problems_current
-bids.participant.id
-bids.participant.language
-bids.subject
+bids.subject.age(years)
+bids.subject.gender
+bids.subject.handedness
+bids.subject.hearing_problems_current
+bids.subject.id
+bids.subject.language
 bids.task
 bids.type
 datalad_core.id
@@ -175,10 +174,10 @@ type
             ('autofield',
              'female',
              opj('sub-03', 'func', 'sub-03_task-other_bold.nii.gz'),
-             'bids.participant.gender', 'female'),
+             'bids.subject.gender', 'female'),
             # autofield multi-word query is also AND
             ('autofield',
-             ['bids.type:bold', 'bids.participant.id:01'],
+             ['bids.type:bold', 'bids.subject.id:01'],
              opj('sub-01', 'func', 'sub-01_task-some_bold.nii.gz'),
              'bids.type', 'bold'),
             # TODO extend with more complex queries to test whoosh
