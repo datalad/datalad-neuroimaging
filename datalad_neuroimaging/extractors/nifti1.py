@@ -11,6 +11,7 @@
 from os.path import join as opj
 import logging
 lgr = logging.getLogger('datalad.metadata.extractors.nifti1')
+from datalad.log import log_progress
 
 from math import isnan
 import nibabel
@@ -55,7 +56,13 @@ unit_map = {
 # to serve as a default for when expect 0 to be consumable by np.asscalar
 _array0 = np.array(0)
 
+
 class MetadataExtractor(BaseMetadataExtractor):
+
+    _unique_exclude = {
+        'cal_min',
+        'cal_max',
+    }
 
     _key2stdkey = {
         'descrip': 'description',
@@ -112,17 +119,31 @@ class MetadataExtractor(BaseMetadataExtractor):
         if not content:
             return {}, []
         contentmeta = []
+        log_progress(
+            lgr.info,
+            'extractornifti1',
+            'Start NIfTI1 metadata extraction from %s', self.ds,
+            total=len(self.paths),
+            label='NIfTI1 metadata extraction',
+            unit=' Files',
+        )
         for f in self.paths:
-            fpath = opj(self.ds.path, f)
+            absfp = opj(self.ds.path, f)
+            log_progress(
+                lgr.info,
+                'extractornifti1',
+                'Extract NIfTI1 metadata from %s', absfp,
+                update=1,
+                increment=True)
             try:
-                header = nibabel.load(fpath).header
+                header = nibabel.load(absfp).header
             except Exception as e:
                 lgr.debug("NIfTI metadata extractor failed to load %s: %s",
-                          fpath, exc_str(e))
+                          absfp, exc_str(e))
                 continue
             if not isinstance(header, nibabel.Nifti1Header):
                 # all we can do for now
-                lgr.debug("Ignoring non-NIfTI1 file %s", fpath)
+                lgr.debug("Ignoring non-NIfTI1 file %s", absfp)
                 continue
 
             # blunt conversion of the entire header
@@ -147,7 +168,7 @@ class MetadataExtractor(BaseMetadataExtractor):
             if spatial_unit == 'unknown':
                 lgr.debug(
                     "unit of spatial resolution for '{}' unknown, assuming 'millimeter'".format(
-                        fpath))
+                        absfp))
             spatial_unit_conversion = {
                 'unknown': 1,
                 'meter': 1000,
@@ -166,7 +187,7 @@ class MetadataExtractor(BaseMetadataExtractor):
                 if rts_unit == 'unknown':
                     lgr.warn(
                         "RTS unit '{}' unkown, assuming 'seconds'".format(
-                            fpath))
+                            absfp))
                 # normalize to seconds, if possible
                 rts_unit_conversion = {
                     'msec': 0.001,
@@ -176,6 +197,12 @@ class MetadataExtractor(BaseMetadataExtractor):
                         header.get_zooms()[3] * rts_unit_conversion
 
             contentmeta.append((f, meta))
+
+        log_progress(
+            lgr.info,
+            'extractornifti1',
+            'Finished NIfTI1 metadata extraction from %s', self.ds
+        )
 
         return {
             '@context': vocabulary,
