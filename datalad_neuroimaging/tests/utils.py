@@ -22,19 +22,19 @@ def get_bids_dataset():
     if bids_ds.is_installed():
         return bids_ds
     # make one
-    dicom_ds = get_dicom_dataset('structural')
+    structdicom_ds = get_dicom_dataset('structural')
     bids_ds.create()
     # place dicoms in the mandated shadow tree
-    dicom_ds = bids_ds.install(
-        source=dicom_ds,
+    structdicom_ds = bids_ds.install(
+        source=structdicom_ds,
         path=opj('sourcedata', 'sub-02', 'ses-structural'),
         reckless=True)
     # dicom dataset is preconfigured for metadata extraction
     bids_ds.aggregate_metadata(recursive=True)
-    ok_clean_git(dicom_ds.path)
+    ok_clean_git(structdicom_ds.path)
     # pull subject ID from metadata
     res = bids_ds.metadata(
-        dicom_ds.path, reporton='datasets', return_type='item-or-list',
+        structdicom_ds.path, reporton='datasets', return_type='item-or-list',
         result_renderer='disabled')
     subj_id = res['metadata']['dicom']['Series'][0]['PatientID']
     # prepare for incoming BIDS metadata that we will want to keep in
@@ -61,7 +61,7 @@ def get_bids_dataset():
         '-b',
         '-o', bids_ds.path,
         '-l', '',
-        '--files', opj(dicom_ds.path, 'dicoms'),
+        '--files', opj(structdicom_ds.path, 'dicoms'),
     ])
     # cleanup: with heudiconv -b we can dicom tarballs per sequence
     # while this is nice, we already have a subdataset with dicoms
@@ -90,7 +90,7 @@ def get_bids_dataset():
     #bids_ds.save(message='Metadata type config')
     bids_ds.add('.', message='Metadata type config')
     # loose dicom dataset
-    bids_ds.uninstall(dicom_ds.path, check=False)
+    bids_ds.uninstall(structdicom_ds.path, check=False)
     # no need for recursion, we already have the dicom dataset's
     # stuff on record
     bids_ds.aggregate_metadata(recursive=False, incremental=True)
