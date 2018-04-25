@@ -63,33 +63,59 @@ def test_dicom2spec(path):
 
 
 @with_tempfile
-def dummy_test(path):
-    # ###  SETUP ###
-    session = 'sub02_acq100'  # TODO: ATM heudiconv call requires {subject}
+def test_dicom2bids(path):
 
-    dicoms = get_dicom_dataset('structural')
-    ds = Dataset.create(path)
-    ds.install(source=dicoms, path=opj(session, 'dicoms'))
-    ds.aggregate_metadata(recursive=True, update_mode='all')
-    ds.ni_dicom2spec(path=opj(session, 'dicoms'),
-                     spec=opj(session, 'spec_structural.json'))
-    # ### END SETUP ###
-
-    subject = session.split('_')[0]
-    spec_file = opj(session, 'spec_structural.json')
-
-    import datalad_neuroimaging.commands.cbbs_heuristic
-    arg_list = ['-d', ds.path + "/{subject}_acq100/dicoms/*/*"]
-    arg_list += ['-s', subject]
-    arg_list += ['-c', 'dcm2niix']
-    arg_list += ['-b']
-    arg_list += ['-f', datalad_neuroimaging.commands.cbbs_heuristic.__file__]
-    arg_list += ['-o', opj(ds.path, "converted")]
-
-    from mock import patch
     import heudiconv.cli.run
-    with patch.dict('os.environ', {'CBBS_STUDY_SPEC': opj(ds.path, spec_file)}):
-        heudiconv.cli.run.main(arg_list)
+
+    ds = Dataset.create(path)
+
+    for label in ['structural', 'functional']:
+
+        subject = "sub02"
+        session = "{sub}_{label}".format(sub=subject, label=label)
+        
+        dicoms = get_dicom_dataset(label)
+        ds.install(source=dicoms, path=opj(session, 'dicoms'))
+        ds.aggregate_metadata(recursive=True, update_mode='all')
+
+        spec_file = opj(session, 'spec_{label}.json'.format(label=label))
+        ds.ni_dicom2spec(path=opj(session, 'dicoms'),
+                         spec=spec_file)
+
+        from mock import patch
+        with patch.dict('os.environ', {'CBBS_STUDY_SPEC': opj(ds.path, spec_file)}):
+
+            arg_list = ['-d', ds.path + "/{subject}_acq100/dicoms/*/*"]
+            arg_list += ['-s', subject]
+            arg_list += ['-c', 'dcm2niix']
+            arg_list += ['-b']
+            arg_list += ['-f', 'cbbs']
+            arg_list += ['-o', opj(ds.path, '.git', 'stupid', label)]
+            arg_list += ['-a', ds.path]
+            arg_list += ['-l', '']
+            arg_list += ['--minmeta']
+
+            heudiconv.cli.run.main(arg_list)
+
+            # TODO: In order to call it the following way (with --files), our
+            # heuristic needs an `infotoids` function:
+            # ds.run([
+            #     'heudiconv',
+            #     '-f', datalad_neuroimaging.commands.cbbs_heuristic.__file__,
+            #     '-s', subject,
+            #     '-c', 'dcm2niix',
+            #     # TODO decide on the fate of .heudiconv/
+            #     # but ATM we need to (re)move it:
+            #     # https://github.com/nipy/heudiconv/issues/196
+            #     '-o', opj(ds.path, '.git', 'stupid', label),
+            #     '-b',
+            #     '-a', ds.path,
+            #     '-l', '',
+            #     # avoid gory details provided by dcmstack, we have them in
+            #     # the aggregated DICOM metadata already
+            #     '--minmeta',
+            #     '--files', opj(ds.path, 'session', 'dicoms')],
+            #         message="DICOM conversion of {} scans".format(label))
 
 
 def test_validate_bids_fixture():

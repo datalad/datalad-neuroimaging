@@ -16,6 +16,7 @@ from datalad_neuroimaging.tests.utils import get_dicom_dataset, create_dicom_tar
 # before add_archive_content is even called. On the other hand annex-get works
 # for it, so it's not like nothing worked at all.
 # May be have to somehow account for direct mode when switching branches.
+# TODO: Narrow down what's broken and make it an issue
 @known_failure_direct_mode
 @with_tempfile
 @with_tempfile
