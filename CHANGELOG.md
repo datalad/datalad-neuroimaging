@@ -11,5 +11,21 @@ repository](http://github.com/datalad/datalad-meuroimaging) for more details.
 
 ## 0.1.0 (??? ??, 2018) -- The Release
 
-This is the first separate release of DataLad's neuroimaging functionality as an
-extension module.
+### Major refactoring and deprecations
+
+- This is the first separate release of DataLad's neuroimaging functionality as an
+  extension module.
+- Metadata
+  - BIDS metadata now uniformly refers to subjects and participants using the
+    metadata key 'subject' 
+
+### Enhancements and new features
+
+- Extractors now report progress (with DataLad 0.10+)
+- BIDS participant metadata is now read via pybids
+
+### Fixes
+
+- Fix issue with unicode characters in BIDS metadata
+- DICOM metadata now also contains the 'PatientName' field that was previously
+  excluded due to a too restrictive data type filter

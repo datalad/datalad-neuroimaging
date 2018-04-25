@@ -40,12 +40,14 @@ before_install:
   - travis_retry sudo apt-get install eatmydata  # to speedup some installations
   - sudo eatmydata tools/ci/prep-travis-forssh-sudo.sh
   - tools/ci/prep-travis-forssh.sh
-  - travis_retry sudo eatmydata apt-get install git-annex-standalone
+  # install git-annex with the relevant bits
+  # no recommends to avoid inheriting the entire multimedia stack
+  - travis_retry sudo eatmydata apt-get install --no-install-recommends git-annex-standalone aria2 git-remote-gcrypt lsof gnupg nocache
 
 
 install:
   # Install standalone build of git-annex for the recent enough version
-  - travis_retry sudo eatmydata apt-get install zip pandoc 
+  - travis_retry sudo eatmydata apt-get install zip pandoc
   # for metadata support
   - git config --global user.email "test@travis.land"
   - git config --global user.name "Travis Almighty"

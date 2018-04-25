@@ -184,7 +184,7 @@ def _get_study_df(dsmeta):
     # TODO use helper
     participants = getprop(
         dsmeta,
-        ["metadata", "datalad_unique_content_properties", "bids", "participant"],
+        ["metadata", "datalad_unique_content_properties", "bids", "subject"],
         [])
     sample_info = [
         dict(
@@ -222,7 +222,7 @@ def _describe_file(dsmeta, fmeta):
     if modality is None:
         raise ValueError('file record has no type info, not sure what this is')
     info = {
-        'Sample Name': getprop(bidsmeta, ['participant', 'id'], None),
+        'Sample Name': getprop(bidsmeta, ['subject', 'id'], None),
         # assay name is the entire filename except for the modality suffix
         # so that, e.g. simultaneous recordings match wrt to the assay name
         # across assay tables

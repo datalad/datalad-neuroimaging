@@ -13,6 +13,7 @@ from six import string_types
 from os.path import join as opj, basename
 import logging
 lgr = logging.getLogger('datalad.metadata.extractors.dicom')
+from datalad.log import log_progress
 
 try:
     # renamed for 1.0 release
@@ -29,12 +30,39 @@ from datalad.metadata.extractors.base import BaseMetadataExtractor
 
 
 def _is_good_type(v):
-    if isinstance(v, (int, float, string_types)):
+    if isinstance(
+            v,
+            (int, float, string_types, dcm.valuerep.DSfloat, dcm.valuerep.IS,
+             dcm.valuerep.PersonName3)):
         return True
     elif isinstance(v, (list, tuple)):
         return all(map(_is_good_type, v))
+
+
+def _sanitize_unicode(s):
+    return s.replace(u"\u0000", "").strip()
+
+
+def _convert_value(v):
+    t = type(v)
+    if t in (int, float):
+        cv = v
+    elif t == str:
+        cv = _sanitize_unicode(v)
+    elif t == bytes:
+        s = v.decode('ascii', 'replace')
+        cv = _sanitize_unicode(s)
+    elif t == dcm.valuerep.DSfloat:
+        cv = float(v)
+    elif t == dcm.valuerep.IS:
+        cv = int(v)
+    elif t == dcm.valuerep.PersonName3:
+        cv = str(v)
+    elif isinstance(v, (list, tuple)):
+        cv = list(map(_convert_value, v))
     else:
-        return False
+        cv = v
+    return cv
 
 
 context = {
@@ -48,7 +76,7 @@ context = {
 
 
 def _struct2dict(struct):
-    return {k: getattr(struct, k)
+    return {k: _convert_value(getattr(struct, k))
             for k in struct.dir()
             if hasattr(struct, k) and
             _is_good_type(getattr(struct, k))}
@@ -76,8 +104,23 @@ class MetadataExtractor(BaseMetadataExtractor):
     def get_metadata(self, dataset, content):
         imgseries = {}
         imgs = {}
-        lgr.info("Attempting to extract DICOM metadata from %i files", len(self.paths))
+        log_progress(
+            lgr.info,
+            'extractordicom',
+            'Start DICOM metadata extraction from %s', self.ds,
+            total=len(self.paths),
+            label='DICOM metadata extraction',
+            unit=' Files',
+        )
         for f in self.paths:
+            absfp = opj(self.ds.path, f)
+            log_progress(
+                lgr.info,
+                'extractordicom',
+                'Extract DICOM metadata from %s', absfp,
+                update=1,
+                increment=True)
+
             if basename(f).startswith('PSg'):
                 # ignore those dicom files, since they appear to not contain
                 # any relevant metadata for image series, but causing trouble
@@ -87,7 +130,7 @@ class MetadataExtractor(BaseMetadataExtractor):
                 continue
 
             try:
-                d = dcm.read_file(opj(self.ds.path, f), stop_before_pixels=True)
+                d = dcm.read_file(absfp, stop_before_pixels=True)
             except InvalidDicomError:
                 # we can only ignore
                 lgr.debug('"%s" does not look like a DICOM file, skipped', f)
@@ -118,6 +161,11 @@ class MetadataExtractor(BaseMetadataExtractor):
             series_files.append(f)
             # store
             imgseries[d.SeriesInstanceUID] = (series, series_files)
+        log_progress(
+            lgr.info,
+            'extractordicom',
+            'Finished DICOM metadata extraction from %s', self.ds
+        )
 
         dsmeta = {
             '@context': context,

@@ -12,19 +12,20 @@ from __future__ import absolute_import
 # use pybids to evolve with the standard without having to track it too much
 from bids.grabbids import BIDSLayout
 import re
-import csv
 from io import open
 from os.path import join as opj
 from os.path import exists
+from os.path import curdir
 from datalad.dochelpers import exc_str
 from datalad.metadata.extractors.base import BaseMetadataExtractor
 from datalad.metadata.definitions import vocabulary_id
-from datalad.utils import (assure_unicode, read_csv_lines)
+from datalad.utils import assure_unicode
 
 from datalad import cfg
 
 import logging
 lgr = logging.getLogger('datalad.metadata.extractors.bids')
+from datalad.log import log_progress
 
 
 vocabulary = {
@@ -67,7 +68,14 @@ class MetadataExtractor(BaseMetadataExtractor):
         if not exists(opj(self.ds.path, self._dsdescr_fname)):
             return {}, []
 
-        bids = BIDSLayout(self.ds.path)
+        bids = BIDSLayout(
+            self.ds.path,
+            config=[
+                'bids', (
+                    'derivatives',
+                    'derivatives' if exists(opj(self.ds.path, 'derivatives')) else curdir
+                )],
+        )
         dsmeta = self._get_dsmeta(bids)
 
         if not content:
@@ -118,17 +126,32 @@ class MetadataExtractor(BaseMetadataExtractor):
         participants_fname = opj(self.ds.path, 'participants.tsv')
         if exists(participants_fname):
             try:
-                for rx, info in yield_participant_info(participants_fname):
-                    path_props[rx] = {'participant': info}
+                for rx, info in yield_participant_info(bids):
+                    path_props[rx] = {'subject': info}
             except Exception as exc:
                 lgr.warning(
                     "Failed to load participants info due to: %s. Skipping the rest of file",
                     exc_str(exc)
                 )
 
+        log_progress(
+            lgr.info,
+            'extractorbids',
+            'Start BIDS metadata extraction from %s', self.ds,
+            total=len(self.paths),
+            label='BIDS metadata extraction',
+            unit=' Files',
+        )
         # now go over all files in the dataset and query pybids for its take
         # on each of them
         for f in self.paths:
+            absfp = opj(self.ds.path, f)
+            log_progress(
+                lgr.info,
+                'extractorbids',
+                'Extract BIDS metadata from %s', absfp,
+                update=1,
+                increment=True)
             # BIDS carries a substantial portion of its metadata in JSON
             # sidecar files. we ignore them here completely
             # this might yield some false-negatives in theory, but
@@ -157,25 +180,25 @@ class MetadataExtractor(BaseMetadataExtractor):
                 if rx.match(f):
                     md.update(path_props[rx])
             yield f, md
+        log_progress(
+            lgr.info,
+            'extractorbids',
+            'Finished BIDS metadata extraction from %s', self.ds
+        )
 
 
-def yield_participant_info(fname):
-    for row in read_csv_lines(fname):
-        if 'participant_id' not in row:
-            # not sure what this is, but we cannot use it
-            break
-        # strip a potential 'sub-' prefix
-        if row['participant_id'].startswith('sub-'):
-            row['participant_id'] = row['participant_id'][4:]
-        props = {}
-        for k in row:
+def yield_participant_info(bids):
+    for bidsvars in bids.get_collections(
+            level='dataset')[0].to_df().to_dict(orient='records'):
+        props = dict(id=assure_unicode(bidsvars.pop('subject')))
+        for p in bidsvars:
             # take away some ambiguity
-            normk = k.lower()
+            normk = assure_unicode(p).lower()
             hk = content_metakey_map.get(normk, normk)
-            val = row[k]
+            val = assure_unicode(bidsvars[p])
             if hk in ('sex', 'gender'):
-                val = sex_label_map.get(row[k].lower(), row[k].lower())
+                val = sex_label_map.get(val.lower(), val.lower())
             if val:
                 props[hk] = val
         if props:
-            yield re.compile(r'^sub-{}/.*'.format(row['participant_id'])), props
+            yield re.compile(r'^sub-{}/.*'.format(props['id'])), props
