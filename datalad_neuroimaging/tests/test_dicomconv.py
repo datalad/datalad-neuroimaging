@@ -16,17 +16,11 @@ from datalad.api import Dataset
 from datalad.tests.utils import assert_result_count
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import with_tempfile
-<<<<<<< HEAD
-
-import datalad_neuroimaging
-from datalad_neuroimaging.tests.utils import get_dicom_dataset
-=======
 from datalad.tests.utils import eq_
 
 import datalad_neuroimaging
 from datalad_neuroimaging.tests.utils import get_dicom_dataset
 from datalad_neuroimaging.tests.utils import get_bids_dataset
->>>>>>> master
 
 
 @with_tempfile
