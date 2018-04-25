@@ -9,13 +9,18 @@
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Test BIDS to ISATAB"""
 
+import os.path as op
+from os import listdir
 from os.path import join as opj
 
 from datalad.api import Dataset
+from datalad.api import install
 from datalad.utils import chpwd
+from datalad_neuroimaging.tests.utils import get_bids_dataset
 
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import with_tree
+from datalad.tests.utils import eq_
 from datalad.tests.utils import assert_true, assert_not_equal, assert_raises, \
     assert_false, assert_equal
 from datalad.tests.utils import assert_status
@@ -148,3 +153,21 @@ Sample Name\tProtocol REF\tParameter Value[modality]\tAssay Name\tRaw Data File\
 
 # TODO implement a regression test on one of our datasets, once we have
 # new aggregated metadata in any of them
+
+
+
+@with_tempfile(mkdir=True)
+@with_tempfile(mkdir=True)
+def test_real_ds(path, opath):
+    # just the dataset, no data, export works from aggregated metadata only
+    ds = install(source=get_bids_dataset().path, path=path, reckless=True)
+    ds.bids2scidata(
+        output=opath,
+        repo_name="dummy",
+        repo_accession='ds1',
+        repo_url='http://example.com',
+    )
+    # smoke test
+    eq_(
+        sorted(listdir(opath)),
+        ['a_mri_bold.txt', 'a_mri_t1w.txt', 'i_Investigation.txt', 's_study.txt'])
