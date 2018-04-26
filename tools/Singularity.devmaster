@@ -28,9 +28,11 @@ From:neurodebian:latest
     eatmydata apt-get -y install --no-install-recommends python3-twisted
 
     # little dance because pip cannot handle this url plus [full] in one go
-    wget https://github.com/datalad/datalad-neuroimaging/archive/master.zip
-    pip3 install --system master.zip
-    rm -f master.zip
+    wget -O datalad_master.zip https://github.com/datalad/datalad/archive/master.zip
+    wget -O datalad_neuroimaging_master.zip https://github.com/datalad/datalad-neuroimaging/archive/master.zip
+    pip3 install --system datalad_master.zip
+    pip3 install --system datalad_neuroimaging_master.zip
+    rm -f *master.zip
 
     # clean up
     apt-get clean
