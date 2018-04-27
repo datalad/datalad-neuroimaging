@@ -58,7 +58,7 @@ install:
   # heudiconv for conversion testing:
   - travis_retry sudo eatmydata apt-get install dcm2niix
   - pip install git+https://github.com/mvdoc/dcmstack@bf/importsys
-  - pip install git+https://github.com/bpoldrack/heudiconv.git@cbbs-imaging
+  - pip install git+https://github.com/nipy/heudiconv.git
   # So we could test under sudo -E with PATH pointing to installed location
   - sudo sed -i -e 's/^Defaults.*secure_path.*$//' /etc/sudoers
 
