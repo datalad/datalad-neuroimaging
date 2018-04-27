@@ -1,11 +1,10 @@
-from os.path import dirname, normpath, join as opj, pardir
-
+from os.path import dirname, normpath, join as opj, pardir, basename
 from datalad.api import Dataset
 from datalad.coreapi import install
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import SkipTest
-
 import datalad_neuroimaging
+
 _modpath = dirname(datalad_neuroimaging.__file__)
 
 
@@ -66,8 +65,7 @@ def get_bids_dataset():
         bids_ds.run([
             'heudiconv',
             '-f', 'reproin',
-            # TODO fix DICOMs to not have a 'sub' prefix
-            '-s', subj_id[3:],
+            '-s', subj_id,
             '-c', 'dcm2niix',
             # TODO decide on the fate of .heudiconv/
             # but ATM we need to (re)move it:
@@ -94,7 +92,7 @@ def get_bids_dataset():
     bids_ds.config.add('datalad.metadata.nativetype', 'nifti1',
                        where='dataset', reload=True)
     # XXX need to `add` specifically to make it work in direct mode
-    #bids_ds.save(message='Metadata type config')
+    # bids_ds.save(message='Metadata type config')
     bids_ds.add('.', message='Metadata type config')
     # loose dicom datasets
     bids_ds.uninstall(
@@ -111,5 +109,5 @@ def create_dicom_tarball(flavor, path):
     import tarfile
     ds = get_dicom_dataset(flavor=flavor)
     with tarfile.open(path, "w:gz") as tar:
-        tar.add(ds.path)
+        tar.add(ds.path, arcname=basename(ds.path))
     return path

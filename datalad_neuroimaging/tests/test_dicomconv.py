@@ -35,6 +35,81 @@ def test_dicom_metadata_aggregation(path):
     assert_result_count(res, 1, path=opj(ds.path, 'acq100'))
 
 
+@with_tempfile
+def test_dicom2spec(path):
+
+    # ###  SETUP ###
+    dicoms = get_dicom_dataset('structural')
+
+    ds = Dataset.create(path)
+    ds.install(source=dicoms, path='acq100')
+    ds.aggregate_metadata(recursive=True, update_mode='all')
+    # ### END SETUP ###
+
+    res = ds.ni_dicom2spec(path='acq100', spec='spec_structural.json')
+    assert_result_count(res, 1)
+    assert_result_count(res, 1, path=opj(ds.path, 'spec_structural.json'))
+    if ds.repo.is_direct_mode():
+        # Note:
+        # in direct mode we got an issue determining whether or not sth is
+        # "dirty". In this particular case, this is about having a superdataset
+        # in direct mode, while the subdataset is a plain git repo.
+        # However, at least assert both are clean themselves:
+        ok_clean_git(ds.path, ignore_submodules=True)
+        ok_clean_git(opj(ds.path, 'acq100'))
+
+    else:
+        ok_clean_git(ds.path)
+
+
+@with_tempfile
+def _single_session_dicom2bids(label, path):
+
+    ds = Dataset.create(path)
+
+    subject = "02"
+    session = "{sub}_{label}".format(sub=subject, label=label)
+
+    dicoms = get_dicom_dataset(label)
+    ds.install(source=dicoms, path=opj(session, 'dicoms'))
+    ds.aggregate_metadata(recursive=True, update_mode='all')
+
+    spec_file = opj(session, 'spec_{label}.json'.format(label=label))
+    ds.ni_dicom2spec(path=opj(session, 'dicoms'),
+                     spec=spec_file)
+
+    from mock import patch
+    with patch.dict('os.environ',
+                    {'CBBS_STUDY_SPEC': opj(ds.path, spec_file)}):
+
+        # TODO: datalad-run seems to have trouble in direct mode
+        # (unsaved modifications present).
+        # Probably diff/dirty related
+
+        ds.run([
+            'heudiconv',
+            '-f', 'cbbs',
+            '-s', subject,
+            '-c', 'dcm2niix',
+            # TODO decide on the fate of .heudiconv/
+            # but ATM we need to (re)move it:
+            # https://github.com/nipy/heudiconv/issues/196
+            '-o', opj(ds.path, '.git', 'stupid', label),
+            '-b',
+            '-a', ds.path,
+            '-l', '',
+            # avoid gory details provided by dcmstack, we have them in
+            # the aggregated DICOM metadata already
+            '--minmeta',
+            '--files', opj(ds.path, session, 'dicoms')],
+                message="DICOM conversion of {} scans".format(label))
+
+
+def test_dicom2bids():
+    for l in ['structural', 'functional']:
+        yield _single_session_dicom2bids, l
+
+
 def test_validate_bids_fixture():
     bids_ds = get_bids_dataset()
     # dicom source dataset is absent
