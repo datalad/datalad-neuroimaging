@@ -42,7 +42,7 @@ def test_import_tarball(filename, ds_path):
     subs = ds.subdatasets(fulfilled=True, recursive=True, recursion_limit=None,
                           result_xfm='datasets')
 
-    assert opj(ds.path, 'sub02', 'dicoms') in [s.path for s in subs]
-    ok_exists(opj(ds.path, 'sub02', 'studyspec.json'))
-    ok_exists(opj(ds.path, 'sub02', 'dicoms', 'structural'))
+    assert opj(ds.path, '02', 'dicoms') in [s.path for s in subs]
+    ok_exists(opj(ds.path, '02', 'studyspec.json'))
+    ok_exists(opj(ds.path, '02', 'dicoms', 'structural'))
 

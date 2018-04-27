@@ -60,8 +60,7 @@ def get_bids_dataset():
         bids_ds.run([
             'heudiconv',
             '-f', 'reproin',
-            # TODO fix DICOMs to not have a 'sub' prefix
-            '-s', subj_id[3:],
+            '-s', subj_id,
             '-c', 'dcm2niix',
             # TODO decide on the fate of .heudiconv/
             # but ATM we need to (re)move it:

@@ -63,45 +63,51 @@ def test_dicom2spec(path):
 
 
 @with_tempfile
-def test_dicom2bids(path):
+def _single_session_dicom2bids(label, path):
 
     ds = Dataset.create(path)
 
-    # TODO: 'functional' disabled ATM, since it lacks a PatientID, which
-    # leads to the spec not being able to automatically derive a subject.
-    for label in ['structural']:  #, 'functional']:
+    subject = "02"
+    session = "{sub}_{label}".format(sub=subject, label=label)
 
-        subject = "sub02"
-        session = "{sub}_{label}".format(sub=subject, label=label)
+    dicoms = get_dicom_dataset(label)
+    ds.install(source=dicoms, path=opj(session, 'dicoms'))
+    ds.aggregate_metadata(recursive=True, update_mode='all')
 
-        dicoms = get_dicom_dataset(label)
-        ds.install(source=dicoms, path=opj(session, 'dicoms'))
-        ds.aggregate_metadata(recursive=True, update_mode='all')
+    spec_file = opj(session, 'spec_{label}.json'.format(label=label))
+    ds.ni_dicom2spec(path=opj(session, 'dicoms'),
+                     spec=spec_file)
 
-        spec_file = opj(session, 'spec_{label}.json'.format(label=label))
-        ds.ni_dicom2spec(path=opj(session, 'dicoms'),
-                         spec=spec_file)
+    from mock import patch
+    with patch.dict('os.environ',
+                    {'CBBS_STUDY_SPEC': opj(ds.path, spec_file)}):
 
-        from mock import patch
-        with patch.dict('os.environ',
-                        {'CBBS_STUDY_SPEC': opj(ds.path, spec_file)}):
-            ds.run([
-                'heudiconv',
-                '-f', 'cbbs',
-                '-s', subject,
-                '-c', 'dcm2niix',
-                # TODO decide on the fate of .heudiconv/
-                # but ATM we need to (re)move it:
-                # https://github.com/nipy/heudiconv/issues/196
-                '-o', opj(ds.path, '.git', 'stupid', label),
-                '-b',
-                '-a', ds.path,
-                '-l', '',
-                # avoid gory details provided by dcmstack, we have them in
-                # the aggregated DICOM metadata already
-                '--minmeta',
-                '--files', opj(ds.path, session, 'dicoms')],
-                    message="DICOM conversion of {} scans".format(label))
+        # TODO: datalad-run seems to have trouble in direct mode
+        # (unsaved modifications present).
+        # Probably diff/dirty related
+
+        ds.run([
+            'heudiconv',
+            '-f', 'cbbs',
+            '-s', subject,
+            '-c', 'dcm2niix',
+            # TODO decide on the fate of .heudiconv/
+            # but ATM we need to (re)move it:
+            # https://github.com/nipy/heudiconv/issues/196
+            '-o', opj(ds.path, '.git', 'stupid', label),
+            '-b',
+            '-a', ds.path,
+            '-l', '',
+            # avoid gory details provided by dcmstack, we have them in
+            # the aggregated DICOM metadata already
+            '--minmeta',
+            '--files', opj(ds.path, session, 'dicoms')],
+                message="DICOM conversion of {} scans".format(label))
+
+
+def test_dicom2bids():
+    for l in ['structural', 'functional']:
+        yield _single_session_dicom2bids, l
 
 
 def test_validate_bids_fixture():
