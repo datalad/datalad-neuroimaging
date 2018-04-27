@@ -1,4 +1,5 @@
 from os.path import dirname, normpath, join as opj, pardir
+import os.path as op
 
 from datalad.api import Dataset
 from datalad.coreapi import install
@@ -43,7 +44,7 @@ def get_bids_dataset():
     bids_ds.aggregate_metadata(recursive=True)
     # pull subject ID from metadata
     res = bids_ds.metadata(
-        structdicom_ds.path, reporton='datasets', return_type='item-or-list',
+        funcdicom_ds.path, reporton='datasets', return_type='item-or-list',
         result_renderer='disabled')
     subj_id = res['metadata']['dicom']['Series'][0]['PatientID']
     # prepare for incoming BIDS metadata that we will want to keep in
@@ -61,13 +62,16 @@ def get_bids_dataset():
     ok_clean_git(bids_ds.path)
     # conversion of two DICOM datasets to one BIDS dataset
     for label, ds, scanlabel in (
+            # structural needs to come first or else heudiconv
+            # will try to rewrite the events.tsv for the functional
+            # run, for some strange reason
             ('structural', structdicom_ds, 'anat'),
             ('functional', funcdicom_ds, 'func')):
         bids_ds.run([
             'heudiconv',
             '-f', 'reproin',
             # TODO fix DICOMs to not have a 'sub' prefix
-            '-s', subj_id[3:],
+            '-s', subj_id,
             '-c', 'dcm2niix',
             # TODO decide on the fate of .heudiconv/
             # but ATM we need to (re)move it:
@@ -84,9 +88,10 @@ def get_bids_dataset():
         # remove unwanted stuff that cannot be disabled ATM
         # https://github.com/nipy/heudiconv/issues/195
         # TODO should be removed eventually
-        bids_ds.remove([
-            opj('sourcedata', 'sub-02', scanlabel),
-            opj('sourcedata', 'README')],
+        bids_ds.remove(
+            [p for p in (opj('sourcedata', 'sub-02', scanlabel),
+                         opj('sourcedata', 'README'))
+             if op.lexists(opj(bids_ds.path, p))],
             check=False)
 
     bids_ds.config.add('datalad.metadata.nativetype', 'bids',
