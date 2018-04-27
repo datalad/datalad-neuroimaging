@@ -2,6 +2,7 @@ from os.path import dirname, normpath, join as opj, pardir, basename
 from datalad.api import Dataset
 from datalad.coreapi import install
 from datalad.tests.utils import ok_clean_git
+from datalad.tests.utils import SkipTest
 import datalad_neuroimaging
 
 _modpath = dirname(datalad_neuroimaging.__file__)
@@ -20,6 +21,10 @@ def get_bids_dataset():
     bids_ds = Dataset(path=opj(_modpath, 'tests', 'data', 'bids'))
     if bids_ds.is_installed():
         return bids_ds
+    try:
+        import heudiconv
+    except ImportError:
+        raise SkipTest
     # make one
     bids_ds.create()
     # place dicoms in the mandated shadow tree
