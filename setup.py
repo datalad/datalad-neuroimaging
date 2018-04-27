@@ -66,6 +66,9 @@ setup(
         'nibabel',  # NIfTI metadata
         'pandas',  # bids2scidata export
     ],
+    dependency_links=[
+        'git+https://github.com/datalad/datalad.git'
+    ],
     extras_require={
         'devel-docs': [
             # used for converting README.md -> .rst for long_description
