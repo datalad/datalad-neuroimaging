@@ -17,6 +17,27 @@ extension), please see the [DataLad website](http://datalad.org) or the
 [main GitHub project page](http://datalad.org).
 
 
+## Installation
+
+Before you install this package, please make sure that you [install a recent
+version of git-annex](https://git-annex.branchable.com/install).  Afterwards,
+install the latest version of `datalad-neuroimaging` from
+[PyPi](https://pypi.org/project/datalad-neuroimaging). It is recommended to use
+a dedicated [virtualenv](https://virtualenv.pypa.io):
+
+    # create and enter a new virtual environment (optional)
+    virtualenv --system-site-packages --python=python3 ~/env/dataladni
+    . ~/env/dataladni/bin/activate
+
+    # install from PyPi
+    pip install datalad_neuroimaging
+
+There is also a [Singularity container](http://singularity.lbl.gov) available.
+The latest release version can be obtained by running:
+
+    singularity pull shub://datalad/datalad-neuroimaging
+
+
 ## Acknowledgements
 
 DataLad development is supported by a US-German collaboration in
