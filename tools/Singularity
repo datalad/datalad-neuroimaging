@@ -1,0 +1,53 @@
+#
+# This container provides a full Python3-based installation of DataLad
+# for neuroimaging (http://datalad.org) using the latest stable release
+# at the time the container is built.
+#
+# Copyright (c) 2018, Michael Hanke. MIT license
+#
+# Changelog
+# ---------
+# 0.1
+#  - First official release of the DataLad extension for neuroimaging
+#
+#######################################################################
+
+Bootstrap:docker
+From:neurodebian:latest
+
+%post
+    echo "Configuring the environment"
+    apt-get -y update
+
+    # setup the container sources themselves
+    apt-get -y install eatmydata
+    eatmydata apt-get -y install gnupg wget locales
+
+    # we need a UTF locale for DataLad to work properly
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+    locale-gen
+
+    # bare essentials to pull everything else in
+    eatmydata apt-get -y install --no-install-recommends git git-annex-standalone python3-pip
+
+    eatmydata apt-get -y install --no-install-recommends python3-setuptools python3-wheel less rsync git-remote-gcrypt aria2 libexempi3 python3-libxmp
+
+    # just for scrapy
+    eatmydata apt-get -y install --no-install-recommends python3-twisted
+
+    pip3 install --system datalad_neuroimaging
+    # beautify
+    pip3 install --system datalad[full]
+
+    # clean up
+    apt-get clean
+
+
+%environments
+    unset PYTHONPATH
+
+%runscript
+    datalad "$@"
+
+%help
+    This is DataLad for Neuroimaging. Run with --help for more info.
