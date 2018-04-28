@@ -36,8 +36,6 @@ From:neurodebian:latest
     eatmydata apt-get -y install --no-install-recommends python3-twisted
 
     pip3 install --system datalad_neuroimaging
-    # beautify
-    pip3 install --system datalad[full]
 
     # clean up
     apt-get clean

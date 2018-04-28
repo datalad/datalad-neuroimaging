@@ -2,6 +2,8 @@
 
 __docformat__ = 'restructuredtext'
 
+from .version import __version__
+
 # defines a datalad command suite
 # this symbold must be indentified as a setuptools entrypoint
 # to be found by datalad
