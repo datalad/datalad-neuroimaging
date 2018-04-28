@@ -16,8 +16,8 @@ We would recommend to consult log of the `DataLad git
 repository <http://github.com/datalad/datalad-meuroimaging>`__ for more
 details.
 
-0.1.0 (??? ??, 2018) -- The Release
------------------------------------
+0.1 (Apr 28, 2018) -- The Release
+---------------------------------
 
 Major refactoring and deprecations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
