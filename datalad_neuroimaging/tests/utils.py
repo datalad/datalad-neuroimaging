@@ -5,22 +5,41 @@ from datalad.api import Dataset
 from datalad.coreapi import install
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import SkipTest
+from datalad.interface.common_cfg import dirs as appdirs
 
 import datalad_neuroimaging
-_modpath = dirname(datalad_neuroimaging.__file__)
+
+
+def get_sourcerepo():
+    srcrepopath = normpath(
+        opj(dirname(datalad_neuroimaging.__file__), pardir))
+    srcrepo = Dataset(srcrepopath)
+    if not srcrepo.is_installed():
+        srcrepo = install(
+            source='https://github.com/datalad/datalad-neuroimaging.git',
+            path=opj(appdirs.user_cache_dir, 'datalad_neuroimaging_srcrepo'))
+        # this will eventually show us if we can properly upgrade submodules
+        srcrepo.update(merge=True)
+        # TODO we might want to try to check out a tag that corresponds to the
+        # installed version
+    return srcrepo
 
 
 def get_dicom_dataset(flavor):
+    srcrepo = get_sourcerepo()
     ds = install(
-        dataset=normpath(opj(_modpath, pardir)),
-        path=opj(_modpath, 'tests', 'data', 'dicoms', flavor))
+        dataset=srcrepo,
+        path=opj(srcrepo.path, 'datalad_neuroimaging', 'tests', 'data',
+                 'dicoms', flavor))
     # fail on any "surprising" changes made to this dataset
     ok_clean_git(ds.path)
     return ds
 
 
 def get_bids_dataset():
-    bids_ds = Dataset(path=opj(_modpath, 'tests', 'data', 'bids'))
+    srcrepo = get_sourcerepo()
+    bids_ds = Dataset(path=opj(
+        srcrepo.path, 'datalad_neuroimaging', 'tests', 'data', 'bids'))
     if bids_ds.is_installed():
         return bids_ds
     try:
