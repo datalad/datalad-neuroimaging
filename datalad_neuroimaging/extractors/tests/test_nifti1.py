@@ -59,7 +59,7 @@ def test_nifti(path):
     ds = Dataset(path).create()
     ds.config.add('datalad.metadata.nativetype', 'nifti1', where='dataset')
     copy(
-        opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'nifti1.nii.gz'),
+        opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'files', 'nifti1.nii.gz'),
         path)
     ds.add('.')
     ok_clean_git(ds.path)

@@ -24,7 +24,7 @@ def test_nidm(path):
     ds.config.add('datalad.metadata.nativetype', 'nidm', where='dataset')
     # imagine filling the dataset up with something that NIDM info could be
     copy(
-        opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'nifti1.nii.gz'),
+        opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'files', 'nifti1.nii.gz'),
         path)
     # extracted from
     ds.add('.')

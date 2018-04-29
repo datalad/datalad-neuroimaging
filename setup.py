@@ -20,7 +20,7 @@ def findsome(subdir, extensions):
     Leading directory (datalad) gets stripped
     """
     return [
-        f.split(pathsep, 1)[1] for f in findall(opj('datalad', subdir))
+        f.split(pathsep, 1)[1] for f in findall(opj('datalad_neuroimaging', subdir))
         if splitext(f)[-1].lstrip('.') in extensions
     ]
 
@@ -77,7 +77,8 @@ setup(
     cmdclass=cmdclass,
     package_data={
         'datalad_neuroimaging':
-            findsome(opj('tests', 'data'), {'dcm', 'gz'})},
+            findsome(opj('tests', 'data', 'files'), {'dcm', 'gz'}) +
+            findsome('resources', {'txt'})},
     entry_points = {
         # 'datalad.extensions' is THE entrypoint inspected by the datalad API builders
         'datalad.extensions': [

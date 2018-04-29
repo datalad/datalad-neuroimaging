@@ -33,7 +33,7 @@ def test_dicom(path):
     ds = Dataset(path).create()
     ds.config.add('datalad.metadata.nativetype', 'dicom', where='dataset')
     copy(
-        opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'dicom.dcm'),
+        opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'files', 'dicom.dcm'),
         path)
     ds.add('.')
     ok_clean_git(ds.path)

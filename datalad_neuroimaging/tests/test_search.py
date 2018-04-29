@@ -78,7 +78,7 @@ def test_within_ds_file_search(path):
             ('nifti1.nii.gz', opj('sub-01', 'func', 'sub-01_task-some_bold.nii.gz')),
             ('nifti1.nii.gz', opj('sub-03', 'func', 'sub-03_task-other_bold.nii.gz'))):
         copy(
-            opj(dirname(dirname(__file__)), 'tests', 'data', src),
+            opj(dirname(dirname(__file__)), 'tests', 'data', 'files', src),
             opj(path, dst))
     ds.add('.')
     ds.aggregate_metadata()
