@@ -129,6 +129,8 @@ class MetadataExtractor(BaseMetadataExtractor):
                 for rx, info in yield_participant_info(bids):
                     path_props[rx] = {'subject': info}
             except Exception as exc:
+                if isinstance(exc, ImportError):
+                    raise exc
                 lgr.warning(
                     "Failed to load participants info due to: %s. Skipping the rest of file",
                     exc_str(exc)
