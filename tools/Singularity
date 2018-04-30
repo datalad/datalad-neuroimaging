@@ -7,6 +7,9 @@
 #
 # Changelog
 # ---------
+# 0.1.2
+#  - Test suite run in container
+#
 # 0.1
 #  - First official release of the DataLad extension for neuroimaging
 #
