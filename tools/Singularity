@@ -8,7 +8,7 @@
 # Changelog
 # ---------
 # 0.1.2
-#  - Test suite run in container
+#  - Test suite runs in container
 #
 # 0.1
 #  - First official release of the DataLad extension for neuroimaging
@@ -52,3 +52,6 @@ From:neurodebian:latest
 
 %help
     This is DataLad for Neuroimaging. Run with --help for more info.
+
+%test
+    datalad test datalad_neuroimaging
