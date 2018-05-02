@@ -117,9 +117,7 @@ def get_bids_dataset():
                        where='dataset', reload=False)
     bids_ds.config.add('datalad.metadata.nativetype', 'nifti1',
                        where='dataset', reload=True)
-    # XXX need to `add` specifically to make it work in direct mode
-    #bids_ds.save(message='Metadata type config')
-    bids_ds.add('.', message='Metadata type config')
+    bids_ds.save(message='Metadata type config')
     # loose dicom datasets
     bids_ds.uninstall(
         [structdicom_ds.path, funcdicom_ds.path],
@@ -135,5 +133,6 @@ def create_dicom_tarball(flavor, path):
     import tarfile
     ds = get_dicom_dataset(flavor=flavor)
     with tarfile.open(path, "w:gz") as tar:
-        tar.add(ds.path)
+        tar.add(ds.path, arcname=op.basename(ds.path),
+                exclude=lambda x: x.startswith("."))
     return path
