@@ -37,6 +37,22 @@ The latest release version can be obtained by running:
 
     singularity pull shub://datalad/datalad-neuroimaging
 
+## Support
+
+The documentation of this project is found here:
+http://docs.datalad.org/projects/neuroimaging
+
+All bugs, concerns and enhancement requests for this software can be submitted here:
+https://github.com/datalad/datalad-neuroimaging/issues
+
+If you have a problem or would like to ask a question about how to use DataLad,
+please [submit a question to
+NeuroStars.org](https://neurostars.org/tags/datalad) with a ``datalad`` tag.
+NeuroStars.org is a platform similar to StackOverflow but dedicated to
+neuroinformatics.
+
+All previous DataLad questions are available here:
+http://neurostars.org/tags/datalad/
 
 ## Acknowledgements
 
