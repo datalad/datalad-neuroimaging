@@ -19,5 +19,12 @@ command_suite = (
             'BIDS2Scidata',
             'bids2scidata',
         ),
+        (
+            'datalad_neuroimaging.bidsapp',
+            'BidsApp',
+            'run-bidsapp',
+            'run_bidsapp',
+        )
+
     ]
 )
