@@ -61,8 +61,7 @@ class BidsApp(Interface):
                                  % cmd)
 
             lgr.info("Installing BIDSApp %s from %s", container_name, source)
-            for r in dataset.install(path=container_ds.path, source=source,
-                                     get_data=True):
+            for r in dataset.install(path=container_ds.path, source=source, result_xfm=None, return_type='generator'):
 
                 if r['type'] == 'dataset':
                     container_ds = Dataset(r['path'])
@@ -84,10 +83,10 @@ class BidsApp(Interface):
                              container_ds.path)
 
         cmd_call = \
-            dataset.config.get("datalad.neuroimaging.bidsapp.%s.call" % cmd)
+            dataset.config.get("datalad.neuroimaging.bidsapp.%s.exec" % cmd)
         if not cmd_call:
             raise ValueError("Missing configuration for "
-                             "datalad.neuroimaging.bidsapp.%s.call" % cmd)
+                             "datalad.neuroimaging.bidsapp.%s.exec" % cmd)
 
         run_cmd = "{exec_} {img} {call}".format(exec_=image_exec,
                                                 img="" if image_name is None
