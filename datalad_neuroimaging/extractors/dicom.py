@@ -10,7 +10,7 @@
 from __future__ import absolute_import
 
 from six import string_types
-from os.path import join as opj, basename
+import os.path as op
 import logging
 lgr = logging.getLogger('datalad.metadata.extractors.dicom')
 from datalad.log import log_progress
@@ -45,7 +45,9 @@ def _sanitize_unicode(s):
 
 def _convert_value(v):
     t = type(v)
-    if t in (int, float):
+    if v is None:
+        cv = v
+    elif t in (int, float):
         cv = v
     elif t == str:
         cv = _sanitize_unicode(v)
@@ -113,7 +115,7 @@ class MetadataExtractor(BaseMetadataExtractor):
             unit=' Files',
         )
         for f in self.paths:
-            absfp = opj(self.ds.path, f)
+            absfp = op.join(self.ds.path, f)
             log_progress(
                 lgr.info,
                 'extractordicom',
@@ -121,7 +123,7 @@ class MetadataExtractor(BaseMetadataExtractor):
                 update=1,
                 increment=True)
 
-            if basename(f).startswith('PSg'):
+            if op.basename(f).startswith('PSg'):
                 # ignore those dicom files, since they appear to not contain
                 # any relevant metadata for image series, but causing trouble
                 # (see gh-2210). We might want to change that whenever we get
@@ -130,7 +132,7 @@ class MetadataExtractor(BaseMetadataExtractor):
                 continue
 
             try:
-                d = dcm.read_file(absfp, stop_before_pixels=True)
+                d = dcm.read_file(absfp, defer_size=1000, stop_before_pixels=True)
             except InvalidDicomError:
                 # we can only ignore
                 lgr.debug('"%s" does not look like a DICOM file, skipped', f)
@@ -148,15 +150,19 @@ class MetadataExtractor(BaseMetadataExtractor):
             if d.SeriesInstanceUID not in imgseries:
                 # start with a copy of the metadata of the first dicom in a series
                 series = _struct2dict(d) if ddict is None else ddict.copy()
+                # store directory containing the image series (good for sorted
+                # DICOM datasets)
+                series_dir = op.dirname(f)
+                series['SeriesDirectory'] = series_dir if series_dir else op.curdir
                 series_files = []
             else:
-                series, series_files = imgseries.get(d.SeriesInstanceUID)
+                series, series_files = imgseries[d.SeriesInstanceUID]
                 # compare incoming with existing metadata set
                 series = {
                     k: series[k] for k in series
                     # only keys that exist and have values that are identical
                     # across all images in the series
-                    if hasattr(d, k) and getattr(d, k) == series[k]
+                    if _convert_value(getattr(d, k, None)) == series[k]
                 }
             series_files.append(f)
             # store
