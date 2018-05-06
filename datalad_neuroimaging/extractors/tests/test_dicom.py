@@ -15,8 +15,7 @@ except ImportError:
     raise SkipTest
 
 from shutil import copy
-from os.path import dirname
-from os.path import join as opj
+import os.path as op
 from datalad.api import Dataset
 from datalad.tests.utils import with_tempfile
 from datalad.tests.utils import ok_clean_git
@@ -33,7 +32,7 @@ def test_dicom(path):
     ds = Dataset(path).create()
     ds.config.add('datalad.metadata.nativetype', 'dicom', where='dataset')
     copy(
-        opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'files', 'dicom.dcm'),
+        op.join(op.dirname(op.dirname(op.dirname(__file__))), 'tests', 'data', 'files', 'dicom.dcm'),
         path)
     ds.add('.')
     ok_clean_git(ds.path)
@@ -62,6 +61,8 @@ def test_dicom(path):
     # same context
     assert_dict_equal(meta['@context'], dsmeta['@context'])
     meta.pop('@context')
+    seriesmeta = dsmeta['Series']
+    eq_(seriesmeta[0].pop('SeriesDirectory'), op.curdir)
     eq_(dsmeta['Series'], [meta])
 
     # for this artificial case pretty much the same info also comes out as
