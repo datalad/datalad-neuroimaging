@@ -45,7 +45,9 @@ def _sanitize_unicode(s):
 
 def _convert_value(v):
     t = type(v)
-    if t in (int, float):
+    if t == NoneType:
+        cv = v
+    elif t in (int, float):
         cv = v
     elif t == str:
         cv = _sanitize_unicode(v)
@@ -130,7 +132,7 @@ class MetadataExtractor(BaseMetadataExtractor):
                 continue
 
             try:
-                d = dcm.read_file(absfp, stop_before_pixels=True)
+                d = dcm.read_file(absfp, defer_size="1 KB", stop_before_pixels=True)
             except InvalidDicomError:
                 # we can only ignore
                 lgr.debug('"%s" does not look like a DICOM file, skipped', f)
@@ -150,13 +152,13 @@ class MetadataExtractor(BaseMetadataExtractor):
                 series = _struct2dict(d) if ddict is None else ddict.copy()
                 series_files = []
             else:
-                series, series_files = imgseries.get(d.SeriesInstanceUID)
+                series, series_files = imgseries[d.SeriesInstanceUID]
                 # compare incoming with existing metadata set
                 series = {
                     k: series[k] for k in series
                     # only keys that exist and have values that are identical
                     # across all images in the series
-                    if hasattr(d, k) and getattr(d, k) == series[k]
+                    if _convert_value(getattr(d, k, None)) == series[k]
                 }
             series_files.append(f)
             # store
