@@ -7,7 +7,7 @@
 
 This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
-repository](http://github.com/datalad/datalad-meuroimaging) for more details.
+repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
 ## 0.1 (Apr 28, 2018) -- The Release
 
