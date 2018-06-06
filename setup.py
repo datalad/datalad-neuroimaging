@@ -65,6 +65,7 @@ setup(
         'pybids[analysis]>=0.5.1',  # BIDS metadata
         'nibabel',  # NIfTI metadata
         'pandas',  # bids2scidata export
+        'CherryPy'
     ],
     extras_require={
         'devel-docs': [
