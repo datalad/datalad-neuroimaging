@@ -597,11 +597,15 @@ class BIDS2Scidata(Interface):
     @eval_results
     def __call__(repo_name, repo_accession, repo_url, path=None, output=None, dataset=None):
         # we need this resource file, no point in starting without it
+        default_path = opj(dirname(datalad_neuroimaging.__file__), 'resources', 'isatab',
+                'scidata_bids_investigator.txt')
         itmpl_path = cfg.obtain(
             'datalad.plugin.bids2scidata.investigator.template',
-            default=opj(
-                dirname(datalad_neuroimaging.__file__),
-                'resources', 'isatab', 'scidata_bids_investigator.txt'))
+            default=default_path)
+        if itmpl_path == default_path and not os.path.isabs(default_path):
+            # see https://github.com/datalad/datalad/issues/2514
+            raise RuntimeError(
+                "Do not run within the datalad_neuroimaging source tree")
 
         if path and dataset is None:
             dataset = path
@@ -628,7 +632,7 @@ class BIDS2Scidata(Interface):
                 continue
             if type == 'dataset':
                 if dsmeta is not None:
-                    lgr.warn(
+                    lgr.warning(
                         'Found metadata for more than one datasets, '
                         'ignoring their dataset-level metadata')
                     continue
