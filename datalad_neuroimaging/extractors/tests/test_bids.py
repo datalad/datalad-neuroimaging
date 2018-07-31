@@ -96,6 +96,7 @@ def test_get_metadata(path):
 @with_tree(tree={'dataset_description.json': """
 {
     "Name": "test",
+    "BIDSVersion": "1.0.0-rc3",
     "Description": "Some description"
 }
 """,
@@ -113,7 +114,8 @@ def test_get_metadata_with_description_and_README(path):
         dump,
         """\
 {
-  "conformsto": "http://bids.neuroimaging.io",
+  "BIDSVersion": "1.0.0-rc3",
+  "conformsto": "http://bids.neuroimaging.io/bids_spec1.0.0-rc3.pdf",
   "description": "Some description",
   "name": "test"
 }""")
@@ -123,7 +125,8 @@ def test_get_metadata_with_description_and_README(path):
 # https://github.com/datalad/datalad/issues/1138
 @with_tree(tree={'dataset_description.json': """
 {
-    "Name": "test"
+    "Name": "test",
+    "BIDSVersion": "1.0.0-rc3"
 }
 """,
                  'README': u"""
@@ -139,7 +142,8 @@ def test_get_metadata_with_README(path):
         dump,
         u"""\
 {
-  "conformsto": "http://bids.neuroimaging.io",
+  "BIDSVersion": "1.0.0-rc3",
+  "conformsto": "http://bids.neuroimaging.io/bids_spec1.0.0-rc3.pdf",
   "description": "A very detailed\\ndescription с юникодом",
   "name": "test"
 }""")

@@ -62,7 +62,7 @@ setup(
         'datalad[full]>=0.10.0.rc1',
         #'datalad-webapp',
         'pydicom',  # DICOM metadata
-        'pybids[analysis]>=0.5.1',  # BIDS metadata
+        'pybids>=0.6.4',  # BIDS metadata
         'nibabel',  # NIfTI metadata
         'pandas',  # bids2scidata export
     ],

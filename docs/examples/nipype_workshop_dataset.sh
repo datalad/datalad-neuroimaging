@@ -191,7 +191,7 @@ datalad add -d . nipype-2017
 #%
 
 # created some dataset_description.json (following BIDS format lazy me)
-echo '{"Name": "Datasets for various workshops"}' > dataset_description.json
+echo -e '{"Name": "Datasets for various workshops",\n "BIDSVersion": "1.0.0"}' > dataset_description.json
 # and tell datalad that this is using the BIDS metadata standard
 git config --file .datalad/config --add datalad.metadata.nativetype bids
 # add that file to git

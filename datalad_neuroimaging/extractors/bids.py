@@ -68,14 +68,12 @@ class MetadataExtractor(BaseMetadataExtractor):
         if not exists(opj(self.ds.path, self._dsdescr_fname)):
             return {}, []
 
-        bids = BIDSLayout(
-            self.ds.path,
-            config=[
-                'bids', (
-                    'derivatives',
-                    'derivatives' if exists(opj(self.ds.path, 'derivatives')) else curdir
-                )],
-        )
+        paths = [(self.ds.path, 'bids')]
+        derivs_path = opj(self.ds.path, 'derivatives')
+        if exists(opj(self.ds.path, 'derivatives')):
+            paths.append((derivs_dir, ['bids', 'derivatives']))
+
+        bids = BIDSLayout(paths)
         dsmeta = self._get_dsmeta(bids)
 
         if not content:
