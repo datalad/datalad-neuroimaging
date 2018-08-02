@@ -9,6 +9,11 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
+## 0.1.4 (Aug 02, 2018) -- PyBIDS
+
+- Fixed compatibility with pybids 0.6.4 and now demand it as the minimal
+  PyBIDS version
+
 ## 0.1 (Apr 28, 2018) -- The Release
 
 ### Major refactoring and deprecations
