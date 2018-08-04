@@ -201,7 +201,9 @@ def yield_participant_info(bids):
             hk = content_metakey_map.get(normk, normk)
             val = assure_unicode(bidsvars[p])
             if hk in ('sex', 'gender'):
-                val = sex_label_map.get(val.lower(), val.lower())
+                if hasattr(val, 'lower'):
+                    val = val.lower()
+                val = sex_label_map.get(val, val)
             if val:
                 props[hk] = val
         if props:

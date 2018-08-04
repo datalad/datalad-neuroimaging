@@ -8,6 +8,7 @@
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Test BIDS metadata extractor """
 
+from math import isnan
 from os.path import join as opj
 from simplejson import dumps
 from datalad.api import Dataset
@@ -42,7 +43,7 @@ bids_template = {
 """,
     'participants.tsv': u"""\
 participant_id\tgender\tage\thandedness\thearing_problems_current\tlanguage
-sub-01\tm\t30-35\tr\tn\tрусский
+sub-01\tn/a\t30-35\tr\tn\tрусский
 sub-03\tf\t20-25\tr\tn\tenglish
 """,
     'sub-01': {'func': {'sub-01_task-some_bold.nii.gz': ''}},
@@ -91,6 +92,9 @@ def test_get_metadata(path):
     assert_in('handedness', fmeta['subject'])
     assert_in('language', fmeta['subject'])
     assert_equal(fmeta['subject']['language'], u'русский')
+    # pandas will convert 'n/a' to a float, and it should come out
+    # as just that
+    assert(isnan(fmeta['subject']['gender']))
 
 
 @with_tree(tree={'dataset_description.json': """
