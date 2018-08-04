@@ -63,11 +63,6 @@ class MetadataExtractor(BaseMetadataExtractor):
     }
 
     def get_metadata(self, dataset, content):
-        # (I think) we need a cheap test to see if there is anything, otherwise
-        # pybids we try to parse any size of directory hierarchy in full
-        if not exists(opj(self.ds.path, self._dsdescr_fname)):
-            return {}, []
-
         paths = [(self.ds.path, 'bids')]
         derivs_path = opj(self.ds.path, 'derivatives')
         if exists(opj(self.ds.path, 'derivatives')):
