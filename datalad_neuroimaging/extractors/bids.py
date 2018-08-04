@@ -169,6 +169,15 @@ class MetadataExtractor(BaseMetadataExtractor):
                      # no nested structures for now (can be monstrous when DICOM
                      # metadata is embedded)
                      if not isinstance(v, dict)})
+            except ValueError as e:
+                lgr.debug(
+                    'PyBIDS errored on file %s in %s: %s '
+                    '(possibly not BIDS-compliant or not recognized',
+                    f, self.ds, exc_str(e))
+                lgr.debug('no usable BIDS metadata for %s in %s: %s',
+                          f, self.ds, exc_str(e))
+                # do not raise here:
+                # https://github.com/datalad/datalad-neuroimaging/issues/34
             except Exception as e:
                 lgr.debug('no usable BIDS metadata for %s in %s: %s',
                           f, self.ds, exc_str(e))
