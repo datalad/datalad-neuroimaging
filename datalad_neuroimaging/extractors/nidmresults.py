@@ -48,7 +48,7 @@ class MetadataExtractor(BaseMetadataExtractor):
         for name, path in nidmblobs.items():
             nidmblob = None
             with ZipFile(op.join(self.ds.path, path), 'r') as z:
-                nidmblob = z.read('nidm.jsonld')
+                nidmblob = z.read('nidm_minimal.json')
             nidmblob = json_py.loads(nidmblob)
             if isinstance(nidmblob, list) and len(nidmblob) == 1:
                 nidmblob = nidmblob[0]
