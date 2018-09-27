@@ -34,6 +34,7 @@ install:
   - pip install nose
   - git config --global user.email "test@appveyor.land"
   - git config --global user.name "Appveyor Almighty"
+  - git config --global --add datalad.repo.version 6
 
 test_script:
   # establish baseline, if annex doesn't work, we are not even trying
