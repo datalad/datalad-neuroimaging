@@ -20,6 +20,8 @@ lgr = logging.getLogger('datalad.metadata.extractors.nidmresults')
 from datalad.metadata.definitions import vocabulary_id
 from datalad.metadata.extractors.base import BaseMetadataExtractor
 
+from datalad.support.network import is_url
+
 
 class MetadataExtractor(BaseMetadataExtractor):
 
@@ -46,6 +48,8 @@ class MetadataExtractor(BaseMetadataExtractor):
             (self._yield_nidm_blobs() if content else [])
 
     def _yield_nidm_blobs(self):
+        context_cache = {}
+
         for packfile in [f for f in self.paths if f.endswith('.nidm.zip')]:
             nidmblob = None
             try:
@@ -66,4 +70,24 @@ class MetadataExtractor(BaseMetadataExtractor):
                         "Found more then one NIDM result structure in pack at %s, cannot report that.",
                         packabspath)
                     continue
+
+            context_url = nidmblob.get('@context', None)
+            # TODO this conditional may go away if the final NIDM metadata concept
+            # includes the full context and does not use a URL reference
+            if context_url:
+                # context might be a URL, in which case we want to capture the
+                # actual context behind that URL, even if it is just the first
+                # level
+                if is_url(context_url) and context_url not in context_cache:
+                    import requests
+                    r = requests.get(context_url)
+                    if r.ok:
+                        # because if not, we just keep the URL as is
+                        # (maybe a place holder ...)
+                        context = r.json()
+                        context_cache[context_url] = context
+
+                nidmblob['@context'] = context_cache.get(
+                    context_url, nidmblob['@context'])
+
             yield packfile, nidmblob
