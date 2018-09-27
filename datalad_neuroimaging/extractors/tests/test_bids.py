@@ -92,9 +92,7 @@ def test_get_metadata(path):
     assert_in('handedness', fmeta['subject'])
     assert_in('language', fmeta['subject'])
     assert_equal(fmeta['subject']['language'], u'русский')
-    # pandas will convert 'n/a' to a float, and it should come out
-    # as just that
-    assert(isnan(fmeta['subject']['gender']))
+    assert_equal(fmeta['subject']['gender'], u'n/a')
 
 
 @with_tree(tree={'dataset_description.json': """

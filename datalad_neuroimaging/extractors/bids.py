@@ -9,6 +9,7 @@
 """BIDS metadata extractor (http://bids.neuroimaging.io)"""
 
 from __future__ import absolute_import
+from math import isnan
 # use pybids to evolve with the standard without having to track it too much
 from bids.grabbids import BIDSLayout
 import re
@@ -203,6 +204,9 @@ def yield_participant_info(bids):
             if hk in ('sex', 'gender'):
                 if hasattr(val, 'lower'):
                     val = val.lower()
+                elif isinstance(val, float) and isnan(val):
+                    # pybids reports 'n/a' is NaN
+                    val = 'n/a'
                 val = sex_label_map.get(val, val)
             if val:
                 props[hk] = val
