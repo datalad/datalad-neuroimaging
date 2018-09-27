@@ -13,7 +13,7 @@
 from datalad.distribution.dataset import Dataset
 
 from datalad.tests.utils import with_tree
-from datalad.tests.utils import assert_equal
+from datalad.tests.utils import assert_dict_equal
 from datalad.tests.utils import assert_not_in
 from ..extractors.tests.test_bids import bids_template
 
@@ -27,27 +27,31 @@ def test_nested_metadata(path):
     # content metadata. On the dataset-level this should automatically
     # yield a sequence of participant info dicts, without any further action
     # or BIDS-specific configuration
-    meta = ds.metadata('.', reporton='datasets', return_type='item-or-list')['metadata']
-    assert_equal(
-        meta['datalad_unique_content_properties']['bids']['subject'],
-        [
-            {
-                "age(years)": "20-25",
-                "id": "03",
-                "gender": "female",
-                "handedness": "r",
-                "hearing_problems_current": "n",
-                "language": "english"
-            },
-            {
-                "age(years)": "30-35",
-                "id": "01",
-                "gender": "male",
-                "handedness": "r",
-                "hearing_problems_current": "n",
-                "language": u"русский"
-            },
-        ])
+    meta = ds.metadata(
+        '.', reporton='datasets', return_type='item-or-list')['metadata']
+    for i in zip(
+            sorted(
+                meta['datalad_unique_content_properties']['bids']['subject'],
+                key=lambda x: x['id']),
+            sorted([
+                {
+                    "age(years)": "20-25",
+                    "id": "03",
+                    "gender": "female",
+                    "handedness": "r",
+                    "hearing_problems_current": "n",
+                    "language": "english"
+                },
+                {
+                    "age(years)": "30-35",
+                    "id": "01",
+                    "gender": 'n/a',
+                    "handedness": "r",
+                    "hearing_problems_current": "n",
+                    "language": u"русский"
+                }],
+                key=lambda x: x['id'])):
+            assert_dict_equal(i[0], i[1])
     # we can turn off this kind of auto-summary
     ds.config.add('datalad.metadata.generate-unique-bids', 'false', where='dataset')
     ds.aggregate_metadata()

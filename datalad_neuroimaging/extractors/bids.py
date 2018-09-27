@@ -9,6 +9,7 @@
 """BIDS metadata extractor (http://bids.neuroimaging.io)"""
 
 from __future__ import absolute_import
+from math import isnan
 # use pybids to evolve with the standard without having to track it too much
 from bids.grabbids import BIDSLayout
 import re
@@ -63,11 +64,6 @@ class MetadataExtractor(BaseMetadataExtractor):
     }
 
     def get_metadata(self, dataset, content):
-        # (I think) we need a cheap test to see if there is anything, otherwise
-        # pybids we try to parse any size of directory hierarchy in full
-        if not exists(opj(self.ds.path, self._dsdescr_fname)):
-            return {}, []
-
         paths = [(self.ds.path, 'bids')]
         derivs_path = opj(self.ds.path, 'derivatives')
         if exists(opj(self.ds.path, 'derivatives')):
@@ -169,6 +165,15 @@ class MetadataExtractor(BaseMetadataExtractor):
                      # no nested structures for now (can be monstrous when DICOM
                      # metadata is embedded)
                      if not isinstance(v, dict)})
+            except ValueError as e:
+                lgr.debug(
+                    'PyBIDS errored on file %s in %s: %s '
+                    '(possibly not BIDS-compliant or not recognized',
+                    f, self.ds, exc_str(e))
+                lgr.debug('no usable BIDS metadata for %s in %s: %s',
+                          f, self.ds, exc_str(e))
+                # do not raise here:
+                # https://github.com/datalad/datalad-neuroimaging/issues/34
             except Exception as e:
                 lgr.debug('no usable BIDS metadata for %s in %s: %s',
                           f, self.ds, exc_str(e))
@@ -197,7 +202,12 @@ def yield_participant_info(bids):
             hk = content_metakey_map.get(normk, normk)
             val = assure_unicode(bidsvars[p])
             if hk in ('sex', 'gender'):
-                val = sex_label_map.get(val.lower(), val.lower())
+                if hasattr(val, 'lower'):
+                    val = val.lower()
+                elif isinstance(val, float) and isnan(val):
+                    # pybids reports 'n/a' is NaN
+                    val = 'n/a'
+                val = sex_label_map.get(val, val)
             if val:
                 props[hk] = val
         if props:
