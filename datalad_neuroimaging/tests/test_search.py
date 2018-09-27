@@ -167,9 +167,9 @@ type
             # random keyword query
             # multi word query implies AND
             ('textblob',
-             ['bold', 'male'],
-             opj('sub-01', 'func', 'sub-01_task-some_bold.nii.gz'),
-             'meta', 'male'),
+             ['bold', 'female'],
+             opj('sub-03', 'func', 'sub-03_task-some_bold.nii.gz'),
+             'meta', 'female'),
             # report which field matched with auto-field
             ('autofield',
              'female',
