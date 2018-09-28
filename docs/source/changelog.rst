@@ -4,29 +4,42 @@ Change log
 **********
 ::
 
-     ____            _             _                   _ 
-    |  _ \    __ _  | |_    __ _  | |       __ _    __| |
-    | | | |  / _` | | __|  / _` | | |      / _` |  / _` |
-    | |_| | | (_| | | |_  | (_| | | |___  | (_| | | (_| |
-    |____/   \__,_|  \__|  \__,_| |_____|  \__,_|  \__,_|
-                                               Neuroimaging
+    ____            _             _                   _ 
+   |  _ \    __ _  | |_    __ _  | |       __ _    __| |
+   | | | |  / _` | | __|  / _` | | |      / _` |  / _` |
+   | |_| | | (_| | | |_  | (_| | | |___  | (_| | | (_| |
+   |____/   \__,_|  \__|  \__,_| |_____|  \__,_|  \__,_|
+                                              Neuroimaging
 
 This is a high level and scarce summary of the changes between releases.
 We would recommend to consult log of the `DataLad git
 repository <http://github.com/datalad/datalad-neuroimaging>`__ for more
 details.
 
-0.1 (Apr 28, 2018) -- The Release
----------------------------------
+0.1.5 (Sep 28, 2018) – BIDS robustness
+--------------------------------------
+
+-  Assorted improvements of the BIDS metadata extractor performance on
+   datasets in the wild.
+
+0.1.4 (Aug 02, 2018) – PyBIDS
+-----------------------------
+
+-  Fixed compatibility with pybids 0.6.4 and now demand it as the
+   minimal PyBIDS version
+
+0.1 (Apr 28, 2018) – The Release
+--------------------------------
 
 Major refactoring and deprecations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  This is the first separate release of DataLad's neuroimaging
+-  This is the first separate release of DataLad’s neuroimaging
    functionality as an extension module.
 -  Metadata
--  BIDS metadata now uniformly refers to subjects and participants using
-   the metadata key 'subject'
+
+   -  BIDS metadata now uniformly refers to subjects and participants
+      using the metadata key ‘subject’
 
 Enhancements and new features
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,5 +51,5 @@ Fixes
 ~~~~~
 
 -  Fix issue with unicode characters in BIDS metadata
--  DICOM metadata now also contains the 'PatientName' field that was
+-  DICOM metadata now also contains the ‘PatientName’ field that was
    previously excluded due to a too restrictive data type filter
