@@ -74,7 +74,7 @@ class MetadataExtractor(BaseMetadataExtractor):
             context_url = nidmblob.get('@context', None)
             # TODO this conditional may go away if the final NIDM metadata concept
             # includes the full context and does not use a URL reference
-            if context_url:
+            if context_url and not isinstance(context_url, dict):
                 # context might be a URL, in which case we want to capture the
                 # actual context behind that URL, even if it is just the first
                 # level
