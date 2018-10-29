@@ -2,6 +2,7 @@ from os.path import dirname, normpath, join as opj, pardir
 import os.path as op
 
 from datalad.api import Dataset
+from datalad.api import export_archive
 from datalad.coreapi import install
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import SkipTest
@@ -132,8 +133,8 @@ def get_bids_dataset():
 
 
 def create_dicom_tarball(flavor, path):
-    import tarfile
+
     ds = get_dicom_dataset(flavor=flavor)
-    with tarfile.open(path, "w:gz") as tar:
-        tar.add(ds.path)
+    ds.export_archive(path, archivetype="tar", compression="gz",
+                      missing_content="ignore")
     return path
