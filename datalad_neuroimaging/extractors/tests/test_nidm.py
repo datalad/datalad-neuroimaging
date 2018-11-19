@@ -16,7 +16,7 @@ from datalad.tests.utils import with_tempfile
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import assert_status
 from datalad.tests.utils import assert_result_count
-
+from . import datalad_extracts_annex_key
 
 @with_tempfile(mkdir=True)
 def test_nidm(path):
@@ -42,26 +42,25 @@ def test_nidm(path):
     core.pop('version', None)
     core.pop('refcommit')
     # show full structure of the assembled metadata from demo content
-    assert_result_count(
-        res, 1,
-        metadata={
-            "@context": {
-                "@vocab": "http://docs.datalad.org/schema_v2.0.json"
-            },
-            "datalad_core": {
-                "@id": ds.id
-            },
-            "nidm": {
-                "@context": {
-                    "mydurationkey": {
-                        "@id": "time:Duration"
-                    },
-                    "myvocabprefix": {
-                        "@id": "http://purl.org/ontology/mydefinition",
-                        "description": "I am a vocabulary",
-                        "type": "http://purl.org/dc/dcam/VocabularyEncodingScheme"
-                    }
-                },
-                "mydurationkey": 0.6
+    target_metadata = {
+        "@context": {"@vocab": "http://docs.datalad.org/schema_v2.0.json"},
+        "datalad_core": {"@id": ds.id}, "nidm": {
+            "@context": {"mydurationkey": {"@id": "time:Duration"},
+                         "myvocabprefix": {
+                             "@id": "http://purl.org/ontology/mydefinition",
+                             "description": "I am a vocabulary",
+                             "type":
+                                 "http://purl.org/dc/dcam/VocabularyEncodingScheme"}},
+            "mydurationkey": 0.6}}
+
+    if datalad_extracts_annex_key:
+        target_metadata['datalad_unique_content_properties'] = \
+            {
+                "annex": {
+                 "key": [
+                  "MD5E-s15920--acfb708aa74951cfff1a9d466f6d77be.nii.gz"
+                 ]
+                }
             }
-        })
+
+    assert_result_count(res, 1, metadata=target_metadata)

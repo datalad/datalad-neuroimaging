@@ -25,7 +25,7 @@ from datalad.tests.utils import eq_
 from datalad.tests.utils import assert_dict_equal
 from datalad.tests.utils import assert_in
 from datalad.tests.utils import assert_not_in
-
+from . import datalad_extracts_annex_key
 
 @with_tempfile(mkdir=True)
 def test_dicom(path):
@@ -81,6 +81,7 @@ def test_dicom(path):
     ds.aggregate_metadata()
     res = ds.metadata(reporton='datasets')
 
-    # the auto-uniquified bits are gone but the Series description stays
-    assert_not_in("datalad_unique_content_properties", res[0]['metadata'])
+    if not datalad_extracts_annex_key:
+        # the auto-uniquified bits are gone but the Series description stays
+        assert_not_in("datalad_unique_content_properties", res[0]['metadata'])
     eq_(dsmeta['Series'], [meta])

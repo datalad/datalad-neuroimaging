@@ -7,3 +7,7 @@
 #
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Metadata extractors"""
+
+from datalad.support.external_versions import external_versions
+
+datalad_extracts_annex_key = external_versions['datalad'] > '0.11.0'
