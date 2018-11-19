@@ -30,7 +30,18 @@ env:
     - DATALAD_REPO_VERSION=5
     - DATALAD_REPO_VERSION=6
 
-
+matrix:
+  include:
+  - python: 2.7
+    env:
+    - DATALAD_REPO_VERSION=5
+    - _DL_UPSTREAM_DATALAD=1
+    - _DL_UPSTREAM_HEUDICONV=1
+  - python: 3.6
+    env:
+    - DATALAD_REPO_VERSION=5
+    - _DL_UPSTREAM_DATALAD=1
+    - _DL_UPSTREAM_HEUDICONV=1
 before_install:
   # Just in case we need to check if nfs is there etc
   - sudo lsmod
@@ -43,6 +54,12 @@ before_install:
   # install git-annex with the relevant bits
   # no recommends to avoid inheriting the entire multimedia stack
   - travis_retry sudo eatmydata apt-get install --no-install-recommends git-annex-standalone aria2 git-remote-gcrypt lsof gnupg nocache
+  # Install optionally upstream current development so we are sure that they break nothing important for us
+  # Otherwise use NeuroDebian release version
+  - if [ ! -z "${_DL_UPSTREAM_DATALAD:-}" ]; then pip install git+https://github.com/datalad/datalad.git; else sudo eatmydata apt-get install datalad python-datalad python3-datalad; fi
+  # heudiconv for conversion testing:
+  - travis_retry sudo eatmydata apt-get install dcm2niix
+  - if [ ! -z "${_DL_UPSTREAM_HEUDICONV:-}" ]; then pip install git+https://github.com/nipy/heudiconv.git; else pip install heudiconv; fi
 
 
 install:
@@ -55,9 +72,6 @@ install:
   - pip install -r requirements.txt
   - pip install 'sphinx>=1.6.2'
   - pip install 'sphinx-rtd-theme'
-  # heudiconv for conversion testing:
-  - travis_retry sudo eatmydata apt-get install dcm2niix
-  - pip install heudiconv
   # So we could test under sudo -E with PATH pointing to installed location
   - sudo sed -i -e 's/^Defaults.*secure_path.*$//' /etc/sudoers
 
