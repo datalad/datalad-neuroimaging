@@ -47,7 +47,9 @@ sub-01\tn/a\t30-35\tr\tn\tрусский
 sub-03\tf\t20-25\tr\tn\tenglish
 """,
     'sub-01': {'func': {'sub-01_task-some_bold.nii.gz': ''}},
-    'sub-03': {'func': {'sub-03_task-other_bold.nii.gz': ''}}}
+    'sub-03': {'func': {'sub-03_task-other_bold.nii.gz': ''}},
+    'derivatives': {'empty': {}}  # Test that we do not blow if derivatives present
+}
 
 
 @with_tree(tree=bids_template)
