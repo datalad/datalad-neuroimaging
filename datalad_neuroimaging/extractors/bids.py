@@ -67,7 +67,7 @@ class MetadataExtractor(BaseMetadataExtractor):
         paths = [(self.ds.path, 'bids')]
         derivs_path = opj(self.ds.path, 'derivatives')
         if exists(opj(self.ds.path, 'derivatives')):
-            paths.append((derivs_dir, ['bids', 'derivatives']))
+            paths.append((derivs_path, ['bids', 'derivatives']))
 
         bids = BIDSLayout(paths)
         dsmeta = self._get_dsmeta(bids)
