@@ -55,8 +55,7 @@ before_install:
   # no recommends to avoid inheriting the entire multimedia stack
   - travis_retry sudo eatmydata apt-get install --no-install-recommends git-annex-standalone aria2 git-remote-gcrypt lsof gnupg nocache
   # Install optionally upstream current development so we are sure that they break nothing important for us
-  # Otherwise use NeuroDebian release version
-  - if [ ! -z "${_DL_UPSTREAM_DATALAD:-}" ]; then pip install git+https://github.com/datalad/datalad.git; else sudo eatmydata apt-get install datalad python-datalad python3-datalad; fi
+  - if [ ! -z "${_DL_UPSTREAM_DATALAD:-}" ]; then pip install git+https://github.com/datalad/datalad.git; fi
   # heudiconv for conversion testing:
   - travis_retry sudo eatmydata apt-get install dcm2niix
   - if [ ! -z "${_DL_UPSTREAM_HEUDICONV:-}" ]; then pip install git+https://github.com/nipy/heudiconv.git; else pip install heudiconv; fi
