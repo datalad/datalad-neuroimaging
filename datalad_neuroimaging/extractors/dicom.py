@@ -25,17 +25,28 @@ except ImportError:  # pragma: no cover
     from dicom.errors import InvalidDicomError
     from dicom.dicomdir import DicomDir
 
+try:
+    from collections.abc import MutableSequence
+except ImportError:
+    from collections import MutableSequence
+
 from datalad.metadata.definitions import vocabulary_id
 from datalad.metadata.extractors.base import BaseMetadataExtractor
 
+# Data types we care to extract/handle
+_SCALAR_TYPES = (
+    int, float, string_types, dcm.valuerep.DSfloat, dcm.valuerep.IS,
+    dcm.valuerep.PersonName3)
+# Since pydicom 1.0 MultiValue is no longer subclass of list
+# but of collections{.abc,}.MutableSequence . To make sure we
+# do not miss any of those - match to both
+_SEQUENCE_TYPES = (list, tuple, dcm.multival.MultiValue, MutableSequence)
+
 
 def _is_good_type(v):
-    if isinstance(
-            v,
-            (int, float, string_types, dcm.valuerep.DSfloat, dcm.valuerep.IS,
-             dcm.valuerep.PersonName3)):
+    if isinstance(v, _SCALAR_TYPES):
         return True
-    elif isinstance(v, (list, tuple)):
+    elif isinstance(v, _SEQUENCE_TYPES):
         return all(map(_is_good_type, v))
 
 
@@ -60,7 +71,7 @@ def _convert_value(v):
         cv = int(v)
     elif t == dcm.valuerep.PersonName3:
         cv = str(v)
-    elif isinstance(v, (list, tuple)):
+    elif isinstance(v, _SEQUENCE_TYPES):
         cv = list(map(_convert_value, v))
     else:
         cv = v
@@ -78,10 +89,18 @@ context = {
 
 
 def _struct2dict(struct):
-    return {k: _convert_value(getattr(struct, k))
-            for k in struct.dir()
-            if hasattr(struct, k) and
-            _is_good_type(getattr(struct, k))}
+    out = {}
+    for k in struct.dir():
+        if hasattr(struct, k):
+            value = getattr(struct, k)
+            if _is_good_type(value):
+                out[k] = _convert_value(value)
+            else:
+                lgr.debug(
+                    "Skipping field %s of the type %s which we do not handle",
+                    k, type(value)
+                )
+    return out
 
 
 class MetadataExtractor(BaseMetadataExtractor):

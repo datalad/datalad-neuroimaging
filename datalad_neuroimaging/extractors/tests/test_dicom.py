@@ -47,6 +47,10 @@ def test_dicom(path):
     # no point in testing ALL keys, but we got plenty
     assert(len(meta.keys()) > 70)
     eq_(meta['SeriesDate'], '20070205')
+    # Actually a tricky one of the dcm.multival.MultiValue type
+    # which we should extract as a list
+    # https://github.com/datalad/datalad-neuroimaging/issues/49
+    eq_(meta['ImageType'], ['ORIGINAL', 'PRIMARY', 'EPI', 'NONE'])
     # make sure we have PatientName -- this is not using a basic data type, but
     # dicom.valuerep.PersonName3 -- conversion should have handled that
     # we can only test if the key is there, the source dicom has an empty
