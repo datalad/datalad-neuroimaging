@@ -14,6 +14,7 @@ from simplejson import dumps
 from datalad.api import Dataset
 
 from nose.tools import assert_equal
+from datalad.support.external_versions import external_versions
 from datalad.tests.utils import with_tree
 from datalad.tests.utils import assert_in
 
@@ -87,9 +88,13 @@ def test_get_metadata(path):
     # check that we get file props extracted from the file name from pybids
     fmeta = cmeta[0][1]
     assert_equal(fmeta['subject']['id'], '01')
-    assert_equal(fmeta['type'], 'bold')
+    # There was a RF from a restrictive "type" to a more generic, but more
+    # BIDS ad-hoc "suffix" lacking semantic value really in 0.7.0.
+    type_field = 'suffix' if external_versions['bids'] >= '0.7.0' else 'type'
+    assert_equal(fmeta[type_field], 'bold')
     assert_equal(fmeta['task'], 'some')
-    assert_equal(fmeta['modality'], 'func')
+    datatype_field = 'datatype' if external_versions['bids'] >= '0.7.0' else 'modality'
+    assert_equal(fmeta[datatype_field], 'func')
     # the fact that there is participant vs subject is already hotly debated in Tal's brain
     assert_in('handedness', fmeta['subject'])
     assert_in('language', fmeta['subject'])
