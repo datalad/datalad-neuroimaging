@@ -9,6 +9,13 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
+## 0.2.0 (??? ??, 2019) -- ???
+
+- Make compatible with (and demand) pybids 0.7.0.  That version introduced
+  change of terms: modality -> suffix, and type -> datatype, which would now
+  require to either reaggregate all previous metadata or somehow fixup
+  in-place existing metadata files.
+
 ## 0.1.5 (Sep 28, 2018) -- BIDS robustness
 
 - Assorted improvements of the BIDS metadata extractor performance on datasets

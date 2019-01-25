@@ -13,13 +13,7 @@ from math import isnan
 
 # use pybids to evolve with the standard without having to track it too much
 import bids
-try:
-    from bids import BIDSLayout
-except ImportError:
-    # in 0.7.0 .grabbids was deprecated but we keep this old way for
-    # compatibility for now
-    # TODO: prune whenver required pybids version exceeds 0.7.0
-    from bids.grabbids import BIDSLayout
+from bids import BIDSLayout
 
 import re
 from io import open
@@ -74,17 +68,8 @@ class MetadataExtractor(BaseMetadataExtractor):
     }
 
     def get_metadata(self, dataset, content):
-        # TODO: deprecate when bids 0.7.0 is required
-        derivs_path = opj(self.ds.path, 'derivatives')
         derivative_exist = exists(opj(self.ds.path, 'derivatives'))
-
-        if external_versions['bids'] >= '0.7.0':
-            bids = BIDSLayout(self.ds.path, derivatives=derivative_exist)
-        else:
-            paths = [(self.ds.path, 'bids')]
-            if derivative_exist:
-                paths.append((derivs_path, ['bids', 'derivatives']))
-            bids = BIDSLayout(paths)
+        bids = BIDSLayout(self.ds.path, derivatives=derivative_exist)
 
         dsmeta = self._get_dsmeta(bids)
 
