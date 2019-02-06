@@ -8,7 +8,9 @@
 #
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Some additional tests for search command"""
+import os
 
+from difflib import unified_diff
 from shutil import copy
 from os import makedirs
 from os.path import join as opj
@@ -106,14 +108,15 @@ type
 """, cmo.out)
 
     target_out = """\
+annex.key
 bids.BIDSVersion
 bids.author
 bids.citation
 bids.conformsto
+bids.datatype
 bids.description
 bids.fundedby
 bids.license
-bids.modality
 bids.name
 bids.subject.age(years)
 bids.subject.gender
@@ -121,8 +124,8 @@ bids.subject.handedness
 bids.subject.hearing_problems_current
 bids.subject.id
 bids.subject.language
+bids.suffix
 bids.task
-bids.type
 datalad_core.id
 datalad_core.refcommit
 id
@@ -159,7 +162,9 @@ type
     with swallow_outputs() as cmo:
         ds.search(mode='autofield', show_keys='name')
         # it is impossible to assess what is different from that dump
-        assert_in(target_out, cmo.out)
+        # so we will use diff
+        diff = list(unified_diff(target_out.splitlines(), cmo.out.splitlines()))
+        assert_in(target_out, cmo.out, msg="Diff: %s" % os.linesep.join(diff))
 
     assert_result_count(ds.search('blablob#'), 0)
     # now check that we can discover things from the aggregated metadata
@@ -177,9 +182,9 @@ type
              'bids.subject.gender', 'female'),
             # autofield multi-word query is also AND
             ('autofield',
-             ['bids.type:bold', 'bids.subject.id:01'],
+             ['bids.suffix:bold', 'bids.subject.id:01'],
              opj('sub-01', 'func', 'sub-01_task-some_bold.nii.gz'),
-             'bids.type', 'bold'),
+             'bids.suffix', 'bold'),
             # TODO extend with more complex queries to test whoosh
             # query language configuration
     ):

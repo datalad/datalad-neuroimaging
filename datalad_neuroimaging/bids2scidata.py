@@ -218,17 +218,17 @@ def _get_study_df(dsmeta):
 def _describe_file(dsmeta, fmeta):
     meta = getprop(fmeta, ['metadata'], {})
     bidsmeta = getprop(meta, ['bids'], {})
-    modality = getprop(bidsmeta, ['type'], None)
-    if modality is None:
+    suffix = getprop(bidsmeta, ['suffix'], None)
+    if suffix is None:
         raise ValueError('file record has no type info, not sure what this is')
     info = {
         'Sample Name': getprop(bidsmeta, ['subject', 'id'], None),
         # assay name is the entire filename except for the modality suffix
         # so that, e.g. simultaneous recordings match wrt to the assay name
         # across assay tables
-        'Assay Name': psplit(fmeta['path'])[-1].split('.')[0][:-(len(modality) + 1)],
+        'Assay Name': psplit(fmeta['path'])[-1].split('.')[0][:-(len(suffix) + 1)],
         'Raw Data File': relpath(fmeta['path'], start=fmeta['parentds']),
-        'Parameter Value[modality]': modality,
+        'Parameter Value[modality]': suffix,
     }
     for l in ('rec', 'recording'):
         if l in bidsmeta:
@@ -445,30 +445,30 @@ def convert(
 
     deface_df = None
     # all imaging modalities recognized in BIDS
-    #TODO maybe fold 'defacemask' into each modality as a derivative
-    for modality in ('defacemask',
+    #TODO maybe fold 'defacemask' into each suffix as a derivative
+    for suffix in ('defacemask',
                      'T1w', 'T2w', 'T1map', 'T2map', 'FLAIR', 'FLASH', 'PD',
                      'PDmap', 'PDT2', 'inplaneT1', 'inplaneT2', 'angio',
                      'sbref', 'bold', 'SWImagandphase'):
         # what files do we have for this type
         modfiles = [f for f in filemeta
-                    if getprop(f, ['metadata', 'bids', 'type'], None) == modality]
+                    if getprop(f, ['metadata', 'bids', 'suffix'], None) == suffix]
         if not len(modfiles):
             # not files found, try next
             lgr.info(
-                "no files match MRI modality '{}', skipping".format(modality))
+                "no files match MRI suffix '{}', skipping".format(suffix))
             continue
 
         df = _get_assay_df(
             dsmeta,
-            modality,
+            suffix,
             "Magnetic Resonance Imaging",
             modfiles,
             _describe_file,
             repository_info)
         if df is None:
             continue
-        if modality == 'defacemask':
+        if suffix == 'defacemask':
             # rename columns to strip index
             df.columns = [c[6:] for c in df.columns]
             df.rename(columns={'Raw Data File': 'Derived Data File'}, inplace=True)
@@ -502,7 +502,7 @@ def convert(
         # parse df to gather protocol info
         _gather_protocol_parameters_from_df(df, protocols)
         # store
-        assay_fname = "a_mri_{}.txt".format(modality.lower())
+        assay_fname = "a_mri_{}.txt".format(suffix.lower())
         _store_beautiful_table(
             df,
             output_directory,
@@ -524,7 +524,7 @@ def convert(
             modlabel,
             protoref,
             [f for f in filemeta
-             if getprop(f, ['metadata', 'bids', 'type'], None) == modality],
+             if getprop(f, ['metadata', 'bids', 'suffix'], None) == suffix],
             _describe_file,
             repository_info)
         if df is None:

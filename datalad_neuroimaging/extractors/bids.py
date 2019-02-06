@@ -10,8 +10,11 @@
 
 from __future__ import absolute_import
 from math import isnan
+
 # use pybids to evolve with the standard without having to track it too much
-from bids.grabbids import BIDSLayout
+import bids
+from bids import BIDSLayout
+
 import re
 from io import open
 from os.path import join as opj
@@ -21,6 +24,7 @@ from datalad.dochelpers import exc_str
 from datalad.metadata.extractors.base import BaseMetadataExtractor
 from datalad.metadata.definitions import vocabulary_id
 from datalad.utils import assure_unicode
+from datalad.support.external_versions import external_versions
 
 from datalad import cfg
 
@@ -64,12 +68,9 @@ class MetadataExtractor(BaseMetadataExtractor):
     }
 
     def get_metadata(self, dataset, content):
-        paths = [(self.ds.path, 'bids')]
-        derivs_path = opj(self.ds.path, 'derivatives')
-        if exists(opj(self.ds.path, 'derivatives')):
-            paths.append((derivs_path, ['bids', 'derivatives']))
+        derivative_exist = exists(opj(self.ds.path, 'derivatives'))
+        bids = BIDSLayout(self.ds.path, derivatives=derivative_exist)
 
-        bids = BIDSLayout(paths)
         dsmeta = self._get_dsmeta(bids)
 
         if not content:
