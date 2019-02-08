@@ -209,6 +209,12 @@ def yield_participant_info(bids):
                     # pybids reports 'n/a' is NaN
                     val = 'n/a'
                 val = sex_label_map.get(val, val)
+            if hk == 'suffix' and val == 'participants':
+                # regression in PyBIDS 0.7.1, should be fixed in 0.8
+                # https://github.com/bids-standard/pybids/issues/380
+                # TODO: remove workaround whenever we depend on pybids >= 0.8
+                #  after verifying that it is not succeptable
+                continue
             if val:
                 props[hk] = val
         if props:
