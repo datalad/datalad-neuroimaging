@@ -186,7 +186,7 @@ class MetadataExtractor(BaseMetadataExtractor):
                 rts_unit = header.get_xyzt_units()[1]
                 if rts_unit == 'unknown':
                     lgr.warn(
-                        "RTS unit '{}' unkown, assuming 'seconds'".format(
+                        "RTS unit '{}' unknown, assuming 'seconds'".format(
                             absfp))
                 # normalize to seconds, if possible
                 rts_unit_conversion = {
