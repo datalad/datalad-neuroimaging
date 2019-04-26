@@ -2,25 +2,14 @@
 """
 
 import sys
-import os.path as op
 from datalad.distribution.dataset import require_dataset
-
-# bound dataset methods
-import datalad.distribution.add
-import datalad.interface.run_procedure
+from datalad.core.local.save import Save
+from datalad.interface.run_procedure import RunProcedure
 
 ds = require_dataset(
     sys.argv[1],
     check_installed=True,
-    purpose='BIDS dataset setup')
-
-# TODO: This looks like it was supposed to be a default README but isn't used
-# ATM.
-README_code = """\
-All custom code goes into the directory. All scripts should be written such
-that they can be executed from the root of the dataset, and are only using
-relative paths for portability.
-"""
+    purpose='BIDS dataset configuration')
 
 # unless taken care of by the template already, each item in here
 # will get its own .gitattributes entry to keep it out of the annex
@@ -29,17 +18,30 @@ force_in_git = [
     'README',
     'CHANGES',
     'dataset_description.json',
+    '.bidsignore',
 ]
-
-###################################################################
-to_add = set()
-
-# configure minimal set of metadata extractors
-ds.run_procedure(['cfg_metadatatypes', 'bids', 'nifti1'])
-
-# amend gitattributes
-ds.repo.set_gitattributes([(path, {'annex.largefiles': 'nothing'})
-                           for path in force_in_git])
+# make an attempt to discover the prospective change in .gitattributes
+# to decide what needs to be done, and make this procedure idempotent
+# (for simple cases)
+attr_fpath = ds.pathobj / '.gitattributes'
+attrs = attr_fpath.read_text() if attr_fpath.exists() else ''
+# amend gitattributes, if needed
+ds.repo.set_gitattributes([
+    (path, {'annex.largefiles': 'nothing'})
+    for path in force_in_git
+    if '{} annex.largefiles=nothing'.format(path) not in attrs
+])
 
 # leave clean
-ds.add('.gitattributes', message="[HIRNI] Default BIDS dataset setup")
+Save()(
+    dataset=ds,
+    path=['.gitattributes'],
+    message="Apply default BIDS dataset setup",
+    to_git=True,
+)
+
+# run metadata type config last, will do another another commit
+RunProcedure()(
+    dataset=ds,
+    spec=['cfg_metadatatypes', 'bids', 'nifti1'],
+)
