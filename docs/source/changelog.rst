@@ -16,6 +16,24 @@ We would recommend to consult log of the `DataLad git
 repository <http://github.com/datalad/datalad-neuroimaging>`__ for more
 details.
 
+0.2.0 (Feb 09, 2019) – Am I compatible with you honey?
+------------------------------------------------------
+
+-  Make compatible with (and demand) pybids 0.7.{0,1}. 0.7.0 introduced
+   change of terms: modality -> suffix, and type -> datatype, which
+   would now require to either reaggregate all previous metadata or
+   somehow fixup in-place existing metadata files. And for 0.7.1
+   workaround was added to not return ``suffix`` at least when
+   participants.tsv was queried.
+-  Make compatible with pydicom 1.0 in treatment of MultiValue
+-  Refactorings:
+
+   -  tests:
+
+      -  use ``export_archive`` instead of plain ``tarfile.open``
+      -  make compatible with recent (0.11.x) DataLad which now extract
+         annex keys etc
+
 0.1.5 (Sep 28, 2018) – BIDS robustness
 --------------------------------------
 
