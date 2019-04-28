@@ -56,6 +56,7 @@ setup(
     version=version,
     description="DataLad extension package for neuro/medical imaging",
     long_description=long_description,
+    zip_safe=False,
     packages=[pkg for pkg in find_packages('.') if pkg.startswith('datalad')],
     # datalad command suite specs from here
     install_requires=[
@@ -75,10 +76,6 @@ setup(
             'sphinx-rtd-theme',
         ]},
     cmdclass=cmdclass,
-    package_data={
-        'datalad_neuroimaging':
-            findsome(opj('tests', 'data', 'files'), {'dcm', 'gz'}) +
-            findsome('resources', {'txt'})},
     entry_points = {
         # 'datalad.extensions' is THE entrypoint inspected by the datalad API builders
         'datalad.extensions': [
@@ -100,4 +97,5 @@ setup(
             'neuroimaging=datalad_neuroimaging',
         ],
     },
+    include_package_data=True,
 )
