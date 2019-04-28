@@ -19,6 +19,10 @@ force_in_git = [
     'CHANGES',
     'dataset_description.json',
     '.bidsignore',
+    'code/**',
+    # to not put participants or scan info into Git, might contain sensitive
+    # information
+    #'*.tsv',
 ]
 # make an attempt to discover the prospective change in .gitattributes
 # to decide what needs to be done, and make this procedure idempotent
