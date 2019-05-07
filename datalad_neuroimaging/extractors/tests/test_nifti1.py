@@ -61,7 +61,7 @@ def test_nifti(path):
     copy(
         opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'files', 'nifti1.nii.gz'),
         path)
-    ds.add('.')
+    ds.rev_save()
     ok_clean_git(ds.path)
     res = ds.aggregate_metadata()
     assert_status('ok', res)

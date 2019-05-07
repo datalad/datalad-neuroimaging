@@ -21,7 +21,7 @@ from ..extractors.tests.test_bids import bids_template
 @with_tree(tree=bids_template)
 def test_nested_metadata(path):
     ds = Dataset(path).create(force=True)
-    ds.add('.')
+    ds.rev_save()
     ds.aggregate_metadata()
     # BIDS returns participant info as a nested dict for each file in the
     # content metadata. On the dataset-level this should automatically
