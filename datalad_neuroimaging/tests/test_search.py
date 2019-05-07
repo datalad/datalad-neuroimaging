@@ -82,7 +82,7 @@ def test_within_ds_file_search(path):
         copy(
             opj(dirname(dirname(__file__)), 'tests', 'data', 'files', src),
             opj(path, dst))
-    ds.rev_save()
+    ds.add('.')
     ds.aggregate_metadata()
     ok_clean_git(ds.path)
     # basic sanity check on the metadata structure of the dataset

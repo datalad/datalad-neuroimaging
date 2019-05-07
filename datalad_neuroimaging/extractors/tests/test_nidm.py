@@ -27,7 +27,7 @@ def test_nidm(path):
         opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'files', 'nifti1.nii.gz'),
         path)
     # extracted from
-    ds.rev_save()
+    ds.add('.')
     # all nice and tidy, nothing untracked
     ok_clean_git(ds.path)
     # engage the extractor(s)
