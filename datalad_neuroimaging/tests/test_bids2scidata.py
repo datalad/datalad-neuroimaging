@@ -78,7 +78,7 @@ sub-15\tf\t35\tl
 @with_tempfile(mkdir=True)
 def test_noop(path, outdir):
     ds = Dataset(opj(path, 'ds')).create(force=True)
-    ds.add('.')
+    ds.rev_save()
     assert_raises(
         TypeError,
         ds.bids2scidata,
@@ -96,7 +96,7 @@ def test_noop(path, outdir):
 @with_tree(_bids_template)
 def test_minimal(path):
     ds = Dataset(opj(path, 'ds')).create(force=True)
-    ds.add('.')
+    ds.rev_save()
     ok_clean_git(ds.path)
     # make sure essential metadata files are annex for this test
     # we won't to drop them later and still do the conversion
@@ -153,7 +153,6 @@ Sample Name\tProtocol REF\tParameter Value[modality]\tAssay Name\tRaw Data File\
 
 # TODO implement a regression test on one of our datasets, once we have
 # new aggregated metadata in any of them
-
 
 
 @with_tempfile(mkdir=True)
