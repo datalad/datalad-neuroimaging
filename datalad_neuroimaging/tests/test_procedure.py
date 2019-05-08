@@ -1,7 +1,7 @@
 from datalad.tests.utils import (
     with_tempfile,
     eq_,
-    assert_repo_status,
+    ok_clean_git,
 )
 from datalad.distribution.dataset import Dataset
 import datalad.interface.run_procedure
@@ -21,5 +21,5 @@ def test_bids_procedure(path):
     origsha = ds.repo.get_hexsha()
     ds.run_procedure(['cfg_bids'])
     eq_(origsha, ds.repo.get_hexsha())
-    assert_repo_status(ds.path)
+    ok_clean_git(ds.path)
 

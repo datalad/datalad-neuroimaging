@@ -3,8 +3,7 @@
 
 import sys
 from datalad.distribution.dataset import require_dataset
-from datalad.core.local.save import Save
-from datalad.interface.run_procedure import RunProcedure
+from datalad.support import path as op
 
 ds = require_dataset(
     sys.argv[1],
@@ -27,8 +26,13 @@ force_in_git = [
 # make an attempt to discover the prospective change in .gitattributes
 # to decide what needs to be done, and make this procedure idempotent
 # (for simple cases)
-attr_fpath = ds.pathobj / '.gitattributes'
-attrs = attr_fpath.read_text() if attr_fpath.exists() else ''
+attr_fpath = op.join(ds.path, '.gitattributes')
+if op.lexists(attr_fpath):
+    with open(attr_fpath, 'rb') as f:
+        attrs = f.read().decode()
+else:
+    attrs = ''
+
 # amend gitattributes, if needed
 ds.repo.set_gitattributes([
     (path, {'annex.largefiles': 'nothing'})
@@ -37,15 +41,13 @@ ds.repo.set_gitattributes([
 ])
 
 # leave clean
-Save()(
-    dataset=ds,
+ds.add(
     path=['.gitattributes'],
     message="Apply default BIDS dataset setup",
     to_git=True,
 )
 
 # run metadata type config last, will do another another commit
-RunProcedure()(
-    dataset=ds,
+ds.run_procedure(
     spec=['cfg_metadatatypes', 'bids', 'nifti1'],
 )

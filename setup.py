@@ -60,7 +60,7 @@ setup(
     packages=[pkg for pkg in find_packages('.') if pkg.startswith('datalad')],
     # datalad command suite specs from here
     install_requires=[
-        'datalad[full]>=0.12.0.rc3',
+        'datalad>=0.11',
         #'datalad-webapp',
         'pydicom',  # DICOM metadata
         'pybids>=0.7.0',  # BIDS metadata
