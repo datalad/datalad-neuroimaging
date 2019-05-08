@@ -47,6 +47,21 @@ except (ImportError, OSError) as exc:
     )
     long_description = open(README).read()
 
+requires = {
+    'devel-docs': [
+        # used for converting README.md -> .rst for long_description
+        'pypandoc',
+        # Documentation
+        'sphinx>=1.6.2',
+        'sphinx-rtd-theme',
+    ],
+    'devel-downstream': [
+        # 3rd party modules which depend on datalad and we test against
+        'heudiconv',
+    ]
+}
+requires['devel'] = sum(list(requires.values()), [])
+
 
 setup(
     # basic project properties can be set arbitrarily
@@ -67,16 +82,9 @@ setup(
         'nibabel',  # NIfTI metadata
         'pandas',  # bids2scidata export
     ],
-    extras_require={
-        'devel-docs': [
-            # used for converting README.md -> .rst for long_description
-            'pypandoc',
-            # Documentation
-            'sphinx',
-            'sphinx-rtd-theme',
-        ]},
+    extras_require=requires,
     cmdclass=cmdclass,
-    entry_points = {
+    entry_points={
         # 'datalad.extensions' is THE entrypoint inspected by the datalad API builders
         'datalad.extensions': [
             # the label in front of '=' is the command suite label
