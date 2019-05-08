@@ -3,8 +3,6 @@
 
 import sys
 from datalad.distribution.dataset import require_dataset
-from datalad.core.local.save import Save
-from datalad.interface.run_procedure import RunProcedure
 from datalad.support import path as op
 
 ds = require_dataset(
@@ -43,15 +41,13 @@ ds.repo.set_gitattributes([
 ])
 
 # leave clean
-Save()(
-    dataset=ds,
+ds.add(
     path=['.gitattributes'],
     message="Apply default BIDS dataset setup",
     to_git=True,
 )
 
 # run metadata type config last, will do another another commit
-RunProcedure()(
-    dataset=ds,
+ds.run_procedure(
     spec=['cfg_metadatatypes', 'bids', 'nifti1'],
 )
