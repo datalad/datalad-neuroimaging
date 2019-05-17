@@ -9,6 +9,11 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
+## 0.2.1 (May 17, 2019) -- Why wasn't it that way before?
+
+- include a procedure 'cfg_bids' to configure BIDS datasets
+- fix several issues with troublesome dependency declarations
+
 ## 0.2.0 (Feb 09, 2019) -- Am I compatible with you honey?
 
 - Make compatible with (and demand) pybids 0.7.{0,1}.  0.7.0 introduced
