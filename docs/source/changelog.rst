@@ -16,6 +16,12 @@ We would recommend to consult log of the `DataLad git
 repository <http://github.com/datalad/datalad-neuroimaging>`__ for more
 details.
 
+0.2.1 (May 17, 2019) – Why wasn’t it that way before?
+-----------------------------------------------------
+
+-  include a procedure ‘cfg_bids’ to configure BIDS datasets
+-  fix several issues with troublesome dependency declarations
+
 0.2.0 (Feb 09, 2019) – Am I compatible with you honey?
 ------------------------------------------------------
 
