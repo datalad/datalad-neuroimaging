@@ -9,6 +9,12 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
+## 0.2.2 (May 20, 2019) -- It was like that way before!
+
+Minor bugfix release
+- revert back to old ways of installing package data so test data and procedures
+  get properly installed
+
 ## 0.2.1 (May 17, 2019) -- Why wasn't it that way before?
 
 - include a procedure 'cfg_bids' to configure BIDS datasets
