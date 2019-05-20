@@ -84,7 +84,11 @@ setup(
     ],
     extras_require=requires,
     cmdclass=cmdclass,
-    entry_points={
+    package_data={
+        'datalad_neuroimaging':
+            findsome(opj('tests', 'data', 'files'), {'dcm', 'gz'}) +
+            findsome('resources', {'py', 'txt'})},
+    entry_points = {
         # 'datalad.extensions' is THE entrypoint inspected by the datalad API builders
         'datalad.extensions': [
             # the label in front of '=' is the command suite label
@@ -105,5 +109,4 @@ setup(
             'neuroimaging=datalad_neuroimaging',
         ],
     },
-    include_package_data=True,
 )
