@@ -9,6 +9,11 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
+## 0.2.3 (May 24, 2019) -- Old is not bad
+
+Minor quick bugfix release to demand pybids < 0.9 since we are not yet fully
+ready for its full glory
+
 ## 0.2.2 (May 20, 2019) -- It was like that way before!
 
 Minor bugfix release
