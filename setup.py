@@ -79,6 +79,7 @@ setup(
         #'datalad-webapp',
         'pydicom',  # DICOM metadata
         # for >=0.9.0 -- https://github.com/datalad/datalad-neuroimaging/issues/67
+        # will eventually need >= 0.9.2 for https://github.com/bids-standard/pybids/pull/444
         'pybids>=0.7.0,<0.9.0',  # BIDS metadata
         'nibabel',  # NIfTI metadata
         'pandas',  # bids2scidata export

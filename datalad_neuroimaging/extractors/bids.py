@@ -80,9 +80,18 @@ class MetadataExtractor(BaseMetadataExtractor):
 
     def _get_dsmeta(self, bids):
         context = {}
-        meta = {self._key2stdkey.get(k, k): v
-                for k, v in bids.get_metadata(
-                    opj(self.ds.path, self._dsdescr_fname)).items()}
+        if hasattr(bids, 'get_dataset_description'):
+            # post 0.9.1
+            # https://github.com/bids-standard/pybids/pull/444
+            dsdesc_dict = bids.get_dataset_description()
+        else:
+            dsdesc_dict = bids.get_metadata(
+                    opj(self.ds.path, self._dsdescr_fname)
+            )
+        meta = {
+            self._key2stdkey.get(k, k): v
+            for k, v in dsdesc_dict.items()
+        }
 
         # TODO maybe normalize labels of standard licenses to definition URIs
         # perform mapping
