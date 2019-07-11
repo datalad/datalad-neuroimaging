@@ -24,6 +24,7 @@ from datalad.tests.utils import with_tree
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import SkipTest
 from datalad.tests.utils import skip_if
+from datalad.support.external_versions import external_versions
 
 from datalad.api import Dataset
 from datalad.api import search
@@ -115,6 +116,10 @@ bids.citation
 bids.conformsto
 bids.datatype
 bids.description
+"""
+    if external_versions['bids'] >= '0.9':
+        target_out += "bids.extension\n"
+    target_out += """\
 bids.fundedby
 bids.license
 bids.name
