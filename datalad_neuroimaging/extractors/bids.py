@@ -69,7 +69,19 @@ class MetadataExtractor(BaseMetadataExtractor):
 
     def get_metadata(self, dataset, content):
         derivative_exist = exists(opj(self.ds.path, 'derivatives'))
-        bids = BIDSLayout(self.ds.path, derivatives=derivative_exist)
+        try:
+            bids = BIDSLayout(self.ds.path, derivatives=derivative_exist)
+        except ValueError as exc:
+            if 'BIDS-derivatives dataset must have' in str(exc):
+                lgr.warning(
+                    "Althought derivatives/ is present, that subdataset is not "
+                    "a compliant BIDS Derivatives dataset and will be ignored: "
+                    "%s",
+                    exc_str(exc)
+                )
+                bids = BIDSLayout(self.ds.path, derivatives=False)
+            else:
+                raise
 
         dsmeta = self._get_dsmeta(bids)
 

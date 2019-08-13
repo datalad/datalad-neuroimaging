@@ -11,14 +11,20 @@
 from math import isnan
 from os.path import join as opj
 from simplejson import dumps
-from datalad.api import Dataset
+from datalad.api import (
+    Dataset,
+    install,
+)
 
 from nose.tools import assert_equal
 from datalad.support.external_versions import external_versions
-from datalad.tests.utils import with_tree
-from datalad.tests.utils import assert_in
-
-from datalad.tests.utils import skip_if_no_module
+from datalad.tests.utils import (
+    assert_in,
+    skip_if_no_network,
+    skip_if_no_module,
+    with_tempfile,
+    with_tree,
+)
 skip_if_no_module('bids')
 
 from datalad_neuroimaging.extractors.bids import MetadataExtractor
@@ -156,3 +162,18 @@ def test_get_metadata_with_README(path):
   "description": "A very detailed\\ndescription с юникодом",
   "name": "test"
 }""")
+
+
+@skip_if_no_network
+@with_tempfile
+def test_noncompliant_bids_derivative(path):
+    ds = install(path, source='https://github.com/OpenNeuroDatasets/ds001868')
+    ds.repo.checkout('baadc5200eb8e5865cc31babae8ef5af28ce658b')
+    meta = MetadataExtractor(ds, []).get_metadata(True, False)[0]
+    assert_equal(
+        set(meta),
+        {'conformsto', 'fundedby', 'license', u'HowToAcknowledge', 'citation',
+         'name', u'DatasetDOI', 'author', 'BIDSVersion', '@context',
+         'Acknowledgements', 'description'
+         }
+    )
