@@ -32,6 +32,12 @@ def get_dicom_dataset(flavor):
         dataset=srcrepo,
         path=opj(srcrepo.path, 'datalad_neuroimaging', 'tests', 'data',
                  'dicoms', flavor))
+    # Note: This is broken with datalad 0.12.0rc6; install returns None
+    # see datalad gh-3836
+    # workaround it:
+    ds = Dataset(opj(srcrepo.path, 'datalad_neuroimaging', 'tests', 'data',
+                 'dicoms', flavor))
+    assert ds.is_installed()
     # fail on any "surprising" changes made to this dataset
     ok_clean_git(ds.path)
     return ds
