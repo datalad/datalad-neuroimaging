@@ -9,6 +9,19 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
+## 0.2.4 (Feb 05, 2020) -- Kids are growing
+
+Minor bugfix release to account for changes in pybids and datalad
+
+- pybids:
+  - demand pybids >=0.9.2
+  - account for new field  "extension" provided by BIDS now
+  - use get_dataset_description if available
+- pandas:
+  - use .iloc instead of deprecated .ix
+- datalad
+  - use -d^ instead of deprecated (in 0.12) -S in an example script
+
 ## 0.2.3 (May 24, 2019) -- Old is not bad
 
 Minor quick bugfix release to demand pybids < 0.9 since we are not yet fully
