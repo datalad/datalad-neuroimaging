@@ -395,7 +395,7 @@ def _gather_protocol_parameters_from_df(df, protocols):
                     break
             # this is a protocol definition column,
             # make entry for each unique value
-            protos = df.ix[:, i].unique()
+            protos = df.iloc[:, i].unique()
         if col.startswith('Parameter Value['):
             params.add(col[16:-1])
 
