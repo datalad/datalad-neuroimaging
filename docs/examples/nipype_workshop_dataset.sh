@@ -200,7 +200,7 @@ datalad add --to-git --nosave dataset_description.json
 datalad aggregate-metadata --nosave -r
 # and finally save all accumulated changes from above commands
 # while also updating the topmost superdataset about this changes under 'workshops'
-datalad save -S -m "Added dataset description and aggregated meta-data" -r
+datalad save -d'^' -m "Added dataset description and aggregated meta-data" -r
 # go upstairs and aggregate meta-information across its direct datasets without recursing
 # (since might take awhile)
 cd ..
