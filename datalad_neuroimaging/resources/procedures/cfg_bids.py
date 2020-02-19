@@ -41,7 +41,7 @@ ds.repo.set_gitattributes([
 ])
 
 # leave clean
-ds.add(
+ds.save(
     path=['.gitattributes'],
     message="Apply default BIDS dataset setup",
     to_git=True,

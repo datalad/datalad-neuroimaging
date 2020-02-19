@@ -77,8 +77,8 @@ def get_bids_dataset():
         for fn in ('CHANGES', 'README', 'dataset_description.json'):
             # but not these
             ga.write('{} annex.largefiles=nothing\n'.format(fn))
-    bids_ds.add('.gitattributes', to_git=True,
-                message='Initial annex entry configuration')
+    bids_ds.save('.gitattributes', to_git=True,
+                 message='Initial annex entry configuration')
     ok_clean_git(bids_ds.path)
     # conversion of two DICOM datasets to one BIDS dataset
     for label, ds, scanlabel in (
@@ -120,7 +120,7 @@ def get_bids_dataset():
                        where='dataset', reload=True)
     # XXX need to `add` specifically to make it work in direct mode
     #bids_ds.save(message='Metadata type config')
-    bids_ds.add('.', message='Metadata type config')
+    bids_ds.save('.', message='Metadata type config')
     # loose dicom datasets
     bids_ds.uninstall(
         [structdicom_ds.path, funcdicom_ds.path],
