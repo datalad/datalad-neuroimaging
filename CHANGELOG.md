@@ -9,6 +9,10 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
+## 0.3.0 (Feb 26, 2020) -- ... and parents become grumpier
+
+- DataLad 0.12 series is now minimal supported
+
 ## 0.2.4 (Feb 05, 2020) -- Kids are growing
 
 Minor bugfix release to account for changes in pybids and datalad
