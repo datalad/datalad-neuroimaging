@@ -30,13 +30,17 @@ try:
 except ImportError:
     from collections import MutableSequence
 
+from distutils.version import LooseVersion
 from datalad.metadata.definitions import vocabulary_id
 from datalad.metadata.extractors.base import BaseMetadataExtractor
 
+# pydicom 2.0.0 renamed PersonName3 to PersonName:
+PersonName = dcm.valuerep.PersonName3 \
+    if LooseVersion(dcm.__version__) < "2.0.0" else dcm.valuerep.PersonName
 # Data types we care to extract/handle
 _SCALAR_TYPES = (
     int, float, string_types, dcm.valuerep.DSfloat, dcm.valuerep.IS,
-    dcm.valuerep.PersonName3)
+    PersonName)
 # Since pydicom 1.0 MultiValue is no longer subclass of list
 # but of collections{.abc,}.MutableSequence . To make sure we
 # do not miss any of those - match to both
@@ -69,7 +73,7 @@ def _convert_value(v):
         cv = float(v)
     elif t == dcm.valuerep.IS:
         cv = int(v)
-    elif t == dcm.valuerep.PersonName3:
+    elif t == PersonName:
         cv = str(v)
     elif isinstance(v, _SEQUENCE_TYPES):
         cv = list(map(_convert_value, v))
