@@ -9,6 +9,10 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
+## 0.3.1 (Jun 3, 2020) -- Uncles aren't always nice either
+
+- be compatible with pydicom 2.0.0
+
 ## 0.3.0 (Feb 26, 2020) -- ... and parents become grumpier
 
 - DataLad 0.12 series is now minimal supported

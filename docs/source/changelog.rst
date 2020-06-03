@@ -16,6 +16,16 @@ We would recommend to consult log of the `DataLad git
 repository <http://github.com/datalad/datalad-neuroimaging>`__ for more
 details.
 
+0.3.1 (Jun 3, 2020) – Uncles aren’t always nice either
+------------------------------------------------------
+
+-  be compatible with pydicom 2.0.0
+
+0.3.0 (Feb 26, 2020) – … and parents become grumpier
+----------------------------------------------------
+
+-  DataLad 0.12 series is now minimal supported
+
 0.2.4 (Feb 05, 2020) – Kids are growing
 ---------------------------------------
 
