@@ -17,12 +17,17 @@ from datalad.tests.utils import assert_result_count
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import with_tempfile
 from datalad.tests.utils import eq_
+from datalad.tests.utils import known_failure_osx
+from datalad.tests.utils import known_failure_windows
+
 
 import datalad_neuroimaging
 from datalad_neuroimaging.tests.utils import get_dicom_dataset
 from datalad_neuroimaging.tests.utils import get_bids_dataset
 
 
+@known_failure_windows
+@known_failure_osx
 @with_tempfile
 def test_dicom_metadata_aggregation(path):
     dicoms = get_dicom_dataset('structural')
@@ -35,6 +40,8 @@ def test_dicom_metadata_aggregation(path):
     assert_result_count(res, 1, path=opj(ds.path, 'acq100'))
 
 
+@known_failure_windows
+@known_failure_osx
 def test_validate_bids_fixture():
     bids_ds = get_bids_dataset()
     # dicom source dataset is absent

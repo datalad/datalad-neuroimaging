@@ -16,8 +16,13 @@ from datalad.tests.utils import with_tempfile
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import assert_status
 from datalad.tests.utils import assert_result_count
+from datalad.tests.utils import known_failure_osx
+from datalad.tests.utils import known_failure_windows
 from . import datalad_extracts_annex_key
 
+
+@known_failure_windows
+@known_failure_osx
 @with_tempfile(mkdir=True)
 def test_nidm(path):
     ds = Dataset(path).create()

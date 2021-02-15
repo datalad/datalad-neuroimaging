@@ -2,11 +2,15 @@ from datalad.tests.utils import (
     with_tempfile,
     eq_,
     ok_clean_git,
+    known_failure_osx,
+    known_failure_windows
 )
 from datalad.distribution.dataset import Dataset
 import datalad.interface.run_procedure
 
 
+@known_failure_windows
+@known_failure_osx
 @with_tempfile
 def test_bids_procedure(path):
     ds = Dataset(path).create()

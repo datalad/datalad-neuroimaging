@@ -27,6 +27,8 @@ from datalad.tests.utils import assert_status
 from datalad.tests.utils import assert_result_count
 from datalad.tests.utils import assert_in
 from datalad.tests.utils import with_tempfile
+from datalad.tests.utils import known_failure_osx
+from datalad.tests.utils import known_failure_windows
 
 from datalad.support.exceptions import IncompleteResultsError
 
@@ -74,6 +76,8 @@ sub-15\tf\t35\tl
                 'sub-15_task-nix_run-1_bold.nii.gz': ''}}}}
 
 
+@known_failure_windows
+@known_failure_osx
 @with_tree(_dummy_template)
 @with_tempfile(mkdir=True)
 def test_noop(path, outdir):
@@ -93,6 +97,8 @@ def test_noop(path, outdir):
         )
 
 
+@known_failure_windows
+@known_failure_osx
 @with_tree(_bids_template)
 def test_minimal(path):
     ds = Dataset(opj(path, 'ds')).create(force=True)
@@ -155,6 +161,8 @@ Sample Name\tProtocol REF\tParameter Value[modality]\tAssay Name\tRaw Data File\
 # new aggregated metadata in any of them
 
 
+@known_failure_windows
+@known_failure_osx
 @with_tempfile(mkdir=True)
 @with_tempfile(mkdir=True)
 def test_real_ds(path, opath):
