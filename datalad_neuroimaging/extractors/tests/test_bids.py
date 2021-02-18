@@ -17,6 +17,9 @@ from nose.tools import assert_equal
 from datalad.support.external_versions import external_versions
 from datalad.tests.utils import with_tree
 from datalad.tests.utils import assert_in
+from datalad.tests.utils import known_failure_osx
+from datalad.tests.utils import known_failure_windows
+
 
 from datalad.tests.utils import skip_if_no_module
 skip_if_no_module('bids')
@@ -53,6 +56,8 @@ sub-03\tf\t20-25\tr\tn\tenglish
 }
 
 
+@known_failure_windows
+@known_failure_osx
 @with_tree(tree=bids_template)
 def test_get_metadata(path):
     ds = Dataset(path).create(force=True)
@@ -102,6 +107,8 @@ def test_get_metadata(path):
     assert_equal(fmeta['subject']['gender'], u'n/a')
 
 
+@known_failure_windows
+@known_failure_osx
 @with_tree(tree={'dataset_description.json': """
 {
     "Name": "test",
@@ -132,6 +139,8 @@ def test_get_metadata_with_description_and_README(path):
 
 # actually does not demonstrate problem with unicode encountered in
 # https://github.com/datalad/datalad/issues/1138
+@known_failure_windows
+@known_failure_osx
 @with_tree(tree={'dataset_description.json': """
 {
     "Name": "test",

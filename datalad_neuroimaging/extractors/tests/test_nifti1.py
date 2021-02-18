@@ -24,6 +24,8 @@ from datalad.tests.utils import assert_status
 from datalad.tests.utils import assert_result_count
 from datalad.tests.utils import eq_
 from datalad.tests.utils import assert_in
+from datalad.tests.utils import known_failure_osx
+from datalad.tests.utils import known_failure_windows
 
 
 target = {
@@ -54,6 +56,8 @@ target = {
 }
 
 
+@known_failure_windows
+@known_failure_osx
 @with_tempfile(mkdir=True)
 def test_nifti(path):
     ds = Dataset(path).create()

@@ -24,6 +24,8 @@ from datalad.tests.utils import with_tree
 from datalad.tests.utils import ok_clean_git
 from datalad.tests.utils import SkipTest
 from datalad.tests.utils import skip_if
+from datalad.tests.utils import known_failure_osx
+from datalad.tests.utils import known_failure_windows
 from datalad.support.external_versions import external_versions
 
 from datalad.api import Dataset
@@ -36,6 +38,8 @@ except (ImportError, SkipTest):
     bids_template = None
 
 
+@known_failure_windows
+@known_failure_osx
 @with_tempfile
 def test_our_metadataset_search(tdir):
     # TODO renable when a dataset with new aggregated metadata is
@@ -67,6 +71,8 @@ def test_our_metadataset_search(tdir):
     assert_in('crcns/hc-1 ', out)
 
 
+@known_failure_windows
+@known_failure_osx
 @skip_if(not bids_template, "No bids_template (probably no pybids installed)")
 @with_tree(bids_template)
 def test_within_ds_file_search(path):

@@ -15,9 +15,13 @@ from datalad.distribution.dataset import Dataset
 from datalad.tests.utils import with_tree
 from datalad.tests.utils import assert_dict_equal
 from datalad.tests.utils import assert_not_in
+from datalad.tests.utils import known_failure_osx
+from datalad.tests.utils import known_failure_windows
 from ..extractors.tests.test_bids import bids_template
 
 
+@known_failure_windows
+@known_failure_osx
 @with_tree(tree=bids_template)
 def test_nested_metadata(path):
     ds = Dataset(path).create(force=True)
