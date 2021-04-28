@@ -6,7 +6,7 @@
 #   copyright and license terms.
 #
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
-"""generate a datacite.yml template for DOI-creation from a GIN repository"""
+"""generate a GIN datacite.yml template from a BIDS dataset"""
 
 __docformat__ = 'restructuredtext'
 
@@ -25,7 +25,7 @@ from datalad.distribution.dataset import EnsureDataset
 from datalad.support.constraints import EnsureNone
 
 
-lgr = logging.getLogger("datalad.neuroimaging.bids2gindoifile")
+lgr = logging.getLogger("datalad.neuroimaging.bids2gindatacite")
 
 
 class BIDSKeys:
@@ -62,7 +62,7 @@ authors_header_template = """
 
 authors_missing_template = """
 # No authors given in 'dataset_description.json', but a
-# GIN-DOI-file (aka. datacite.yml) requires an author-entry.
+# GIN-Datacite-file (aka. datacite.yml) requires an author-entry.
 # Please provide authors according to the following example
 # (id and affiliation are not mandatory, but recommended).
 # Example below:
@@ -84,7 +84,7 @@ authors_missing_template = """
 
 
 description_missing_template = """
-# GIN-DOI-file (aka. datacite.yml) requires a description-entry.
+# A GIN-Datacite-file (aka. datacite.yml) requires a description-entry.
 # Please provide a description of the resource. The description
 # should provide additional information about the resource, e.g.,
 # a brief abstract.
@@ -155,20 +155,21 @@ references_and_links_missing_template = """
 
 
 @build_doc
-class BIDS2GINDOIFile(Interface):
-    """BIDS to GIN-DOI-file, i.e. datacite.yml converter"""
+class BIDS2GINDatacite(Interface):
+    """Create a datacite.yml file from BIDS information"""
 
     _params_ = dict(
         dataset=Parameter(
             args=("-d", "--dataset"),
-            doc="""BIDS-compatible dataset, for which the GIN-DOI-file,
+            doc="""BIDS-compatible dataset, for which the GIN-Datacite-file,
             aka "datacite.yml"-template should be created.
             If not dataset is given, an attempt is made to identify the dataset
             based on the current working directory.""",
             constraints=EnsureDataset() | EnsureNone()),
         output=Parameter(
             args=('--output',),
-            doc="""Name of the generated DOI-file (default: "datacite.yml")"""),
+            doc="""Name of the generated Datacite-file (default: 
+            "datacite.yml")"""),
         force=Parameter(
             args=("-f", "--force",),
             action="store_true",
@@ -177,7 +178,7 @@ class BIDS2GINDOIFile(Interface):
     )
 
     @staticmethod
-    @datasetmethod(name='bids2gindoifile')
+    @datasetmethod(name='bids2gindatacite')
     @eval_results
     def __call__(dataset=None,
                  output="datacite.yml",
@@ -194,7 +195,7 @@ class BIDS2GINDOIFile(Interface):
         dataset_description_path = dataset.pathobj / "dataset_description.json"
         if not dataset_description_path.exists():
             yield dict(
-                action='bids2gindoifile',
+                action='bids2gindatacite',
                 logger=lgr,
                 message="could not find dataset description file "
                         f"({dataset_description_path}). Is the dataset at "
@@ -207,24 +208,24 @@ class BIDS2GINDOIFile(Interface):
         with dataset_description_path.open(mode="rt") as f:
             dataset_description_object = json.load(f)
 
-        doi_file_path = dataset.pathobj / output
-        if doi_file_path.exists() and force is False:
+        datacite_file_path = dataset.pathobj / output
+        if datacite_file_path.exists() and force is False:
             yield dict(
-                action='bids2gindoifile',
+                action='bids2gindatacite',
                 logger=lgr,
-                message=f"File {doi_file_path} already exists. If you want "
+                message=f"File {datacite_file_path} already exists. If you want "
                         f"to override the existing file, specify -f/--force.",
-                path=str(doi_file_path),
+                path=str(datacite_file_path),
                 status="error"
             )
             return
 
-        for result in generate_gin_doi_file(
+        for result in generate_gin_datacite_file(
                 dataset_description_object,
-                doi_file_path):
+                datacite_file_path):
             yield {
                 **dict(
-                    action='bids2gindoifile',
+                    action='bids2gindatacite',
                     logger=lgr,
                     path=str(dataset_description_path)),
                 **result
@@ -233,8 +234,8 @@ class BIDS2GINDOIFile(Interface):
         return
 
 
-def generate_gin_doi_file(dataset_description_object: dict,
-                          doi_file_path: Path) -> Iterable:
+def generate_gin_datacite_file(dataset_description_object: dict,
+                               datacite_file_path: Path) -> Iterable:
 
     error_generated = False
     result = []
@@ -255,7 +256,7 @@ def generate_gin_doi_file(dataset_description_object: dict,
             result.extend(lines + [""])
 
     if not error_generated:
-        doi_file_path.write_text("\n".join(result) + "\n")
+        datacite_file_path.write_text("\n".join(result) + "\n")
 
 
 def generate_authors(dataset_description_obj: dict

@@ -20,9 +20,9 @@ command_suite = (
             'bids2scidata',
         ),
         (
-            'datalad_neuroimaging.bids2gindoifile',
-            'BIDS2GINDOIFile',
-            'bids2gindoifile',
+            'datalad_neuroimaging.bids2gindatacite',
+            'BIDS2GINDatacite',
+            'bids2gindatacite',
         ),
     ]
 )
