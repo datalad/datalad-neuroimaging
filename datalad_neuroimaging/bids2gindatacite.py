@@ -50,13 +50,12 @@ class GINEntries:
 
 
 authors_header_template = """
-# Automatically extracted author entries. Please provide affiliation
-# and ID for each entry, if possible.
-# "affiliation" is a free text string, e.g.,
-# affiliation: "Some University, Southern Sea Islands".
-# "id" can be any unique ID, including ORCID and ResearcherID.
-# For an ORCID-ID use an "ORCID:"-prefix, e.g., "ORCID:0000-0001-2345-6789"
-# For a ResearcherID use a "ResearcherID:"-prefix, e.g., "ResearcherID:X-1234-5678"
+# GENERATED AUTHOR ENTRIES BELOW
+# Please provide affiliation and ID for each entry, if possible. "affiliation" 
+# is a free text string, e.g., affiliation: "Some University, Southern Sea 
+# Islands". "id" can be any unique ID, including ORCID and ResearcherID. For an
+# ORCID-ID use an "ORCID:"-prefix, e.g., "ORCID:0000-0001-2345-6789". For a 
+# ResearcherID use a "ResearcherID:"-prefix, e.g., "ResearcherID:X-1234-5678"
 """
 
 
@@ -109,8 +108,7 @@ funding_missing_template = """
 
 keywords_missing_template = """
 # Please provide a list of keywords the resource should be associated
-# with. Give as many keywords as possible, to make the resource
-# findable.
+# with. Give as many keywords as possible, to make the resource findable.
 # Example below:
 
 # keywords:
@@ -139,7 +137,8 @@ references_and_links_missing_template = """
 # Please provide digital identifier (e.g., DOI) if possible.
 # Add a prefix to the ID, separated by a colon, to indicate the source.
 # Supported sources are: DOI, arXiv, PMID
-# In the citation field, please provide the full reference, including title, authors, journal etc.
+# In the citation field, please provide the full reference, including title, 
+# authors, journal etc.
 # Example below:
 
 # references:
@@ -283,7 +282,7 @@ def generate_authors(dataset_description_obj: dict
                 first_name = "<unknown>"
                 last_name = elements[0]
         result.extend([
-            f'  # GENERATED FROM: {BIDSKeys.AUTHORS}-entry: "{author}"',
+            f'  # GENERATED FROM: {BIDSKeys.AUTHORS}-field: "{author}"',
             f'  - {GINEntries.FIRST_NAME}: {first_name}',
             f'    {GINEntries.LAST_NAME}: {last_name}',
             f'    # {GINEntries.AFFILIATION}: "<unknown>"',
@@ -304,7 +303,7 @@ def generate_title(dataset_description_obj: dict
         status="error")
 
     return [
-        f"# GENERATED from dataset_description.json#{BIDSKeys.NAME}",
+        f"# GENERATED FROM: {BIDSKeys.NAME}-field",
         f'{GINEntries.TITLE}: "{name}"'
     ], None
 
@@ -326,11 +325,11 @@ def generate_license(dataset_description_obj: dict
     license = dataset_description_obj.get(BIDSKeys.LICENSE, None)
     if license is None:
         lgr.debug(
-            f"No {BIDSKeys.LICENSE}-key found in 'dataset_description.json'")
+            f"No {BIDSKeys.LICENSE}-field found in 'dataset_description.json'")
         return [license_missing_template], None
 
     return [
-        f'# GENERATED FROM: {BIDSKeys.LICENSE}: "{license}"',
+        f'# GENERATED FROM: {BIDSKeys.LICENSE}-entry: "{license}"',
         f'# If possible, please provide a link to the license in the url-entry.',
         f'# Please add also a corresponding LICENSE file to the repository.',
         f'license:',
@@ -352,7 +351,7 @@ def generate_funding(dataset_description_obj: dict
         if not isinstance(funding, List):
             lgr.warning(
                 f"{BIDSKeys.FUNDING}-field in 'dataset_description.json' "
-                f"does not contain an arry, ignoring it.")
+                f"does not contain an array, ignoring it.")
             return [funding_missing_template], None
 
         result = [f"{GINEntries.FUNDING}:"]
@@ -374,14 +373,15 @@ def generate_references(dataset_description_obj: dict
 
     if references_and_links is None:
         lgr.debug(
-            f"No {BIDSKeys.FUNDING}-key found in 'dataset_description.json'")
+            f"No {BIDSKeys.REFERENCESANDLINKS}-field found in "
+            f"'dataset_description.json'")
         return [references_and_links_missing_template], None
 
     else:
         if not isinstance(references_and_links, List):
             lgr.warning(
                 f"{BIDSKeys.REFERENCESANDLINKS}-field in "
-                f"'dataset_description.json' does not contain an arry, "
+                f"'dataset_description.json' does not contain an array, "
                 f"ignoring it.")
             return [references_and_links_missing_template], None
 
@@ -390,7 +390,7 @@ def generate_references(dataset_description_obj: dict
         for reference_or_link in references_and_links:
             if reference_or_link.startswith("http://") or reference_or_link.startswith("https://"):
                 result.append(
-                    f"# ignoring {BIDSKeys.REFERENCESANDLINKS}-entry "
+                    f"# IGNORING {BIDSKeys.REFERENCESANDLINKS}-entry: "
                     f"{reference_or_link}, because it is a link.")
                 continue
             references.append(reference_or_link)
@@ -399,8 +399,8 @@ def generate_references(dataset_description_obj: dict
             result.append(f"{GINEntries.REFERENCES}:")
             for reference in references:
                 result.extend([
-                    f"  # GENERATED FROM: {BIDSKeys.REFERENCESANDLINKS}-entry: "
-                    f"{reference} in 'dataset_description.json'",
+                    f"  # GENERATED FROM: {BIDSKeys.REFERENCESANDLINKS}-entry:"
+                    f" {reference}",
                     f'  - reftype: "IsSupplementTo"',
                     f'    citation: "{reference}"',
                     f'    # id: <not set, please provide if possible>'
