@@ -198,6 +198,12 @@ class MetadataExtractor(BaseMetadataExtractor):
 
             contentmeta.append((f, meta))
 
+            # Decode entries which might be bytes
+            # TODO: consider doing that in above "metalad" logic
+            for k, v in meta.items():
+                if isinstance(v, bytes):
+                    meta[k] = v.decode()
+
         log_progress(
             lgr.info,
             'extractornifti1',
