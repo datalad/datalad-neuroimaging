@@ -76,6 +76,7 @@ setup(
     # datalad command suite specs from here
     install_requires=[
         'datalad>=0.12',
+        'datalad-metalad',
         #'datalad-webapp',
         'pydicom',  # DICOM metadata
         # >= 0.9.2 for https://github.com/bids-standard/pybids/pull/444
@@ -105,6 +106,7 @@ setup(
             'dicom=datalad_neuroimaging.extractors.dicom:MetadataExtractor',
             'nidm=datalad_neuroimaging.extractors.nidm:MetadataExtractor',
             'nifti1=datalad_neuroimaging.extractors.nifti1:MetadataExtractor',
+            'bids_dataset=datalad_neuroimaging.extractors.bids_dataset:BIDSDatasetExtractor',
         ],
         'datalad.tests': [
             'neuroimaging=datalad_neuroimaging',
