@@ -94,12 +94,12 @@ class BuildManPage(Command):
             for cmdname in ('bids2scidata',):
                 p = self._parser[cmdname]
                 cmdname = "{0}{1}".format(
-                    'datalad-' if cmdname != 'datalad' else '',
+                    'datalad ' if cmdname != 'datalad' else '',
                     cmdname)
                 format = cls(cmdname, ext_sections=sections, version=get_version())
                 formatted = format.format_man_page(p)
                 with open(opj(opath, '{0}.{1}'.format(
-                        cmdname,
+                        cmdname.replace(' ', '-'),
                         ext)),
                         'w') as f:
                     f.write(formatted)
