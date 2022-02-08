@@ -66,12 +66,14 @@ environment:
       INSTALL_SYSPKGS: python3-virtualenv dcm2niix
       # system git-annex is way too old, use better one
       INSTALL_GITANNEX: git-annex -m deb-url --url http://snapshot.debian.org/archive/debian/20210906T204127Z/pool/main/g/git-annex/git-annex_8.20210903-1_amd64.deb
+      CODECOV_BINARY: https://uploader.codecov.io/latest/linux/codecov
     # Windows core tests
     - ID: WinP38
       DTS: datalad_neuroimaging
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       # Python version specification is non-standard on windows
       PY: 38-x64
+      CODECOV_BINARY: https://uploader.codecov.io/latest/windows/codecov.exe
     # MacOS core tests
     - ID: MacP38
       DTS: datalad_neuroimaging
@@ -79,6 +81,7 @@ environment:
       PY: 3.8
       INSTALL_GITANNEX: git-annex
       DATALAD_LOCATIONS_SOCKETS: /Users/appveyor/DLTMP/sockets
+      CODECOV_BINARY: https://uploader.codecov.io/latest/macos/codecov
 
 
 # it is OK to specify paths that may not exist for a particular test run
@@ -172,10 +175,11 @@ after_test:
   # prepare coverage.xml in a separate invocation.
   # if invoked directly with nose - do not include test_ files themselves
   - python -m coverage xml
-  - cmd: powershell Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
-  - cmd: "set PATH=C:\\msys64\\usr\\bin;%PATH%"
-  - cmd: bash codecov.sh -f "coverage.xml" -U "-s" -A "-s" 
-  - sh: bash <(curl -s https://codecov.io/bash)
+  - cmd: powershell Invoke-WebRequest -Uri $Env:CODECOV_BINARY -OutFile codecov.exe 
+  - cmd: .\codecov.exe -f "coverage.xml"
+  - sh: curl -Os $CODECOV_BINARY
+  - sh: chmod +x codecov
+  - sh: ./codecov
 
 
 #on_success:
