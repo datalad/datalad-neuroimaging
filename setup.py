@@ -11,7 +11,8 @@ from os.path import dirname
 
 from setup_support import BuildManPage
 from setup_support import BuildRSTExamplesFromScripts
-from setup_support import get_version
+
+import versioneer
 
 
 def findsome(subdir, extensions):
@@ -24,8 +25,6 @@ def findsome(subdir, extensions):
         if splitext(f)[-1].lstrip('.') in extensions
     ]
 
-# extension version
-version = get_version()
 
 cmdclass = {
     'build_manpage': BuildManPage,
@@ -68,7 +67,7 @@ setup(
     name="datalad_neuroimaging",
     author="The DataLad Team and Contributors",
     author_email="team@datalad.org",
-    version=version,
+    version=versioneer.get_version(),
     description="DataLad extension package for neuro/medical imaging",
     long_description=long_description,
     zip_safe=False,
@@ -84,7 +83,7 @@ setup(
         'pandas',  # bids2scidata export
     ],
     extras_require=requires,
-    cmdclass=cmdclass,
+    cmdclass=versioneer.get_cmdclass(cmdclass),
     package_data={
         'datalad_neuroimaging':
             findsome(opj('tests', 'data', 'files'), {'dcm', 'gz'}) +

@@ -1,0 +1,2 @@
+include versioneer.py
+include datalad_neuroimaging/_version.py
