@@ -44,17 +44,28 @@ for setup_py_path in (opj(pardir, 'setup.py'),  # travis
                       opj(pardir, pardir, 'setup.py')):  # RTD
     if exists(setup_py_path):
         sys.path.insert(0, os.path.abspath(dirname(setup_py_path)))
+
+        # Build manpage
         try:
-            for cmd in 'manpage', 'examples':
-                os.system(
-                    '{} build_{} --cmdsuite {} --manpath {} --rstpath {}'.format(
-                        setup_py_path,
-                        cmd,
-                        'datalad_neuroimaging:command_suite',
-                        abspath(opj(dirname(setup_py_path), 'build', 'man')),
-                        opj(dirname(__file__), 'generated', 'man')))
+            os.system(
+                '{} build_manpage --cmdsuite {} --manpath {} --rstpath {}'.format(
+                    setup_py_path,
+                    'datalad_neuroimaging:command_suite',
+                    abspath(opj(dirname(setup_py_path), 'build', 'man')),
+                    opj(dirname(__file__), 'generated', 'man')))
         except:
             # shut up and do your best
+            pass
+
+        # Build examples - different set of arguments
+        try:
+            os.system(
+                '{} build_examples --expath {} --rstpath {}'.format(
+                    setup_py_path,
+                    abspath(opj(dirname(__file__), pardir, 'examples')),
+                    opj(dirname(__file__), 'generated', 'examples')))
+        except:
+            # like above
             pass
 
 # -- General configuration ------------------------------------------------
