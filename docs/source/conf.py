@@ -26,6 +26,14 @@ from os import pardir
 
 import datalad_neuroimaging
 
+
+def setup(sphinx):
+    sys.path.insert(0, os.path.abspath('utils'))  # travis
+    sys.path.insert(0, os.path.abspath(opj(pardir, 'utils')))  # RTD
+    from pygments_ansi_color import AnsiColorLexer
+    sphinx.add_lexer("ansi-color", AnsiColorLexer())
+
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
