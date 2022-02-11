@@ -1,0 +1,23 @@
+{
+  "creators": [
+    {
+      "affiliation": "Edit me!",
+      "name": "Edit me!",
+      "orcid": "Edit me!"
+    },
+    {
+      "affiliation": "Edit me!",
+      "name": "Edit me!",
+      "orcid": "Edit me!"
+    }
+  ],
+  "keywords": [
+    "data management",
+    "data distribution",
+    "execution provenance tracking",
+    "version control"
+  ],
+  "access_right": "open",
+  "license": "Edit me!",
+  "upload_type": "software"
+}
