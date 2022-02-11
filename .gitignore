@@ -8,3 +8,5 @@
 docs/build
 docs/source/generated
 datalad_neuroimaging/tests/data/bids/
+*~
+\#*\#
