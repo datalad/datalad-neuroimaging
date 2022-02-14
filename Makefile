@@ -10,7 +10,7 @@ all: clean test
 
 clean:
 	$(PYTHON) setup.py clean
-	rm -rf dist build bin docs/build docs/source/generated
+	rm -rf dist build bin docs/build docs/source/generated *.egg-info
 	-find . -name '*.pyc' -delete
 	-find . -name '__pycache__' -type d -delete
 
@@ -40,13 +40,20 @@ update-changelog:
 	pandoc -t rst CHANGELOG.md >> docs/source/changelog.rst
 
 release-pypi: update-changelog
-	# better safe than sorry
+# better safe than sorry / avoid upload of stale builds
 	test ! -e dist
-	python setup.py sdist
-	python setup.py bdist_wheel --universal
+	python setup.py sdist bdist_wheel
 	twine upload dist/*
 
 render-casts: docs/source/usecases/simple_provenance_tracking.rst.in
 
 docs/source/usecases/reproducible_analysis.rst.in: build/casts/reproducible_analysis.json
 	tools/cast2rst $^ > $@
+
+update-buildsupport:
+	git subtree pull \
+		-m "Update DataLad build helper" \
+		--squash \
+		--prefix _datalad_buildsupport \
+		https://github.com/datalad/datalad-buildsupport.git \
+		master
