@@ -79,8 +79,6 @@ def test_get_metadata(path):
     del meta['@context']
     sort_lists_in_dict(meta)
     dump = dumps(meta, sort_keys=True, indent=4, ensure_ascii=False)
-    print("\ndump\n")
-    print(dump)
     assert_equal(
         dump,
         """\
@@ -146,29 +144,6 @@ def test_get_metadata(path):
         ]
     }
 }""")
-
-    # test_fname = opj('sub-01', 'func', 'sub-01_task-some_bold.nii.gz')
-    # cmeta = list(MetadataExtractor(
-    #     ds,
-    #     [opj('sub-01', 'func', 'sub-01_task-some_bold.nii.gz')]
-    # ).get_metadata(False, True)[1])
-    # assert_equal(len(cmeta), 1)
-    # assert_equal(cmeta[0][0], test_fname)
-    # # check that we get file props extracted from the file name from pybids
-    # fmeta = cmeta[0][1]
-    # assert_equal(fmeta['subject']['id'], '01')
-    # # There was a RF from a restrictive "type" to a more generic, but more
-    # # BIDS ad-hoc "suffix" lacking semantic value really in 0.7.0.
-    # type_field = 'suffix' if external_versions['bids'] >= '0.7.0' else 'type'
-    # assert_equal(fmeta[type_field], 'bold')
-    # assert_equal(fmeta['task'], 'some')
-    # datatype_field = 'datatype' if external_versions['bids'] >= '0.7.0' else 'modality'
-    # assert_equal(fmeta[datatype_field], 'func')
-    # # the fact that there is participant vs subject is already hotly debated in Tal's brain
-    # assert_in('handedness', fmeta['subject'])
-    # assert_in('language', fmeta['subject'])
-    # assert_equal(fmeta['subject']['language'], u'русский')
-    # assert_equal(fmeta['subject']['gender'], u'n/a')
 
 def sort_lists_in_dict(data_dict):
     for key, value in data_dict.items():

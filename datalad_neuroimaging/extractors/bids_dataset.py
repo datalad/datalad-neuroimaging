@@ -17,6 +17,7 @@ import sys
 from datalad.metadata.definitions import vocabulary_id
 from datalad.utils import assure_unicode
 from typing import Dict, List, Union
+import json
 
 lgr = logging.getLogger('datalad.metadata.extractors.bids_dataset')
 
