@@ -69,20 +69,23 @@ class ManPageFormatter(argparse.HelpFormatter):
         return usage
 
     def _mk_title(self, prog):
-        name_version = "\"{0} {1}\"".format(prog, self._version)
-        return '.TH {0} {1} {2} {3}\n'.format(prog, self._section,
-                                              self._today, name_version)
+        name_version = "{0} {1}".format(prog, self._version)
+        return '.TH "{0}" "{1}" "{2}" "{3}"\n'.format(
+            prog, self._section, self._today, name_version)
 
-    def _make_name(self, parser):
+    def _mk_name(self, prog, desc):
         """
         this method is in consitent with others ... it relies on
         distribution
         """
-        return '.SH NAME\n%s \\- %s\n' % (parser.prog,
-                                          parser.description)
+        desc = desc.splitlines()[0] if desc else 'it is in the name'
+        # ensure starting lower case
+        desc = desc[0].lower() + desc[1:]
+        return '.SH NAME\n%s \\- %s\n' % (self._bold(prog), desc)
 
     def _mk_description(self, parser):
         desc = parser.description
+        desc = '\n'.join(desc.splitlines()[1:])
         if not desc:
             return ''
         desc = desc.replace('\n\n', '\n.PP\n')
@@ -113,6 +116,7 @@ class ManPageFormatter(argparse.HelpFormatter):
     def format_man_page(self, parser):
         page = []
         page.append(self._mk_title(self._prog))
+        page.append(self._mk_name(self._prog, parser.description))
         page.append(self._mk_synopsis(parser))
         page.append(self._mk_description(parser))
         page.append(self._mk_options(parser))
@@ -144,7 +148,7 @@ class ManPageFormatter(argparse.HelpFormatter):
         help = re.sub(r'^    (\S.*)\n', '\\1\n', help, flags=re.MULTILINE)
         return '.SH OPTIONS\n' + help
 
-    def _format_action_invocation(self, action):
+    def _format_action_invocation(self, action, doubledash='--'):
         if not action.option_strings:
             metavar, = self._metavar_formatter(action, action.dest)(1)
             return metavar
@@ -167,7 +171,7 @@ class ManPageFormatter(argparse.HelpFormatter):
                     parts.append('%s %s' % (self._bold(option_string),
                                             args_string))
 
-            return ', '.join(parts)
+            return ', '.join(p.replace('--', doubledash) for p in parts)
 
 
 class RSTManPageFormatter(ManPageFormatter):
@@ -202,7 +206,7 @@ class RSTManPageFormatter(ManPageFormatter):
         title += '\n{0}\n\n'.format('=' * len(prog))
         return title
 
-    def _make_name(self, parser):
+    def _mk_name(self, prog, desc):
         return ''
 
     def _mk_description(self, parser):
@@ -266,7 +270,7 @@ class RSTManPageFormatter(ManPageFormatter):
 
 def cmdline_example_to_rst(src, out=None, ref=None):
     if out is None:
-        from six.moves import StringIO
+        from io import StringIO
         out = StringIO()
 
     # place header

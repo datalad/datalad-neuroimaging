@@ -18,10 +18,22 @@ Demos
 API
 ===
 
+High-level API commands
+-----------------------
+
+.. currentmodule:: datalad.api
+.. autosummary::
+   :toctree: generated
+
+   bids2scidata
+
+
+Command line reference
+----------------------
+
 .. toctree::
    :maxdepth: 1
 
-   modref
    generated/man/datalad-bids2scidata.rst
 
 

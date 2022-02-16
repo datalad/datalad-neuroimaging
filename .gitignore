@@ -5,6 +5,11 @@
 *.py[coe]
 .#*
 .*.swp
+datalad_neuroimaging/tests/data/bids/
+*~
+\#*\#
+pip-wheel-metadata
 docs/build
 docs/source/generated
-datalad_neuroimaging/tests/data/bids/
+build/
+dist/

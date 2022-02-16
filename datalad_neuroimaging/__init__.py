@@ -24,3 +24,6 @@ command_suite = (
 
 from datalad import setup_package
 from datalad import teardown_package
+
+from . import _version
+__version__ = _version.get_versions()['version']

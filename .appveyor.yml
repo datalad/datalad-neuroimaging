@@ -39,10 +39,14 @@
 #   - to prevent the CI run from exiting, create a textfile named `BLOCK` on the
 #     Desktop (a required .txt extension will be added automatically). The session
 #     will run until the file is removed (or 60 min have passed)
+#
+#   - in a terminal execute, for example, `C:\datalad_debug.bat 39` to set up the
+#     environment to debug in a Python 3.8 session (should generally match the
+#     respective CI run configuration).
 
 
-# make repository clone cheap
-shallow_clone: true
+# do not make repository clone cheap: interferes with versioneer
+shallow_clone: false
 
 
 environment:
@@ -53,9 +57,6 @@ environment:
   # The ID variable had no impact, but sorts first in the CI run overview
   # an intelligible name can help to locate a specific test run
   matrix:
-    ## going for ~30min CI job duration to leave ample time for debugging and
-    ## get fast turn around via multi-job parallelization
-
     # List a CI run for each platform first, to have immediate access when there
     # is a need for debugging
 
@@ -66,19 +67,26 @@ environment:
       INSTALL_SYSPKGS: python3-virtualenv dcm2niix
       # system git-annex is way too old, use better one
       INSTALL_GITANNEX: git-annex -m deb-url --url http://snapshot.debian.org/archive/debian/20210906T204127Z/pool/main/g/git-annex/git-annex_8.20210903-1_amd64.deb
+      CODECOV_BINARY: https://uploader.codecov.io/latest/linux/codecov
     # Windows core tests
-    - ID: WinP38
+    - ID: WinP39core
       DTS: datalad_neuroimaging
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       # Python version specification is non-standard on windows
-      PY: 38-x64
+      PY: 39-x64
+      INSTALL_GITANNEX: git-annex -m datalad/packages
     # MacOS core tests
-    - ID: MacP38
+    - ID: MacP38core
       DTS: datalad_neuroimaging
       APPVEYOR_BUILD_WORKER_IMAGE: macOS
       PY: 3.8
       INSTALL_GITANNEX: git-annex
       DATALAD_LOCATIONS_SOCKETS: /Users/appveyor/DLTMP/sockets
+      CODECOV_BINARY: https://uploader.codecov.io/latest/macos/codecov
+
+matrix:
+  allow_failures:
+    - KNOWN2FAIL: 1
 
 
 # it is OK to specify paths that may not exist for a particular test run
@@ -119,11 +127,11 @@ init:
   - cmd: "set TMP=C:\\DLTMP"
   - cmd: "set TEMP=C:\\DLTMP"
   - sh: export TMPDIR=~/DLTMP
-  # deploy the datalad installer
-  - appveyor DownloadFile https://raw.githubusercontent.com/datalad/datalad-installer/master/src/datalad_installer.py -FileName datalad_installer.py
 
 
 install:
+  # place a debug setup helper at a convenient location
+  - cmd: copy tools\ci\appveyor_env_setup.bat C:\\datalad_debug.bat
   # If a particular Python version is requested, use env setup (using the
   # appveyor provided environments/installation). Note, these are broken
   # on the ubuntu images
@@ -132,13 +140,25 @@ install:
   # use of python/pip executables below
   - sh: "[ \"x$PY\" != x ] && . ${HOME}/venv${PY}/bin/activate || virtualenv -p 3 ${HOME}/dlvenv && . ${HOME}/dlvenv/bin/activate; ln -s \"$VIRTUAL_ENV\" \"${HOME}/VENV\""
   - cmd: "set PATH=C:\\Python%PY%;C:\\Python%PY%\\Scripts;%PATH%"
-  - sh: "[ -n \"$INSTALL_SYSPKGS\" ] && ( [ \"x${APPVEYOR_BUILD_WORKER_IMAGE}\" = \"xmacOS\" ] && brew install -q ${INSTALL_SYSPKGS} || sudo apt-get install --no-install-recommends -y ${INSTALL_SYSPKGS} ) || true"
+  # deploy the datalad installer, override version via DATALAD_INSTALLER_VERSION
+  - cmd:
+      IF DEFINED DATALAD_INSTALLER_VERSION (
+      python -m pip install "datalad-installer%DATALAD_INSTALLER_VERSION%"
+      ) ELSE (
+      python -m pip install datalad-installer
+      )
+  - sh: python -m pip install datalad-installer${DATALAD_INSTALLER_VERSION:-}
+  # Missing system software
+  - sh: "[ -n \"$INSTALL_SYSPKGS\" ] && ( [ \"x${APPVEYOR_BUILD_WORKER_IMAGE}\" = \"xmacOS\" ] && brew install -q ${INSTALL_SYSPKGS} || { sudo apt-get update -y && sudo apt-get install --no-install-recommends -y ${INSTALL_SYSPKGS}; } ) || true"
   # Install git-annex on windows, otherwise INSTALL_SYSPKGS can be used
   # deploy git-annex, if desired
-  - cmd: IF DEFINED INSTALL_GITANNEX python datalad_installer.py --sudo ok %INSTALL_GITANNEX%
-  - sh: "[ -n \"${INSTALL_GITANNEX}\" ] && python datalad_installer.py --sudo ok ${INSTALL_GITANNEX}"
-  # TODO remove when datalad-installer can handle this
-  - cmd: tools\ci\appveyor_install_git-annex.bat
+  - cmd: IF DEFINED INSTALL_GITANNEX datalad-installer --sudo ok %INSTALL_GITANNEX%
+  - sh: "[ -n \"${INSTALL_GITANNEX}\" ] && datalad-installer --sudo ok ${INSTALL_GITANNEX}"
+  # in case of a snapshot installation, use the following approach to adjust
+  # the PATH as necessary
+  #- sh: "[ -n \"${INSTALL_GITANNEX}\" ] && datalad-installer -E ${HOME}/dlinstaller_env.sh --sudo ok ${INSTALL_GITANNEX}"
+  # add location of datalad installer results to PATH
+  #- sh: "[ -f ${HOME}/dlinstaller_env.sh ] && . ${HOME}/dlinstaller_env.sh || true"
 
 
 #before_build:
@@ -146,8 +166,8 @@ install:
 
 
 build_script:
-  - pip install -r requirements-devel.txt
-  - pip install .[devel]
+  - python -m pip install -r requirements-devel.txt
+  - python -m pip install .
 
 
 #after_build:
@@ -155,6 +175,7 @@ build_script:
 
 
 before_test:
+  # simple call to see if datalad and git-annex are installed properly
   - datalad wtf
 
 
@@ -169,13 +190,12 @@ test_script:
 
 
 after_test:
-  # prepare coverage.xml in a separate invocation.
-  # if invoked directly with nose - do not include test_ files themselves
   - python -m coverage xml
-  - cmd: powershell Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
-  - cmd: "set PATH=C:\\msys64\\usr\\bin;%PATH%"
-  - cmd: bash codecov.sh -f "coverage.xml" -U "-s" -A "-s" 
-  - sh: bash <(curl -s https://codecov.io/bash)
+  - cmd: curl -fsSL -o codecov.exe "https://uploader.codecov.io/latest/windows/codecov.exe"
+  - cmd: .\codecov.exe -f "coverage.xml"
+  - sh: "curl -Os $CODECOV_BINARY"
+  - sh: chmod +x codecov
+  - sh: ./codecov
 
 
 #on_success:

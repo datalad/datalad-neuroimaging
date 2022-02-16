@@ -1,0 +1,2 @@
+[build-system]
+requires = ["setuptools >= 43.0.0", "wheel"]
