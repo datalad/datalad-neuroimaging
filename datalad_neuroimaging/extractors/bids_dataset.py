@@ -15,7 +15,7 @@ from datalad_metalad.extractors.base import DataOutputCategory, ExtractorResult,
 from datalad.log import log_progress
 import sys
 from datalad.metadata.definitions import vocabulary_id
-from datalad.utils import assure_unicode
+from datalad.utils import ensure_unicode
 from typing import Dict, List, Union
 import json
 
@@ -218,8 +218,8 @@ class BIDSmeta(object):
         if len(README_files) > 0:
             for README_fname in README_files:
                 if README_fname.exists():
-                    with open(README_fname, 'rb') as f:
-                        desc = assure_unicode(f.read())
+                    with open(README_fname) as f:
+                        desc = ensure_unicode(f.read())
                         readme.append(desc.strip())
         return readme if readme else None
 
