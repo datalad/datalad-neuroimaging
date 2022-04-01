@@ -8,6 +8,7 @@
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Metadata extractor for BIDS dataset-level information"""
 import logging
+from telnetlib import STATUS
 from uuid import UUID
 from bids import BIDSLayout
 from pathlib import Path
@@ -139,6 +140,15 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
         # - dataset_description.json
         # - participants.tsv
 
+        log_progress(
+            lgr.info,
+            'extractorsbidsdataset',
+            f'Start bids_dataset metadata extraction from {self.dataset.path}',
+            total=2,
+            label='bids_dataset metadata extraction',
+            unit=' Dataset',
+        )
+
         return ExtractorResult(
             extractor_version=self.get_version(),
             extraction_parameter=self.parameter or {},
@@ -173,6 +183,12 @@ class BIDSmeta(object):
         bids = BIDSLayout(self.dataset.path, derivatives=derivative_exist)
         # bids = BIDSLayout(self.dataset.path)
         dsmeta = self._get_dsmeta(bids)
+
+        log_progress(
+            lgr.info,
+            'extractorsbidsdataset',
+            f'Finished bids_dataset metadata extraction from {self.dataset.path}'
+        )
         return dsmeta
 
     def _get_dsmeta(self, bids):
