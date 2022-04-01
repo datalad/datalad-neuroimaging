@@ -21,7 +21,6 @@ import json
 
 lgr = logging.getLogger('datalad.metadata.extractors.bids_dataset')
 
-
 # Main properties used in BIDS v1.6.0 dataset description
 class BIDSProperties:
     NAME = "Name"
@@ -122,9 +121,8 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
     """
 
     def get_id(self) -> UUID:
-        # Note sure what the process should be for generating these
-        # Just took another UUID and made some characters 0
-        return UUID("000487ea-e670-4801-bcdc-29639bf10000")
+        # Generated using V4 UUID: https://www.uuidgenerator.net/
+        return UUID("a05726b7-86e0-408c-a0ef-08f3d85df47b")
 
     def get_version(self) -> str:
         return "0.0.1"
