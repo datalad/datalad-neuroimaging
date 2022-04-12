@@ -13,12 +13,11 @@ from uuid import UUID
 from bids import BIDSLayout
 from pathlib import Path
 from datalad_metalad.extractors.base import DataOutputCategory, ExtractorResult, DatasetMetadataExtractor
+from datalad.interface.results import get_status_dict
 from datalad.log import log_progress
-import sys
 from datalad.metadata.definitions import vocabulary_id
 from datalad.utils import ensure_unicode
 from typing import Dict, List, Union
-import json
 
 lgr = logging.getLogger('datalad.metadata.extractors.bids_dataset')
 
@@ -65,10 +64,12 @@ class BIDSEntities:
     EXTENSION = 'extension'
 
 BIDSCONTEXT = {
-    "@id": "https://doi.org/10.5281/zenodo.3686061",
+    "@id": "https://doi.org/10.5281/zenodo.4710751",
     'description': 'ad-hoc vocabulary for the Brain Imaging Data Structure (BIDS) standard v1.6.0',
     'type': vocabulary_id,
 }
+
+REQUIRED_BIDS_FILES = ['dataset_description.json', 'participants.tsv']
 
 DATASET = 'dataset'
 
@@ -131,14 +132,20 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
     def get_data_output_category(self) -> DataOutputCategory:
         return DataOutputCategory.IMMEDIATE
 
-    def get_required_content(self) -> bool:
-        return False
+    def get_required_content(self):
+        # TODO: logging
+        for filename in REQUIRED_BIDS_FILES:
+            rslt = self.dataset.get(filename, on_failure='ignore', return_type='list')
+            if 'status' in rslt[0] and rslt[0]['status'] == 'impossible':
+                # TODO: how to yield this as a result to be picked up by datalad's result renderer
+                msg = f"The file '{filename}' should be part of the BIDS dataset in order for the 'bids_dataset' extractor to function correctly"
+                print(msg)
+                raise FileNotFoundError                
+        return True
 
     def extract(self, _=None) -> ExtractorResult:
-
-        # TODO initial check for bids dataset content:
-        # - dataset_description.json
-        # - participants.tsv
+        # TODO: remove this call once https://github.com/datalad/datalad-metalad/issues/243 is fixed
+        self.get_required_content()
 
         log_progress(
             lgr.info,
@@ -163,8 +170,6 @@ class BIDSmeta(object):
     """
     The BIDS dataset metadata extractor class that does the work
     """
-    # Filename of dataset_description.json
-    _dsdescr_fname = 'dataset_description.json'
 
     def __init__(self, dataset) -> None:
         self.dataset = dataset
@@ -231,10 +236,8 @@ class BIDSmeta(object):
         README_files = [file for file in Path(self.dataset.path).glob('README.*')]
         if len(README_files) > 0:
             for README_fname in README_files:
-                if README_fname.exists():
-                    with open(README_fname) as f:
-                        desc = ensure_unicode(f.read())
-                        readme.append(desc.strip())
+                self.dataset.get(README_fname)
+                readme.append(get_text_from_file(README_fname))
         return readme if readme else None
 
     def _get_bids_entities(self, bids):
@@ -271,3 +274,20 @@ class BIDSmeta(object):
                 # it will (intentionally) fail on a dataset-level
                 pass
         return variables
+
+# TODO: duplicate code from https://github.com/datalad/datalad-metalad/pull/242/commits/874e789a33778636f32594df49810b0baca124ca
+# To be removed once PR is merged, and replaced by a function import from metalad.extractors.utils
+def get_text_from_file(file_path:Path):
+    """Return content of a text file as a string"""
+
+    # TODO: check that file is text-based
+    file_text = None
+    try:
+        with open(file_path) as f:
+            file_text = ensure_unicode(f.read()).strip()
+            return file_text
+    except FileNotFoundError as e:
+        # TODO: consider returning None in case of exception, depending
+        # on what extractors would expect as default behaviour
+        print((f'The provided file path could not be found: {str(file_path)}'))
+        raise 
