@@ -107,7 +107,10 @@ def test_get_metadata(path):
         "https://www.ncbi.nlm.nih.gov/pubmed/001012092119281"
     ],
     "description": [
-        "A very detailed description с юникодом"
+        {
+            "extension": ".md",
+            "text": "A very detailed description с юникодом"
+        }
     ],
     "entities": {
         "datatype": [

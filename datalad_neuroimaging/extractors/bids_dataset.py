@@ -233,11 +233,20 @@ class BIDSmeta(object):
     def _get_bids_readme(self):
         """"""
         readme = []
-        README_files = [file for file in Path(self.dataset.path).glob('README.*')]
-        if len(README_files) > 0:
-            for README_fname in README_files:
-                self.dataset.get(README_fname)
-                readme.append(get_text_from_file(README_fname))
+        # Grab all readme files, loop through
+        for README_fname in [file for file in Path(self.dataset.path).glob('[Rr][Ee][Aa][Dd][Mm][Ee]*')]:
+            # datalad get content if annexed
+            self.dataset.get(README_fname)
+            # read text from file
+            try:
+                file_text = ensure_unicode(README_fname.read_text()).strip()
+            except:
+                file_text = ''
+            # Append dict with file text + extension to list
+            readme.append({
+                "extension": README_fname.suffix,
+                "text": file_text
+            })
         return readme if readme else None
 
     def _get_bids_entities(self, bids):
@@ -274,20 +283,3 @@ class BIDSmeta(object):
                 # it will (intentionally) fail on a dataset-level
                 pass
         return variables
-
-# TODO: duplicate code from https://github.com/datalad/datalad-metalad/pull/242/commits/874e789a33778636f32594df49810b0baca124ca
-# To be removed once PR is merged, and replaced by a function import from metalad.extractors.utils
-def get_text_from_file(file_path:Path):
-    """Return content of a text file as a string"""
-
-    # TODO: check that file is text-based
-    file_text = None
-    try:
-        with open(file_path) as f:
-            file_text = ensure_unicode(f.read()).strip()
-            return file_text
-    except FileNotFoundError as e:
-        # TODO: consider returning None in case of exception, depending
-        # on what extractors would expect as default behaviour
-        print((f'The provided file path could not be found: {str(file_path)}'))
-        raise 
