@@ -132,7 +132,7 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
     def get_data_output_category(self) -> DataOutputCategory:
         return DataOutputCategory.IMMEDIATE
 
-    def get_required_content(self):
+    def get_required_content(self, bids_dir):
         # TODO: logging
         bids_dir = self.find_bids_root()
 
