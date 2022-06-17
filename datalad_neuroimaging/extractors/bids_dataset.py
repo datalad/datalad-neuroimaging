@@ -134,18 +134,38 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
 
     def get_required_content(self):
         # TODO: logging
+        bids_dir = self.find_bids_root()
+
         for filename in REQUIRED_BIDS_FILES:
-            rslt = self.dataset.get(filename, on_failure='ignore', return_type='list')
+            rslt = self.dataset.get(Path(bids_dir) / filename, on_failure='ignore', return_type='list')
             if 'status' in rslt[0] and rslt[0]['status'] == 'impossible':
                 # TODO: how to yield this as a result to be picked up by datalad's result renderer
                 msg = f"The file '{filename}' should be part of the BIDS dataset in order for the 'bids_dataset' extractor to function correctly"
                 print(msg)
-                raise FileNotFoundError                
+                raise FileNotFoundError
         return True
 
+    def find_bids_root(self) -> Path:
+        """
+        Find relative location of BIDS directory within datalad dataset
+        """
+        participant_paths = list(Path().glob(f"{self.dataset.path}/**/participants.tsv"))
+        # 1 - if more than one, select first and output warning
+        # 2 - if zero, output error
+        # 3 - if 1, add to dataset path and set ats bids root dir
+        if len(participant_paths) == 0:
+            msg = f"The file 'participants.tsv' should be part of the BIDS dataset in order for the 'bids_dataset' extractor to function correctly"
+            print(msg)
+            raise FileNotFoundError 
+        elif len(participant_paths) > 1:
+            msg = f"Multiple 'participants.tsv' files ({len(participant_paths)}) were found in the recursive filetree of {self.dataset.path}, selecting first path."
+            lgr.warning(msg)
+            return Path(participant_paths[0]).parent
+        else:
+            return Path(participant_paths[0]).parent
+
+
     def extract(self, _=None) -> ExtractorResult:
-        # TODO: remove this call once https://github.com/datalad/datalad-metalad/issues/243 is fixed
-        self.get_required_content()
 
         log_progress(
             lgr.info,
@@ -178,21 +198,22 @@ class BIDSmeta(object):
         """
         Function to load BIDSLayout and run metadata extraction
         """
+        bids_dir = self.find_bids_root()
         # Check if derivatives are in BIDS dataset
-        deriv_dir = Path(self.dataset.path) / 'derivatives'
+        deriv_dir = Path(self.dataset.path) / bids_dir / 'derivatives'
         derivative_exist = deriv_dir.exists()
         # Call BIDSLayout with dataset path and derivatives boolean
         # TODO: handle case with amoty or nonexisting derivatives directory
         # TODO: decide what to do with meta_data from derivatives,
         # if anything at all
-        bids = BIDSLayout(self.dataset.path, derivatives=derivative_exist)
+        bids = BIDSLayout(Path(self.dataset.path) / bids_dir, derivatives=derivative_exist)
         # bids = BIDSLayout(self.dataset.path)
         dsmeta = self._get_dsmeta(bids)
 
         log_progress(
             lgr.info,
             'extractorsbidsdataset',
-            f'Finished bids_dataset metadata extraction from {self.dataset.path}'
+            f'Finished bids_dataset metadata extraction from {Path(self.dataset.path) / bids_dir}'
         )
         return dsmeta
 
