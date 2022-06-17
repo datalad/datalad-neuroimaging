@@ -134,7 +134,7 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
 
     def get_required_content(self):
         # TODO: logging
-        bids_dir = _find_bids_root()
+        bids_dir = _find_bids_root(self.dataset.path)
 
         for filename in REQUIRED_BIDS_FILES:
             rslt = self.dataset.get(bids_dir / filename, on_failure='ignore', return_type='list')
@@ -179,7 +179,7 @@ class BIDSmeta(object):
         """
         Function to load BIDSLayout and run metadata extraction
         """
-        bids_dir = _find_bids_root()
+        bids_dir = _find_bids_root(self.dataset.path)
         # Check if derivatives are in BIDS dataset
         deriv_dir = bids_dir / 'derivatives'
         derivative_exist = deriv_dir.exists()
@@ -286,11 +286,11 @@ class BIDSmeta(object):
                 pass
         return variables
 
-def _find_bids_root(self) -> Path:
+def _find_bids_root(dataset_path) -> Path:
     """
     Find relative location of BIDS directory within datalad dataset
     """
-    participant_paths = list(Path(self.dataset.path).glob("**/participants.tsv"))
+    participant_paths = list(Path(dataset_path).glob("**/participants.tsv"))
     # 1 - if more than one, select first and output warning
     # 2 - if zero, output error
     # 3 - if 1, add to dataset path and set ats bids root dir
