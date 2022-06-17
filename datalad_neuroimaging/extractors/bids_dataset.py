@@ -132,12 +132,12 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
     def get_data_output_category(self) -> DataOutputCategory:
         return DataOutputCategory.IMMEDIATE
 
-    def get_required_content(self, bids_dir):
+    def get_required_content(self):
         # TODO: logging
         bids_dir = self.find_bids_root()
 
         for filename in REQUIRED_BIDS_FILES:
-            rslt = self.dataset.get(Path(bids_dir) / filename, on_failure='ignore', return_type='list')
+            rslt = self.dataset.get(bids_dir / filename, on_failure='ignore', return_type='list')
             if 'status' in rslt[0] and rslt[0]['status'] == 'impossible':
                 # TODO: how to yield this as a result to be picked up by datalad's result renderer
                 msg = f"The file '{filename}' should be part of the BIDS dataset in order for the 'bids_dataset' extractor to function correctly"
@@ -149,7 +149,7 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
         """
         Find relative location of BIDS directory within datalad dataset
         """
-        participant_paths = list(Path().glob(f"{self.dataset.path}/**/participants.tsv"))
+        participant_paths = list(Path(self.dataset.path).glob("**/participants.tsv"))
         # 1 - if more than one, select first and output warning
         # 2 - if zero, output error
         # 3 - if 1, add to dataset path and set ats bids root dir
@@ -200,20 +200,20 @@ class BIDSmeta(object):
         """
         bids_dir = self.find_bids_root()
         # Check if derivatives are in BIDS dataset
-        deriv_dir = Path(self.dataset.path) / bids_dir / 'derivatives'
+        deriv_dir = bids_dir / 'derivatives'
         derivative_exist = deriv_dir.exists()
         # Call BIDSLayout with dataset path and derivatives boolean
         # TODO: handle case with amoty or nonexisting derivatives directory
         # TODO: decide what to do with meta_data from derivatives,
         # if anything at all
-        bids = BIDSLayout(Path(self.dataset.path) / bids_dir, derivatives=derivative_exist)
+        bids = BIDSLayout(bids_dir, derivatives=derivative_exist)
         # bids = BIDSLayout(self.dataset.path)
         dsmeta = self._get_dsmeta(bids)
 
         log_progress(
             lgr.info,
             'extractorsbidsdataset',
-            f'Finished bids_dataset metadata extraction from {Path(self.dataset.path) / bids_dir}'
+            f'Finished bids_dataset metadata extraction from {bids_dir}'
         )
         return dsmeta
 
