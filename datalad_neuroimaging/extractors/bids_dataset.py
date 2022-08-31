@@ -12,14 +12,18 @@ from telnetlib import STATUS
 from uuid import UUID
 from bids import BIDSLayout
 from pathlib import Path
-from datalad_metalad.extractors.base import DataOutputCategory, ExtractorResult, DatasetMetadataExtractor
+from datalad_metalad.extractors.base import (
+    DataOutputCategory,
+    ExtractorResult,
+    DatasetMetadataExtractor,
+)
 from datalad.interface.results import get_status_dict
 from datalad.log import log_progress
 from datalad.metadata.definitions import vocabulary_id
 from datalad.utils import ensure_unicode
 from typing import Dict, List, Union
 
-lgr = logging.getLogger('datalad.metadata.extractors.bids_dataset')
+lgr = logging.getLogger("datalad.metadata.extractors.bids_dataset")
 
 # Main properties used in BIDS v1.6.0 dataset description
 class BIDSProperties:
@@ -37,43 +41,46 @@ class BIDSProperties:
     HEDVERSION = "HEDVersion"
     README = "ReadMe"
 
+
 # Main entities used in BIDS v1.6.0 filenames
 class BIDSEntities:
     """"""
-    SUBJECT = 'subject'
-    SESSION = 'session'
-    TASK = 'task'
-    ACQUISITION = 'acquisition'
-    CEAGENT = 'ceagent'
-    RECONSTRUCTION = 'reconstruction'
-    DIRECTION = 'direction'
-    RUN = 'run'
-    PROC = 'proc'
-    MODALITY = 'modality'
-    ECHO = 'echo'
-    FLIP = 'flip'
-    INV = 'inv'
-    MT = 'mt'
-    PART = 'part'
-    RECORDING = 'recording'
-    SPACE = 'space'
-    SUFFIX = 'suffix'
-    SCANS = 'scans'
-    FMAP = 'fmap'
-    DATATYPE = 'datatype'
-    EXTENSION = 'extension'
+
+    SUBJECT = "subject"
+    SESSION = "session"
+    TASK = "task"
+    ACQUISITION = "acquisition"
+    CEAGENT = "ceagent"
+    RECONSTRUCTION = "reconstruction"
+    DIRECTION = "direction"
+    RUN = "run"
+    PROC = "proc"
+    MODALITY = "modality"
+    ECHO = "echo"
+    FLIP = "flip"
+    INV = "inv"
+    MT = "mt"
+    PART = "part"
+    RECORDING = "recording"
+    SPACE = "space"
+    SUFFIX = "suffix"
+    SCANS = "scans"
+    FMAP = "fmap"
+    DATATYPE = "datatype"
+    EXTENSION = "extension"
+
 
 BIDSCONTEXT = {
     "@id": "https://doi.org/10.5281/zenodo.4710751",
-    'description': 'ad-hoc vocabulary for the Brain Imaging Data Structure (BIDS) standard v1.6.0',
-    'type': vocabulary_id,
+    "description": "ad-hoc vocabulary for the Brain Imaging Data Structure (BIDS) standard v1.6.0",
+    "type": vocabulary_id,
 }
 
-REQUIRED_BIDS_FILES = ['dataset_description.json', 'participants.tsv']
+REQUIRED_BIDS_FILES = ["dataset_description.json", "participants.tsv"]
 
-DATASET = 'dataset'
+DATASET = "dataset"
 
-BIDS_PROPERTIES_MAPPING= {
+BIDS_PROPERTIES_MAPPING = {
     BIDSProperties.NAME: BIDSProperties.NAME,
     BIDSProperties.BIDSVERSION: BIDSProperties.BIDSVERSION,
     BIDSProperties.DATASETTYPE: BIDSProperties.DATASETTYPE,
@@ -114,7 +121,13 @@ BIDS_ENTITIES_MAPPING = {
 }
 
 # Entities for which variable collections can be extracted
-BIDS_COLLECTION_ENTITIES = [BIDSEntities.RUN, BIDSEntities.SESSION, BIDSEntities.SUBJECT, DATASET]
+BIDS_COLLECTION_ENTITIES = [
+    BIDSEntities.RUN,
+    BIDSEntities.SESSION,
+    BIDSEntities.SUBJECT,
+    DATASET,
+]
+
 
 class BIDSDatasetExtractor(DatasetMetadataExtractor):
     """
@@ -137,35 +150,31 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
         bids_dir = _find_bids_root(self.dataset.path)
 
         for filename in REQUIRED_BIDS_FILES:
-            rslt = self.dataset.get(bids_dir / filename, on_failure='ignore', return_type='list')
-            if 'status' in rslt[0] and rslt[0]['status'] == 'impossible':
-                # TODO: how to yield this as a result to be picked up by datalad's result renderer
+            rslt = self.dataset.get(
+                bids_dir / filename, on_failure="ignore", return_type="list"
+            )
+            if "status" in rslt[0] and rslt[0]["status"] == "impossible":
                 msg = f"The file '{filename}' should be part of the BIDS dataset in order for the 'bids_dataset' extractor to function correctly"
-                print(msg)
-                raise FileNotFoundError
+                raise FileNotFoundError(msg)
         return True
- 
 
     def extract(self, _=None) -> ExtractorResult:
-
         log_progress(
             lgr.info,
-            'extractorsbidsdataset',
-            f'Start bids_dataset metadata extraction from {self.dataset.path}',
+            "extractorsbidsdataset",
+            f"Start bids_dataset metadata extraction from {self.dataset.path}",
             total=2,
-            label='bids_dataset metadata extraction',
-            unit=' Dataset',
+            label="bids_dataset metadata extraction",
+            unit=" Dataset",
         )
-
         return ExtractorResult(
             extractor_version=self.get_version(),
             extraction_parameter=self.parameter or {},
             extraction_success=True,
-            datalad_result_dict={
-                "type": "dataset",
-                "status": "ok"
-            },
-            immediate_data=BIDSmeta(self.dataset).get_metadata())
+            datalad_result_dict={"type": "dataset", "status": "ok"},
+            immediate_data=BIDSmeta(self.dataset).get_metadata(),
+        )
+
 
 class BIDSmeta(object):
     """
@@ -181,7 +190,7 @@ class BIDSmeta(object):
         """
         bids_dir = _find_bids_root(self.dataset.path)
         # Check if derivatives are in BIDS dataset
-        deriv_dir = bids_dir / 'derivatives'
+        deriv_dir = bids_dir / "derivatives"
         derivative_exist = deriv_dir.exists()
         # Call BIDSLayout with dataset path and derivatives boolean
         # TODO: handle case with amoty or nonexisting derivatives directory
@@ -193,8 +202,8 @@ class BIDSmeta(object):
 
         log_progress(
             lgr.info,
-            'extractorsbidsdataset',
-            f'Finished bids_dataset metadata extraction from {bids_dir}'
+            "extractorsbidsdataset",
+            f"Finished bids_dataset metadata extraction from {bids_dir}",
         )
         return dsmeta
 
@@ -213,13 +222,13 @@ class BIDSmeta(object):
         # STEP 1: Extract metadata from `dataset_description.json`
         metadata = self._get_bids_dsdescription(bids)
         # STEP 2: Extract README text
-        metadata['description'] = self._get_bids_readme()
-        # STEP 3: Extract information about entities and add to metadata 
-        metadata['entities'] = self._get_bids_entities(bids)
+        metadata["description"] = self._get_bids_readme()
+        # STEP 3: Extract information about entities and add to metadata
+        metadata["entities"] = self._get_bids_entities(bids)
         # STEP 4: Extract variable collection information on multiple levels
-        metadata['variables'] = self._get_bids_variables(bids)
+        metadata["variables"] = self._get_bids_variables(bids)
         # STEP 5: Add context to metadata output
-        metadata['@context'] = BIDSCONTEXT        
+        metadata["@context"] = BIDSCONTEXT
         return metadata
 
     def _get_bids_dsdescription(self, bids):
@@ -227,28 +236,24 @@ class BIDSmeta(object):
         # TODO: try except error handling
         dsdesc_dict = bids.get_dataset_description()
         # Map extracted dict keys to standard keys
-        return {
-            BIDS_PROPERTIES_MAPPING.get(k, k): v
-            for k, v in dsdesc_dict.items()
-        }
+        return {BIDS_PROPERTIES_MAPPING.get(k, k): v for k, v in dsdesc_dict.items()}
 
     def _get_bids_readme(self):
         """"""
         readme = []
         # Grab all readme files, loop through
-        for README_fname in [file for file in Path(self.dataset.path).glob('[Rr][Ee][Aa][Dd][Mm][Ee]*')]:
+        for README_fname in [
+            file for file in Path(self.dataset.path).glob("[Rr][Ee][Aa][Dd][Mm][Ee]*")
+        ]:
             # datalad get content if annexed
             self.dataset.get(README_fname)
             # read text from file
             try:
                 file_text = ensure_unicode(README_fname.read_text()).strip()
             except:
-                file_text = ''
+                file_text = ""
             # Append dict with file text + extension to list
-            readme.append({
-                "extension": README_fname.suffix,
-                "text": file_text
-            })
+            readme.append({"extension": README_fname.suffix, "text": file_text})
         return readme if readme else None
 
     def _get_bids_entities(self, bids):
@@ -256,9 +261,9 @@ class BIDSmeta(object):
         # Get dataset-specific entities from BIDSLayout
         ds_entities = list(bids.entities.keys())
         new_entities = {}
-        # If the entity is in the main list AND in the list 
+        # If the entity is in the main list AND in the list
         # created from the dataset (i.e. in BIDSLayout),
-        # the entity values can be retrieved using 
+        # the entity values can be retrieved using
         # BIDSLayout.get_[entity]()
         for ent in BIDS_ENTITIES_MAPPING.keys():
             if ent in ds_entities:
@@ -266,7 +271,7 @@ class BIDSmeta(object):
                 new_entities[ent] = class_method()
                 # Delete key/value if value is empty list
                 if not new_entities[ent]:
-                    del(new_entities[ent])
+                    del new_entities[ent]
         return new_entities
 
     def _get_bids_variables(self, bids):
@@ -274,7 +279,7 @@ class BIDSmeta(object):
         # Extract variable collection information on multiple levels
         # levels (dataset, subject, session, run). The dataset level
         # collection will grab variables from participants.tsv
-        variables  = {}
+        variables = {}
         for ent in BIDS_COLLECTION_ENTITIES:
             try:
                 cols = bids.get_collections(level=ent)
@@ -285,6 +290,7 @@ class BIDSmeta(object):
                 # it will (intentionally) fail on a dataset-level
                 pass
         return variables
+
 
 def _find_bids_root(dataset_path) -> Path:
     """
@@ -297,7 +303,7 @@ def _find_bids_root(dataset_path) -> Path:
     if len(participant_paths) == 0:
         msg = f"The file 'participants.tsv' should be part of the BIDS dataset in order for the 'bids_dataset' extractor to function correctly"
         print(msg)
-        raise FileNotFoundError 
+        raise FileNotFoundError
     elif len(participant_paths) > 1:
         msg = f"Multiple 'participants.tsv' files ({len(participant_paths)}) were found in the recursive filetree of {self.dataset.path}, selecting first path."
         lgr.warning(msg)
