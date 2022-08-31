@@ -8,20 +8,18 @@
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Metadata extractor for BIDS dataset-level information"""
 import logging
-from telnetlib import STATUS
-from uuid import UUID
-from bids import BIDSLayout
 from pathlib import Path
-from datalad_metalad.extractors.base import (
-    DataOutputCategory,
-    ExtractorResult,
-    DatasetMetadataExtractor,
-)
-from datalad.interface.results import get_status_dict
+from uuid import UUID
+
+from bids import BIDSLayout
 from datalad.log import log_progress
 from datalad.metadata.definitions import vocabulary_id
 from datalad.utils import ensure_unicode
-from typing import Dict, List, Union
+from datalad_metalad.extractors.base import (
+    DataOutputCategory,
+    DatasetMetadataExtractor,
+    ExtractorResult,
+)
 
 lgr = logging.getLogger("datalad.metadata.extractors.bids_dataset")
 
