@@ -71,17 +71,7 @@ A very detailed description с юникодом
     'derivatives': {'empty': {}}  # Test that we do not blow if derivatives present
 }
 
-@known_failure_windows
-@with_tree(tree=bids_template)
-def test_get_metadata(path):
-    ds = Dataset(path).create(force=True)
-    meta = BIDSmeta(ds).get_metadata()
-    del meta['@context']
-    sort_lists_in_dict(meta)
-    dump = dumps(meta, sort_keys=True, indent=4, ensure_ascii=False)
-    assert_equal(
-        dump,
-        """\
+correct_metadata = """\
 {
     "Acknowledgements": "Special thanks to Korbinian Brodmann for help in formatting this dataset in BIDS. We thank Alan Lloyd Hodgkin and Andrew Huxley for helpful comments and discussions about the experiment and manuscript; Hermann Ludwig Helmholtz for administrative support; and Claudius Galenus for providing data for the medial-to-lateral index analysis.",
     "Authors": [
@@ -118,6 +108,7 @@ def test_get_metadata(path):
         ],
         "extension": [
             ".json",
+            ".md",
             ".nii.gz",
             ".tsv"
         ],
@@ -126,6 +117,7 @@ def test_get_metadata(path):
             "03"
         ],
         "suffix": [
+            "README",
             "bold",
             "description",
             "participants"
@@ -146,7 +138,20 @@ def test_get_metadata(path):
             "suffix"
         ]
     }
-}""")
+}"""
+
+@known_failure_windows
+@with_tree(tree=bids_template)
+def test_get_metadata(path):
+    ds = Dataset(path).create(force=True)
+    meta = BIDSmeta(ds).get_metadata()
+    del meta['@context']
+    sort_lists_in_dict(meta)
+    dump = dumps(meta, sort_keys=True, indent=4, ensure_ascii=False)
+    assert_equal(
+        dump,
+        correct_metadata
+    )
 
 def sort_lists_in_dict(data_dict):
     for key, value in data_dict.items():
