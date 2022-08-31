@@ -25,8 +25,9 @@ from typing import Dict, List, Union
 
 lgr = logging.getLogger("datalad.metadata.extractors.bids_dataset")
 
-# Main properties used in BIDS v1.6.0 dataset description
+
 class BIDSProperties:
+    """Main properties used in BIDS v1.6.0 dataset description"""
     NAME = "Name"
     BIDSVERSION = "BIDSVersion"
     DATASETTYPE = "DatasetType"
@@ -42,10 +43,8 @@ class BIDSProperties:
     README = "ReadMe"
 
 
-# Main entities used in BIDS v1.6.0 filenames
 class BIDSEntities:
-    """"""
-
+    """Main entities used in BIDS v1.6.0 filenames"""
     SUBJECT = "subject"
     SESSION = "session"
     TASK = "task"
@@ -80,6 +79,7 @@ REQUIRED_BIDS_FILES = ["dataset_description.json", "participants.tsv"]
 
 DATASET = "dataset"
 
+# The following mappings are one-to-one currently, but could change in future
 BIDS_PROPERTIES_MAPPING = {
     BIDSProperties.NAME: BIDSProperties.NAME,
     BIDSProperties.BIDSVERSION: BIDSProperties.BIDSVERSION,
@@ -120,7 +120,8 @@ BIDS_ENTITIES_MAPPING = {
     BIDSEntities.EXTENSION: BIDSEntities.EXTENSION,
 }
 
-# Entities for which variable collections can be extracted
+# Entities for which variable collections can be extracted without requiring
+# file content
 BIDS_COLLECTION_ENTITIES = [
     BIDSEntities.RUN,
     BIDSEntities.SESSION,
@@ -154,7 +155,9 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
                 bids_dir / filename, on_failure="ignore", return_type="list"
             )
             if "status" in rslt[0] and rslt[0]["status"] == "impossible":
-                msg = f"The file '{filename}' should be part of the BIDS dataset in order for the 'bids_dataset' extractor to function correctly"
+                msg = (f"The file '{filename}' should be part of the BIDS "
+                "dataset in order for the 'bids_dataset' extractor to function "
+                "correctly")
                 raise FileNotFoundError(msg)
         return True
 
@@ -178,7 +181,10 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
 
 class BIDSmeta(object):
     """
-    The BIDS dataset metadata extractor class that does the work
+    The extractor class for BIDS dataset-level metadata
+
+    Extracts dataset-level metadata of a BIDS-compliant dataset, using
+    PyBIDS
     """
 
     def __init__(self, dataset) -> None:
@@ -186,20 +192,17 @@ class BIDSmeta(object):
 
     def get_metadata(self):
         """
-        Function to load BIDSLayout and run metadata extraction
+        Function to load BIDSLayout and trigger metadata extraction
         """
         bids_dir = _find_bids_root(self.dataset.path)
         # Check if derivatives are in BIDS dataset
         deriv_dir = bids_dir / "derivatives"
         derivative_exist = deriv_dir.exists()
-        # Call BIDSLayout with dataset path and derivatives boolean
         # TODO: handle case with amoty or nonexisting derivatives directory
-        # TODO: decide what to do with meta_data from derivatives,
-        # if anything at all
+        # TODO: decide what to do with meta_data from derivatives, if anything
+        # Call BIDSLayout with dataset path and derivatives boolean
         bids = BIDSLayout(bids_dir, derivatives=derivative_exist)
-        # bids = BIDSLayout(self.dataset.path)
         dsmeta = self._get_dsmeta(bids)
-
         log_progress(
             lgr.info,
             "extractorsbidsdataset",
@@ -209,8 +212,9 @@ class BIDSmeta(object):
 
     def _get_dsmeta(self, bids):
         """
-        Internal function to extract metadata from BIDSLayout
-        STEPS:
+        Internal function to extract metadata from pyBIDS' BIDSLayout
+        
+        This function executes the following steps:
         1. Extract metadata from `dataset_description.json`
         2. Extract README text
         3. Extract information about entities
@@ -232,14 +236,14 @@ class BIDSmeta(object):
         return metadata
 
     def _get_bids_dsdescription(self, bids):
-        """"""
-        # TODO: try except error handling
+        """Get BIDS dataset description"""
+        # Get info from 'dataset_description.json'
         dsdesc_dict = bids.get_dataset_description()
         # Map extracted dict keys to standard keys
         return {BIDS_PROPERTIES_MAPPING.get(k, k): v for k, v in dsdesc_dict.items()}
 
     def _get_bids_readme(self):
-        """"""
+        """Get text from README, if any"""
         readme = []
         # Grab all readme files, loop through
         for README_fname in [
@@ -257,8 +261,7 @@ class BIDSmeta(object):
         return readme if readme else None
 
     def _get_bids_entities(self, bids):
-        """"""
-        # Get dataset-specific entities from BIDSLayout
+        """Get dataset-specific entities from BIDSLayout"""
         ds_entities = list(bids.entities.keys())
         new_entities = {}
         # If the entity is in the main list AND in the list
@@ -275,7 +278,7 @@ class BIDSmeta(object):
         return new_entities
 
     def _get_bids_variables(self, bids):
-        """"""
+        """Get variable collection information from BIDSLayout"""
         # Extract variable collection information on multiple levels
         # levels (dataset, subject, session, run). The dataset level
         # collection will grab variables from participants.tsv
@@ -301,11 +304,13 @@ def _find_bids_root(dataset_path) -> Path:
     # 2 - if zero, output error
     # 3 - if 1, add to dataset path and set ats bids root dir
     if len(participant_paths) == 0:
-        msg = f"The file 'participants.tsv' should be part of the BIDS dataset in order for the 'bids_dataset' extractor to function correctly"
-        print(msg)
-        raise FileNotFoundError
+        msg = ("The file 'participants.tsv' should be part of the BIDS dataset "
+        "in order for the 'bids_dataset' extractor to function correctly")
+        raise FileNotFoundError(msg)
     elif len(participant_paths) > 1:
-        msg = f"Multiple 'participants.tsv' files ({len(participant_paths)}) were found in the recursive filetree of {self.dataset.path}, selecting first path."
+        msg = (f"Multiple 'participants.tsv' files ({len(participant_paths)}) "
+        f"were found in the recursive filetree of {dataset_path}, selecting "
+        "first path.")
         lgr.warning(msg)
         return Path(participant_paths[0]).parent
     else:
