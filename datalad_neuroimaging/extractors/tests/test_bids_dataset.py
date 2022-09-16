@@ -7,10 +7,10 @@
 #
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Test BIDS-dataset metadata extractor """
-
+import json
 from math import isnan
 from os.path import join as opj
-from simplejson import dumps
+
 from datalad.api import Dataset
 
 from nose.tools import assert_equal
@@ -147,7 +147,7 @@ def test_get_metadata(path):
     meta = BIDSmeta(ds).get_metadata()
     del meta['@context']
     sort_lists_in_dict(meta)
-    dump = dumps(meta, sort_keys=True, indent=4, ensure_ascii=False)
+    dump = json.dumps(meta, sort_keys=True, indent=4, ensure_ascii=False)
     assert_equal(
         dump,
         correct_metadata
