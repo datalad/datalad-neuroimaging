@@ -59,7 +59,7 @@ target = {
 @known_failure_windows
 @known_failure_osx
 @with_tempfile(mkdir=True)
-def test_nifti(path):
+def test_nifti(path=None):
     ds = Dataset(path).create()
     ds.config.add('datalad.metadata.nativetype', 'nifti1', where='dataset')
     copy(

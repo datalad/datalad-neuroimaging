@@ -142,7 +142,7 @@ correct_metadata = """\
 
 @known_failure_windows
 @with_tree(tree=bids_template)
-def test_get_metadata(path):
+def test_get_metadata(path=None):
     ds = Dataset(path).create(force=True)
     meta = BIDSmeta(ds).get_metadata()
     del meta['@context']

@@ -33,7 +33,7 @@ from . import datalad_extracts_annex_key
 @known_failure_windows
 @known_failure_osx
 @with_tempfile(mkdir=True)
-def test_dicom(path):
+def test_dicom(path=None):
     ds = Dataset(path).create()
     ds.config.add('datalad.metadata.nativetype', 'dicom', where='dataset')
     copy(

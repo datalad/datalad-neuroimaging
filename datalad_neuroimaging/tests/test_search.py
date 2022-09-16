@@ -75,13 +75,14 @@ def test_our_metadataset_search(tdir):
 @known_failure_osx
 @skip_if(not bids_template, "No bids_template (probably no pybids installed)")
 @with_tree(bids_template)
-def test_within_ds_file_search(path):
+def test_within_ds_file_search(path=None):
     try:
         import nibabel
     except ImportError:
         raise SkipTest
     ds = Dataset(path).create(force=True)
     ds.config.add('datalad.metadata.nativetype', 'nifti1', where='dataset')
+    #ds.config.add('datalad.runtime.raiseonerror', 'yes', where='dataset')
     makedirs(opj(path, 'stim'))
     for src, dst in (
             ('nifti1.nii.gz', opj('sub-01', 'func', 'sub-01_task-some_bold.nii.gz')),

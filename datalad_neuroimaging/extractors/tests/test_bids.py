@@ -59,7 +59,7 @@ sub-03\tf\t20-25\tr\tn\tenglish
 @known_failure_windows
 @known_failure_osx
 @with_tree(tree=bids_template)
-def test_get_metadata(path):
+def test_get_metadata(path=None):
     ds = Dataset(path).create(force=True)
     meta = MetadataExtractor(ds, []).get_metadata(True, False)[0]
     del meta['@context']
@@ -120,7 +120,7 @@ def test_get_metadata(path):
 A very detailed
 description
 """})
-def test_get_metadata_with_description_and_README(path):
+def test_get_metadata_with_description_and_README(path=None):
 
     ds = Dataset(path).create(force=True)
     meta = MetadataExtractor(ds, []).get_metadata(True, False)[0]
@@ -151,7 +151,7 @@ def test_get_metadata_with_description_and_README(path):
 A very detailed
 description с юникодом
 """})
-def test_get_metadata_with_README(path):
+def test_get_metadata_with_README(path=None):
     ds = Dataset(path).create(force=True)
     meta = MetadataExtractor(ds, []).get_metadata(True, False)[0]
     del meta['@context']

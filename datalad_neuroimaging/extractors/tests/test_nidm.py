@@ -24,7 +24,7 @@ from . import datalad_extracts_annex_key
 @known_failure_windows
 @known_failure_osx
 @with_tempfile(mkdir=True)
-def test_nidm(path):
+def test_nidm(path=None):
     ds = Dataset(path).create()
     ds.config.add('datalad.metadata.nativetype', 'nidm', where='dataset')
     # imagine filling the dataset up with something that NIDM info could be

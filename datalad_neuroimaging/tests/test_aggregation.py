@@ -23,7 +23,7 @@ from ..extractors.tests.test_bids import bids_template
 @known_failure_windows
 @known_failure_osx
 @with_tree(tree=bids_template)
-def test_nested_metadata(path):
+def test_nested_metadata(path=None):
     ds = Dataset(path).create(force=True)
     ds.save()
     ds.aggregate_metadata()
