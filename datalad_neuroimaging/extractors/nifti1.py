@@ -78,11 +78,11 @@ class MetadataExtractor(BaseMetadataExtractor):
         't_unit': lambda x: '{} ({})'.format(
             *unit_map[x.get_xyzt_units()[1]]) if x.get_xyzt_units()[1] in unit_map else '',
         'qform_code': lambda x: nibabel.nifti1.xform_codes.label[
-            np.asscalar(x.get('qform_code', _array0))],
+            x.get('qform_code', _array0).item()],
         'sform_code': lambda x: nibabel.nifti1.xform_codes.label[
-            np.asscalar(x.get('sform_code', _array0))],
+            x.get('sform_code', _array0).item()],
         'slice_order': lambda x: nibabel.nifti1.slice_order_codes.label[
-            np.asscalar(x.get('slice_code', _array0))],
+            x.get('slice_code', _array0).item()],
     }
     _ignore = {
         'datatype',
@@ -148,10 +148,10 @@ class MetadataExtractor(BaseMetadataExtractor):
 
             # blunt conversion of the entire header
             meta = {self._key2stdkey.get(k, k):
-                    [np.asscalar(i) for i in v]
+                    [i.item() for i in v]
                     if len(v.shape)
                     # scalar
-                    else np.asscalar(v)
+                    else v.item()
                     for k, v in header.items()
                     if k not in self._ignore}
             # more convenient info from nibabel's support functions
