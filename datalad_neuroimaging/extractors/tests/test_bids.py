@@ -7,10 +7,10 @@
 #
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Test BIDS metadata extractor """
+import json
 
 from math import isnan
 from os.path import join as opj
-from simplejson import dumps
 from datalad.api import Dataset
 
 from nose.tools import assert_equal
@@ -63,7 +63,7 @@ def test_get_metadata(path):
     ds = Dataset(path).create(force=True)
     meta = MetadataExtractor(ds, []).get_metadata(True, False)[0]
     del meta['@context']
-    dump = dumps(meta, sort_keys=True, indent=2, ensure_ascii=False)
+    dump = json.dumps(meta, sort_keys=True, indent=2, ensure_ascii=False)
     assert_equal(
         dump,
         """\
@@ -125,7 +125,7 @@ def test_get_metadata_with_description_and_README(path):
     ds = Dataset(path).create(force=True)
     meta = MetadataExtractor(ds, []).get_metadata(True, False)[0]
     del meta['@context']
-    dump = dumps(meta, sort_keys=True, indent=2, ensure_ascii=False)
+    dump = json.dumps(meta, sort_keys=True, indent=2, ensure_ascii=False)
     assert_equal(
         dump,
         """\
@@ -155,7 +155,7 @@ def test_get_metadata_with_README(path):
     ds = Dataset(path).create(force=True)
     meta = MetadataExtractor(ds, []).get_metadata(True, False)[0]
     del meta['@context']
-    dump = dumps(meta, sort_keys=True, indent=2, ensure_ascii=False)
+    dump = json.dumps(meta, sort_keys=True, indent=2, ensure_ascii=False)
     assert_equal(
         dump,
         u"""\
