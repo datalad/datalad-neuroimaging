@@ -16,16 +16,16 @@ from os import makedirs
 from os.path import join as opj
 from os.path import dirname
 from datalad.utils import swallow_outputs
-from datalad.tests.utils import assert_in
-from datalad.tests.utils import assert_equal
-from datalad.tests.utils import assert_result_count
-from datalad.tests.utils import with_tempfile
-from datalad.tests.utils import with_tree
-from datalad.tests.utils import ok_clean_git
-from datalad.tests.utils import SkipTest
-from datalad.tests.utils import skip_if
-from datalad.tests.utils import known_failure_osx
-from datalad.tests.utils import known_failure_windows
+from datalad.tests.utils_pytest import assert_in
+from datalad.tests.utils_pytest import assert_equal
+from datalad.tests.utils_pytest import assert_result_count
+from datalad.tests.utils_pytest import with_tempfile
+from datalad.tests.utils_pytest import with_tree
+from datalad.tests.utils_pytest import ok_clean_git
+from datalad.tests.utils_pytest import SkipTest
+from datalad.tests.utils_pytest import skip_if
+from datalad.tests.utils_pytest import known_failure_osx
+from datalad.tests.utils_pytest import known_failure_windows
 from datalad.support.external_versions import external_versions
 
 from datalad.api import Dataset

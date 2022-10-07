@@ -1,4 +1,4 @@
-from datalad.tests.utils import (
+from datalad.tests.utils_pytest import (
     with_tempfile,
     eq_,
     ok_clean_git,

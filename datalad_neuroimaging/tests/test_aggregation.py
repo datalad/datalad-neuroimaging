@@ -12,11 +12,11 @@
 
 from datalad.distribution.dataset import Dataset
 
-from datalad.tests.utils import with_tree
-from datalad.tests.utils import assert_dict_equal
-from datalad.tests.utils import assert_not_in
-from datalad.tests.utils import known_failure_osx
-from datalad.tests.utils import known_failure_windows
+from datalad.tests.utils_pytest import with_tree
+from datalad.tests.utils_pytest import assert_dict_equal
+from datalad.tests.utils_pytest import assert_not_in
+from datalad.tests.utils_pytest import known_failure_osx
+from datalad.tests.utils_pytest import known_failure_windows
 from ..extractors.tests.test_bids import bids_template
 
 

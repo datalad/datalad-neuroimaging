@@ -2,11 +2,10 @@
 # Ideas borrowed from scikit-learn's and PyMVPA Makefiles  -- thanks!
 
 PYTHON ?= python
-NOSETESTS ?= nosetests
 
 MODULE ?= datalad
 
-all: clean test
+all: clean
 
 clean:
 	$(PYTHON) setup.py clean
@@ -17,15 +16,6 @@ clean:
 bin:
 	mkdir -p $@
 	PYTHONPATH=bin:$(PYTHONPATH) python setup.py develop --install-dir $@
-
-test-code: bin
-	PATH=bin:$(PATH) PYTHONPATH=bin:$(PYTHONPATH) $(NOSETESTS) -s -v $(MODULE)
-
-test-coverage:
-	rm -rf coverage .coverage
-	$(NOSETESTS) -s -v --with-coverage $(MODULE)
-
-test: test-code
 
 
 trailing-spaces:

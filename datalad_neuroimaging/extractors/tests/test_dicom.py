@@ -8,7 +8,7 @@
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Test DICOM extractor"""
 
-from datalad.tests.utils import SkipTest
+from datalad.tests.utils_pytest import SkipTest
 try:
     from datalad_neuroimaging.extractors.dicom import MetadataExtractor as DicomExtractor
 except ImportError:
@@ -17,16 +17,16 @@ except ImportError:
 from shutil import copy
 import os.path as op
 from datalad.api import Dataset
-from datalad.tests.utils import with_tempfile
-from datalad.tests.utils import ok_clean_git
-from datalad.tests.utils import assert_status
-from datalad.tests.utils import assert_result_count
-from datalad.tests.utils import eq_
-from datalad.tests.utils import assert_dict_equal
-from datalad.tests.utils import assert_in
-from datalad.tests.utils import assert_not_in
-from datalad.tests.utils import known_failure_osx
-from datalad.tests.utils import known_failure_windows
+from datalad.tests.utils_pytest import with_tempfile
+from datalad.tests.utils_pytest import ok_clean_git
+from datalad.tests.utils_pytest import assert_status
+from datalad.tests.utils_pytest import assert_result_count
+from datalad.tests.utils_pytest import eq_
+from datalad.tests.utils_pytest import assert_dict_equal
+from datalad.tests.utils_pytest import assert_in
+from datalad.tests.utils_pytest import assert_not_in
+from datalad.tests.utils_pytest import known_failure_osx
+from datalad.tests.utils_pytest import known_failure_windows
 from . import datalad_extracts_annex_key
 
 

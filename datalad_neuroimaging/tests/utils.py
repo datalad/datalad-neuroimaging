@@ -4,8 +4,8 @@ import os.path as op
 from datalad.api import Dataset
 from datalad.api import export_archive
 from datalad.coreapi import install
-from datalad.tests.utils import ok_clean_git
-from datalad.tests.utils import SkipTest
+from datalad.tests.utils_pytest import ok_clean_git
+from datalad.tests.utils_pytest import SkipTest
 from datalad.interface.common_cfg import dirs as appdirs
 
 import datalad_neuroimaging

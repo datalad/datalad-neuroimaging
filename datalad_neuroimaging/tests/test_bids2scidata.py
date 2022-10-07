@@ -18,21 +18,21 @@ from datalad.api import install
 from datalad.utils import chpwd
 from datalad_neuroimaging.tests.utils import get_bids_dataset
 
-from datalad.tests.utils import ok_clean_git
-from datalad.tests.utils import with_tree
-from datalad.tests.utils import eq_
-from datalad.tests.utils import assert_true, assert_not_equal, assert_raises, \
+from datalad.tests.utils_pytest import ok_clean_git
+from datalad.tests.utils_pytest import with_tree
+from datalad.tests.utils_pytest import eq_
+from datalad.tests.utils_pytest import assert_true, assert_not_equal, assert_raises, \
     assert_false, assert_equal
-from datalad.tests.utils import assert_status
-from datalad.tests.utils import assert_result_count
-from datalad.tests.utils import assert_in
-from datalad.tests.utils import with_tempfile
-from datalad.tests.utils import known_failure_osx
-from datalad.tests.utils import known_failure_windows
+from datalad.tests.utils_pytest import assert_status
+from datalad.tests.utils_pytest import assert_result_count
+from datalad.tests.utils_pytest import assert_in
+from datalad.tests.utils_pytest import with_tempfile
+from datalad.tests.utils_pytest import known_failure_osx
+from datalad.tests.utils_pytest import known_failure_windows
 
 from datalad.support.exceptions import IncompleteResultsError
 
-from datalad.tests.utils import skip_if_no_module
+from datalad.tests.utils_pytest import skip_if_no_module
 skip_if_no_module('pandas')
 
 
