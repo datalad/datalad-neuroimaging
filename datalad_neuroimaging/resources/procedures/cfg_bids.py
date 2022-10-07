@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Procedure to apply a sensible BIDS default setup to a dataset
 """
 

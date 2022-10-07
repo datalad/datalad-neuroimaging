@@ -1,1 +1,1 @@
-from datalad.conftest import setup_package
+from datalad.conftest import *
