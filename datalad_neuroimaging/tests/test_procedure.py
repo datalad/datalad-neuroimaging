@@ -12,7 +12,7 @@ import datalad.interface.run_procedure
 @known_failure_windows
 @known_failure_osx
 @with_tempfile
-def test_bids_procedure(path):
+def test_bids_procedure(path=None):
     ds = Dataset(path).create()
     ds.run_procedure(['cfg_bids'])
     ds.config.reload()

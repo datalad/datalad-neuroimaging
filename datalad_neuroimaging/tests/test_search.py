@@ -41,7 +41,7 @@ except (ImportError, SkipTest):
 @known_failure_windows
 @known_failure_osx
 @with_tempfile
-def test_our_metadataset_search(tdir):
+def test_our_metadataset_search(tdir=None):
     # TODO renable when a dataset with new aggregated metadata is
     # available at some public location
     raise SkipTest
