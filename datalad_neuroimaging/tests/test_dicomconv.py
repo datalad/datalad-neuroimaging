@@ -29,7 +29,7 @@ from datalad_neuroimaging.tests.utils import get_bids_dataset
 @known_failure_windows
 @known_failure_osx
 @with_tempfile
-def test_dicom_metadata_aggregation(path):
+def test_dicom_metadata_aggregation(path=None):
     dicoms = get_dicom_dataset('structural')
 
     ds = Dataset.create(path)

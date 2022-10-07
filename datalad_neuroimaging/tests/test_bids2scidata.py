@@ -80,7 +80,7 @@ sub-15\tf\t35\tl
 @known_failure_osx
 @with_tree(_dummy_template)
 @with_tempfile(mkdir=True)
-def test_noop(path, outdir):
+def test_noop(path=None, outdir=None):
     ds = Dataset(opj(path, 'ds')).create(force=True)
     ds.save()
     assert_raises(
@@ -100,7 +100,7 @@ def test_noop(path, outdir):
 @known_failure_windows
 @known_failure_osx
 @with_tree(_bids_template)
-def test_minimal(path):
+def test_minimal(path=None):
     ds = Dataset(opj(path, 'ds')).create(force=True)
     ds.save()
     ok_clean_git(ds.path)
@@ -165,7 +165,7 @@ Sample Name\tProtocol REF\tParameter Value[modality]\tAssay Name\tRaw Data File\
 @known_failure_osx
 @with_tempfile(mkdir=True)
 @with_tempfile(mkdir=True)
-def test_real_ds(path, opath):
+def test_real_ds(path=None, opath=None):
     # just the dataset, no data, export works from aggregated metadata only
     ds = install(source=get_bids_dataset().path, path=path, reckless=True)
     ds.bids2scidata(
