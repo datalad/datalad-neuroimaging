@@ -9,27 +9,35 @@
 """Test DICOM extractor"""
 
 from datalad.tests.utils_pytest import SkipTest
+
 try:
-    from datalad_neuroimaging.extractors.dicom import MetadataExtractor as DicomExtractor
+    from datalad_neuroimaging.extractors.dicom import \
+        MetadataExtractor as DicomExtractor
 except ImportError:
     raise SkipTest
 
-from shutil import copy
 import os.path as op
+from shutil import copy
+
 from datalad.api import Dataset
-from datalad.tests.utils_pytest import with_tempfile
-from datalad.tests.utils_pytest import ok_clean_git
-from datalad.tests.utils_pytest import assert_status
-from datalad.tests.utils_pytest import assert_result_count
-from datalad.tests.utils_pytest import eq_
-from datalad.tests.utils_pytest import assert_dict_equal
-from datalad.tests.utils_pytest import assert_in
-from datalad.tests.utils_pytest import assert_not_in
-from datalad.tests.utils_pytest import known_failure_osx
-from datalad.tests.utils_pytest import known_failure_windows
+from datalad.tests.utils_pytest import (
+    assert_dict_equal,
+    assert_in,
+    assert_not_in,
+    assert_result_count,
+    assert_status,
+    eq_,
+    known_failure_osx,
+    known_failure_windows,
+    ok_clean_git,
+    skip_if_adjusted_branch,
+    with_tempfile,
+)
+
 from . import datalad_extracts_annex_key
 
 
+@skip_if_adjusted_branch  # fails on crippled fs test
 @known_failure_windows
 @known_failure_osx
 @with_tempfile(mkdir=True)

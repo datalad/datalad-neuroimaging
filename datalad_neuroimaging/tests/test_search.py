@@ -9,28 +9,33 @@
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Some additional tests for search command"""
 import os
-
 from difflib import unified_diff
-from shutil import copy
 from os import makedirs
-from os.path import join as opj
 from os.path import dirname
-from datalad.utils import swallow_outputs
-from datalad.tests.utils_pytest import assert_in
-from datalad.tests.utils_pytest import assert_equal
-from datalad.tests.utils_pytest import assert_result_count
-from datalad.tests.utils_pytest import with_tempfile
-from datalad.tests.utils_pytest import with_tree
-from datalad.tests.utils_pytest import ok_clean_git
-from datalad.tests.utils_pytest import SkipTest
-from datalad.tests.utils_pytest import skip_if
-from datalad.tests.utils_pytest import known_failure_osx
-from datalad.tests.utils_pytest import known_failure_windows
-from datalad.support.external_versions import external_versions
+from os.path import join as opj
+from shutil import copy
 
-from datalad.api import Dataset
-from datalad.api import search
+from datalad.api import (
+    Dataset,
+    search,
+)
 from datalad.metadata import search as search_mod
+from datalad.support.external_versions import external_versions
+from datalad.tests.utils_pytest import (
+    SkipTest,
+    assert_equal,
+    assert_in,
+    assert_result_count,
+    known_failure_osx,
+    known_failure_windows,
+    ok_clean_git,
+    skip_if,
+    skip_if_adjusted_branch,
+    with_tempfile,
+    with_tree,
+)
+from datalad.utils import swallow_outputs
+
 try:
     from datalad_neuroimaging.extractors.tests.test_bids import bids_template
 except (ImportError, SkipTest):
@@ -61,9 +66,9 @@ def test_our_metadataset_search(tdir=None):
         path=opj(ds.path, 'crcns', 'pfc-2'))
 
     # there is a problem with argparse not decoding into utf8 in PY2
-    from datalad.cmdline.tests.test_main import run_main
     # TODO: make it into an independent lean test
     from datalad.cmd import Runner
+    from datalad.cmdline.tests.test_main import run_main
     out, err = Runner(cwd=ds.path)('datalad search Buzsáki')
     assert_in('crcns/pfc-2 ', out)  # has it in description
     # and then another aspect: this entry it among multiple authors, need to
@@ -71,6 +76,7 @@ def test_our_metadataset_search(tdir=None):
     assert_in('crcns/hc-1 ', out)
 
 
+@skip_if_adjusted_branch  # fails on crippled fs test
 @known_failure_windows
 @known_failure_osx
 @skip_if(not bids_template, "No bids_template (probably no pybids installed)")

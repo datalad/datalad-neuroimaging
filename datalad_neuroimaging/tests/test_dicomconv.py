@@ -19,6 +19,7 @@ from datalad.tests.utils_pytest import with_tempfile
 from datalad.tests.utils_pytest import eq_
 from datalad.tests.utils_pytest import known_failure_osx
 from datalad.tests.utils_pytest import known_failure_windows
+from datalad.tests.utils_pytest import skip_if_adjusted_branch
 
 
 import datalad_neuroimaging
@@ -40,6 +41,7 @@ def test_dicom_metadata_aggregation(path=None):
     assert_result_count(res, 1, path=opj(ds.path, 'acq100'))
 
 
+@skip_if_adjusted_branch
 @known_failure_windows
 @known_failure_osx
 def test_validate_bids_fixture():

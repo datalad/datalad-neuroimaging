@@ -9,24 +9,28 @@
 """Test NIfTI extractor"""
 
 from datalad.tests.utils_pytest import SkipTest
+
 try:
     import nibabel
 except ImportError:
     raise SkipTest
 
-from shutil import copy
 from os.path import dirname
 from os.path import join as opj
-from datalad.api import Dataset
-from datalad.tests.utils_pytest import with_tempfile
-from datalad.tests.utils_pytest import ok_clean_git
-from datalad.tests.utils_pytest import assert_status
-from datalad.tests.utils_pytest import assert_result_count
-from datalad.tests.utils_pytest import eq_
-from datalad.tests.utils_pytest import assert_in
-from datalad.tests.utils_pytest import known_failure_osx
-from datalad.tests.utils_pytest import known_failure_windows
+from shutil import copy
 
+from datalad.api import Dataset
+from datalad.tests.utils_pytest import (
+    assert_in,
+    assert_result_count,
+    assert_status,
+    eq_,
+    known_failure_osx,
+    known_failure_windows,
+    ok_clean_git,
+    skip_if_adjusted_branch,
+    with_tempfile,
+)
 
 target = {
     "description": "FSL5.0",
@@ -56,6 +60,7 @@ target = {
 }
 
 
+@skip_if_adjusted_branch  # fails on crippled fs test
 @known_failure_windows
 @known_failure_osx
 @with_tempfile(mkdir=True)
