@@ -3,6 +3,7 @@
 """
 
 import sys
+
 from datalad.distribution.dataset import require_dataset
 from datalad.support import path as op
 

@@ -1,12 +1,21 @@
-from os.path import dirname, normpath, join as opj, pardir
 import os.path as op
+from os.path import dirname
+from os.path import join as opj
+from os.path import (
+    normpath,
+    pardir,
+)
 
-from datalad.api import Dataset
-from datalad.api import export_archive
+from datalad.api import (
+    Dataset,
+    export_archive,
+)
 from datalad.coreapi import install
-from datalad.tests.utils_pytest import ok_clean_git
-from datalad.tests.utils_pytest import SkipTest
 from datalad.interface.common_cfg import dirs as appdirs
+from datalad.tests.utils_pytest import (
+    SkipTest,
+    ok_clean_git,
+)
 
 import datalad_neuroimaging
 

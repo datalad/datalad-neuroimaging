@@ -1,12 +1,12 @@
-from datalad.tests.utils_pytest import (
-    with_tempfile,
-    eq_,
-    ok_clean_git,
-    known_failure_osx,
-    known_failure_windows
-)
-from datalad.distribution.dataset import Dataset
 import datalad.interface.run_procedure
+from datalad.distribution.dataset import Dataset
+from datalad.tests.utils_pytest import (
+    eq_,
+    known_failure_osx,
+    known_failure_windows,
+    ok_clean_git,
+    with_tempfile,
+)
 
 
 @known_failure_windows
