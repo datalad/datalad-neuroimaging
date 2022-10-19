@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 """Procedure to apply a sensible BIDS default setup to a dataset
 """
 
 import sys
+
 from datalad.distribution.dataset import require_dataset
 from datalad.support import path as op
 

@@ -52,4 +52,4 @@ jobs:
         echo "== mount >>"
         mount
         echo "<< mount =="
-        python -m nose -s -v --with-doctest --with-coverage --cover-package datalad_neuroimaging datalad_neuroimaging
+        python -m pytest -s -v --cov=datalad_neuroimaging --pyargs datalad_neuroimaging

@@ -13,26 +13,33 @@ import os.path as op
 from os import listdir
 from os.path import join as opj
 
-from datalad.api import Dataset
-from datalad.api import install
+from datalad.api import (
+    Dataset,
+    install,
+)
+from datalad.support.exceptions import IncompleteResultsError
+from datalad.tests.utils_pytest import (
+    assert_equal,
+    assert_false,
+    assert_in,
+    assert_not_equal,
+    assert_raises,
+    assert_result_count,
+    assert_status,
+    assert_true,
+    eq_,
+    known_failure_osx,
+    known_failure_windows,
+    ok_clean_git,
+    skip_if_adjusted_branch,
+    skip_if_no_module,
+    with_tempfile,
+    with_tree,
+)
 from datalad.utils import chpwd
+
 from datalad_neuroimaging.tests.utils import get_bids_dataset
 
-from datalad.tests.utils import ok_clean_git
-from datalad.tests.utils import with_tree
-from datalad.tests.utils import eq_
-from datalad.tests.utils import assert_true, assert_not_equal, assert_raises, \
-    assert_false, assert_equal
-from datalad.tests.utils import assert_status
-from datalad.tests.utils import assert_result_count
-from datalad.tests.utils import assert_in
-from datalad.tests.utils import with_tempfile
-from datalad.tests.utils import known_failure_osx
-from datalad.tests.utils import known_failure_windows
-
-from datalad.support.exceptions import IncompleteResultsError
-
-from datalad.tests.utils import skip_if_no_module
 skip_if_no_module('pandas')
 
 
@@ -97,6 +104,7 @@ def test_noop(path=None, outdir=None):
         )
 
 
+@skip_if_adjusted_branch  # fails on crippled fs test
 @known_failure_windows
 @known_failure_osx
 @with_tree(_bids_template)
@@ -161,6 +169,7 @@ Sample Name\tProtocol REF\tParameter Value[modality]\tAssay Name\tRaw Data File\
 # new aggregated metadata in any of them
 
 
+@skip_if_adjusted_branch  # fails on crippled fs test
 @known_failure_windows
 @known_failure_osx
 @with_tempfile(mkdir=True)

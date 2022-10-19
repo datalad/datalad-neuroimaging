@@ -8,19 +8,25 @@
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Test NIDM extractor"""
 
-from shutil import copy
 from os.path import dirname
 from os.path import join as opj
+from shutil import copy
+
 from datalad.api import Dataset
-from datalad.tests.utils import with_tempfile
-from datalad.tests.utils import ok_clean_git
-from datalad.tests.utils import assert_status
-from datalad.tests.utils import assert_result_count
-from datalad.tests.utils import known_failure_osx
-from datalad.tests.utils import known_failure_windows
+from datalad.tests.utils_pytest import (
+    assert_result_count,
+    assert_status,
+    known_failure_osx,
+    known_failure_windows,
+    ok_clean_git,
+    skip_if_adjusted_branch,
+    with_tempfile,
+)
+
 from . import datalad_extracts_annex_key
 
 
+@skip_if_adjusted_branch  # fails on crippled fs test
 @known_failure_windows
 @known_failure_osx
 @with_tempfile(mkdir=True)

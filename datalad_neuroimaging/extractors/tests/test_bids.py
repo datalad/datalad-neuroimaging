@@ -8,20 +8,20 @@
 # ## ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 """Test BIDS metadata extractor """
 import json
-
 from math import isnan
 from os.path import join as opj
+
 from datalad.api import Dataset
-
-from nose.tools import assert_equal
 from datalad.support.external_versions import external_versions
-from datalad.tests.utils import with_tree
-from datalad.tests.utils import assert_in
-from datalad.tests.utils import known_failure_osx
-from datalad.tests.utils import known_failure_windows
+from datalad.tests.utils_pytest import (
+    assert_equal,
+    assert_in,
+    known_failure_osx,
+    known_failure_windows,
+    skip_if_no_module,
+    with_tree,
+)
 
-
-from datalad.tests.utils import skip_if_no_module
 skip_if_no_module('bids')
 
 from datalad_neuroimaging.extractors.bids import MetadataExtractor

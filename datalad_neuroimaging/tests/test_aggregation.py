@@ -11,15 +11,19 @@
 
 
 from datalad.distribution.dataset import Dataset
+from datalad.tests.utils_pytest import (
+    assert_dict_equal,
+    assert_not_in,
+    known_failure_osx,
+    known_failure_windows,
+    skip_if_adjusted_branch,
+    with_tree,
+)
 
-from datalad.tests.utils import with_tree
-from datalad.tests.utils import assert_dict_equal
-from datalad.tests.utils import assert_not_in
-from datalad.tests.utils import known_failure_osx
-from datalad.tests.utils import known_failure_windows
 from ..extractors.tests.test_bids import bids_template
 
 
+@skip_if_adjusted_branch  # fails on crippled fs test
 @known_failure_windows
 @known_failure_osx
 @with_tree(tree=bids_template)
