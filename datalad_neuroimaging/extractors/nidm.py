@@ -14,8 +14,8 @@
 import logging
 lgr = logging.getLogger('datalad.metadata.extractors.nidm')
 
-from datalad.metadata.definitions import vocabulary_id
-from datalad.metadata.extractors.base import BaseMetadataExtractor
+from datalad_deprecated.metadata.definitions import vocabulary_id
+from datalad_deprecated.metadata.extractors.base import BaseMetadataExtractor
 
 
 class MetadataExtractor(BaseMetadataExtractor):

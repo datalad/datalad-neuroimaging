@@ -24,10 +24,16 @@ from datalad.tests.utils_pytest import (
 )
 
 import datalad_neuroimaging
+from datalad_deprecated.metadata.aggregate import AggregateMetaData
+from datalad_deprecated.metadata.metadata import Metadata
 from datalad_neuroimaging.tests.utils import (
     get_bids_dataset,
     get_dicom_dataset,
 )
+
+
+aggregate_metadata = AggregateMetaData.__call__
+metadata = Metadata.__call__
 
 
 @known_failure_windows
@@ -38,8 +44,8 @@ def test_dicom_metadata_aggregation(path=None):
 
     ds = Dataset.create(path)
     ds.install(source=dicoms, path='acq100')
-    ds.aggregate_metadata(recursive=True)
-    res = ds.metadata(get_aggregates=True)
+    aggregate_metadata(dataset=ds, recursive=True)
+    res = metadata(dataset=ds, get_aggregates=True)
     assert_result_count(res, 2)
     assert_result_count(res, 1, path=opj(ds.path, 'acq100'))
 

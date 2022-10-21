@@ -20,13 +20,12 @@ from io import open
 from os.path import join as opj
 from os.path import exists
 from os.path import curdir
+from datalad import cfg
 from datalad.dochelpers import exc_str
-from datalad.metadata.extractors.base import BaseMetadataExtractor
-from datalad.metadata.definitions import vocabulary_id
 from datalad.utils import assure_unicode
 from datalad.support.external_versions import external_versions
-
-from datalad import cfg
+from datalad_deprecated.metadata.extractors.base import BaseMetadataExtractor
+from datalad_deprecated.metadata.definitions import vocabulary_id
 
 import logging
 lgr = logging.getLogger('datalad.metadata.extractors.bids')

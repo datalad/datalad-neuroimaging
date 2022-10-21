@@ -31,8 +31,9 @@ except ImportError:
     from collections import MutableSequence
 
 from distutils.version import LooseVersion
-from datalad.metadata.definitions import vocabulary_id
-from datalad.metadata.extractors.base import BaseMetadataExtractor
+from datalad_deprecated.metadata.definitions import vocabulary_id
+from datalad_deprecated.metadata.extractors.base import BaseMetadataExtractor
+
 
 # pydicom 2.0.0 renamed PersonName3 to PersonName:
 PersonName = dcm.valuerep.PersonName3 \
