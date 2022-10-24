@@ -13,13 +13,14 @@ from uuid import UUID
 
 from bids import BIDSLayout
 from datalad.log import log_progress
-from datalad.metadata.definitions import vocabulary_id
 from datalad.utils import ensure_unicode
 from datalad_metalad.extractors.base import (
     DataOutputCategory,
     DatasetMetadataExtractor,
     ExtractorResult,
 )
+from datalad_deprecated.metadata.definitions import vocabulary_id
+
 
 lgr = logging.getLogger("datalad.metadata.extractors.bids_dataset")
 

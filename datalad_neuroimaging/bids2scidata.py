@@ -29,7 +29,6 @@ from os.path import split as psplit
 import datalad
 import datalad_neuroimaging
 from datalad import cfg
-from datalad.coreapi import metadata
 from datalad.distribution.dataset import require_dataset
 from datalad.interface.base import Interface
 from datalad.interface.base import build_doc
@@ -39,9 +38,14 @@ from datalad.interface.utils import eval_results
 from datalad.distribution.dataset import EnsureDataset
 from datalad.support.constraints import EnsureNone
 from datalad.utils import assure_list
+from datalad_deprecated.metadata.metadata import Metadata
 from six.moves.urllib.parse import urlsplit
 from six.moves.urllib.parse import urlunsplit
 from posixpath import split as posixsplit
+
+
+# Adapt to metadata code move from datalad-core to datalad-deprecated
+metadata = Metadata.__call__
 
 
 try:

@@ -6,6 +6,7 @@ from os.path import (
     pardir,
 )
 
+import datalad_neuroimaging
 from datalad.api import (
     Dataset,
     export_archive,
@@ -16,8 +17,12 @@ from datalad.tests.utils_pytest import (
     SkipTest,
     ok_clean_git,
 )
+from datalad_deprecated.metadata.aggregate import AggregateMetaData
+from datalad_deprecated.metadata.metadata import Metadata
 
-import datalad_neuroimaging
+
+aggregate_metadata = AggregateMetaData.__call__
+metadata = Metadata.__call__
 
 
 def get_sourcerepo():
@@ -70,11 +75,11 @@ def get_bids_dataset():
     # dicom dataset is preconfigured for metadata extraction
     # XXX this is the slowest step of the entire procedure
     # reading 5k dicoms of the functional data
-    bids_ds.aggregate_metadata(recursive=True)
+    aggregate_metadata(dataset=bids_ds, recursive=True)
     # pull subject ID from metadata
-    res = bids_ds.metadata(
-        funcdicom_ds.path, reporton='datasets', return_type='item-or-list',
-        result_renderer='disabled')
+    res = metadata(
+        funcdicom_ds.path, dataset=bids_ds, reporton='datasets',
+        return_type='item-or-list', result_renderer='disabled')
     subj_id = res['metadata']['dicom']['Series'][0]['PatientID']
     # prepare for incoming BIDS metadata that we will want to keep in
     # Git -- templates would be awesome!
@@ -136,7 +141,7 @@ def get_bids_dataset():
         check=False)
     # no need for recursion, we already have the dicom dataset's
     # stuff on record
-    bids_ds.aggregate_metadata(recursive=False, incremental=True)
+    aggregate_metadata(dataset=bids_ds, recursive=False, incremental=True)
     ok_clean_git(bids_ds.path)
     return bids_ds
 

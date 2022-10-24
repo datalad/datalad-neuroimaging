@@ -16,9 +16,9 @@ from datalad.log import log_progress
 from math import isnan
 import nibabel
 import numpy as np
-from datalad.metadata.definitions import vocabulary_id
-from datalad.metadata.extractors.base import BaseMetadataExtractor
 from datalad.dochelpers import exc_str
+from datalad_deprecated.metadata.definitions import vocabulary_id
+from datalad_deprecated.metadata.extractors.base import BaseMetadataExtractor
 
 
 vocabulary = {

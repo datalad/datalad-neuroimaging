@@ -26,4 +26,3 @@ def test_bids_procedure(path=None):
     ds.run_procedure(['cfg_bids'])
     eq_(origsha, ds.repo.get_hexsha())
     ok_clean_git(ds.path)
-

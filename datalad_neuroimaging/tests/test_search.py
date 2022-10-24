@@ -15,11 +15,7 @@ from os.path import dirname
 from os.path import join as opj
 from shutil import copy
 
-from datalad.api import (
-    Dataset,
-    search,
-)
-from datalad.metadata import search as search_mod
+from datalad.api import Dataset
 from datalad.support.external_versions import external_versions
 from datalad.tests.utils_pytest import (
     SkipTest,
@@ -35,6 +31,15 @@ from datalad.tests.utils_pytest import (
     with_tree,
 )
 from datalad.utils import swallow_outputs
+from datalad_deprecated.metadata.aggregate import AggregateMetaData
+from datalad_deprecated.metadata.metadata import Metadata
+from datalad_deprecated.metadata.search import Search
+
+
+aggregate_metadata = AggregateMetaData.__call__
+metadata = Metadata.__call__
+search = Search.__call__
+
 
 try:
     from datalad_neuroimaging.extractors.tests.test_bids import bids_template
@@ -58,9 +63,9 @@ def test_our_metadataset_search(tdir=None):
     #    #source="///",
     #    source="smaug:/mnt/btrfs/datasets-meta6-4/datalad/crawl",
     #    result_xfm='datasets', return_type='item-or-list')
-    assert list(ds.search('haxby'))
+    assert list(search('haxby', dataset=ds))
     assert_result_count(
-        ds.search('id:873a6eae-7ae6-11e6-a6c8-002590f97d84', mode='textblob'),
+        search('id:873a6eae-7ae6-11e6-a6c8-002590f97d84', dataset=ds, mode='textblob'),
         1,
         type='dataset',
         path=opj(ds.path, 'crcns', 'pfc-2'))
@@ -97,10 +102,10 @@ def test_within_ds_file_search(path=None):
             opj(dirname(dirname(__file__)), 'tests', 'data', 'files', src),
             opj(path, dst))
     ds.save()
-    ds.aggregate_metadata()
+    aggregate_metadata(dataset=ds)
     ok_clean_git(ds.path)
     # basic sanity check on the metadata structure of the dataset
-    dsmeta = ds.metadata('.', reporton='datasets')[0]['metadata']
+    dsmeta = metadata('.', dataset=ds, reporton='datasets')[0]['metadata']
     for src in ('bids', 'nifti1'):
         # something for each one
         assert_in(src, dsmeta)
@@ -111,7 +116,7 @@ def test_within_ds_file_search(path=None):
 
     # test default behavior
     with swallow_outputs() as cmo:
-        ds.search(show_keys='name', mode='textblob')
+        search(dataset=ds, show_keys='name', mode='textblob')
 
         assert_in("""\
 id
@@ -178,13 +183,13 @@ type
 
     # check generated autofield index keys
     with swallow_outputs() as cmo:
-        ds.search(mode='autofield', show_keys='name')
+        search(dataset=ds, mode='autofield', show_keys='name')
         # it is impossible to assess what is different from that dump
         # so we will use diff
         diff = list(unified_diff(target_out.splitlines(), cmo.out.splitlines()))
         assert_in(target_out, cmo.out, msg="Diff: %s" % os.linesep.join(diff))
 
-    assert_result_count(ds.search('blablob#'), 0)
+    assert_result_count(search('blablob#', dataset=ds), 0)
     # now check that we can discover things from the aggregated metadata
     for mode, query, hitpath, matched_key, matched_val in (
             # random keyword query
@@ -206,7 +211,7 @@ type
             # TODO extend with more complex queries to test whoosh
             # query language configuration
     ):
-        res = ds.search(query, mode=mode, full_record=True)
+        res = search(query, dataset=ds, mode=mode, full_record=True)
         if mode == 'textblob':
             # 'textblob' does datasets by default only (be could be configured otherwise
             assert_result_count(res, 1)

@@ -19,8 +19,12 @@ from datalad.tests.utils_pytest import (
     skip_if_adjusted_branch,
     with_tree,
 )
+from datalad_deprecated.metadata.metadata import Metadata
 
 from ..extractors.tests.test_bids import bids_template
+
+
+metadata = Metadata.__call__
 
 
 @skip_if_adjusted_branch  # fails on crippled fs test
@@ -35,8 +39,9 @@ def test_nested_metadata(path=None):
     # content metadata. On the dataset-level this should automatically
     # yield a sequence of participant info dicts, without any further action
     # or BIDS-specific configuration
-    meta = ds.metadata(
-        '.', reporton='datasets', return_type='item-or-list')['metadata']
+    meta = metadata(
+        '.', dataset=ds, reporton='datasets', return_type='item-or-list'
+    )['metadata']
     for i in zip(
             sorted(
                 meta['datalad_unique_content_properties']['bids']['subject'],
