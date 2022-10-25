@@ -9,6 +9,16 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
+## 0.3.2 (Okt 25, 2022) -- ... but grandparents always are
+
+- increase dependency on datalad to 0.16.7
+- depend on datalad-metalad and datalad-deprecated for both styles of metadata
+  extractors
+- update the metadata extractors to work with current numpy versions
+- BIDS extractor compatible with pybids>=0.15.1 and BIDS v1.6.0
+- fix nifti1 metadata extractor not dealing properly with byte strings
+- various internal changes and fixes around testing and CI setup
+
 ## 0.3.1 (Jun 3, 2020) -- Uncles aren't always nice either
 
 - be compatible with pydicom 2.0.0
