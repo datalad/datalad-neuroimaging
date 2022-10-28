@@ -9,6 +9,10 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
+## 0.3.3 (Okt 28, 2022) -- Oktoberfest
+
+- raise dependency on datalad-deprecated which was prematurely released
+
 ## 0.3.2 (Okt 25, 2022) -- ... but grandparents always are
 
 - increase dependency on datalad to 0.16.7
