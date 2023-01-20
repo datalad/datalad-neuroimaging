@@ -16,9 +16,11 @@ ds = require_dataset(
 # will get its own .gitattributes entry to keep it out of the annex
 # give relative path to dataset root (use platform notation)
 force_in_git = [
-    'README',
+    'README*',
     'CHANGES',
+    'LICENSE',
     'dataset_description.json',
+    '.bids-validator-config.json',
     '.bidsignore',
     'code/**',
     # to not put participants or scan info into Git, might contain sensitive
