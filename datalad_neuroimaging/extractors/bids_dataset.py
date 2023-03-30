@@ -74,7 +74,7 @@ BIDSCONTEXT = {
     "type": vocabulary_id,
 }
 
-REQUIRED_BIDS_FILES = ["dataset_description.json", "participants.tsv"]
+REQUIRED_BIDS_FILES = ["dataset_description.json"]
 
 DATASET = "dataset"
 
@@ -245,7 +245,8 @@ class BIDSmeta(object):
         3. Extract information about entities
         4. Extract variable collection information on multiple levels
            (dataset, subject, session, run). The dataset level
-           collection will grab variables from participants.tsv
+           collection will grab variables from participants.tsv if
+           available.
         5. Add context to metadata output
         """
         # STEP 1: Extract metadata from `dataset_description.json`
@@ -306,7 +307,8 @@ class BIDSmeta(object):
         """Get variable collection information from BIDSLayout"""
         # Extract variable collection information on multiple levels
         # levels (dataset, subject, session, run). The dataset level
-        # collection will grab variables from participants.tsv
+        # collection will grab variables from participants.tsv if
+        # available
         variables = {}
         for ent in BIDS_COLLECTION_ENTITIES:
             try:
@@ -324,19 +326,19 @@ def _find_bids_root(dataset_path) -> Path:
     """
     Find relative location of BIDS directory within datalad dataset
     """
-    participant_paths = list(Path(dataset_path).glob("**/participants.tsv"))
+    description_paths = list(Path(dataset_path).glob("**/dataset_description.json"))
     # 1 - if more than one, select first and output warning
     # 2 - if zero, output error
     # 3 - if 1, add to dataset path and set ats bids root dir
-    if len(participant_paths) == 0:
-        msg = ("The file 'participants.tsv' should be part of the BIDS dataset "
+    if len(description_paths) == 0:
+        msg = ("The file 'dataset_description.json' should be part of the BIDS dataset "
         "in order for the 'bids_dataset' extractor to function correctly")
         raise FileNotFoundError(msg)
-    elif len(participant_paths) > 1:
-        msg = (f"Multiple 'participants.tsv' files ({len(participant_paths)}) "
+    elif len(description_paths) > 1:
+        msg = (f"Multiple 'dataset_description.json' files ({len(description_paths)}) "
         f"were found in the recursive filetree of {dataset_path}, selecting "
         "first path.")
         lgr.warning(msg)
-        return Path(participant_paths[0]).parent
+        return Path(description_paths[0]).parent
     else:
-        return Path(participant_paths[0]).parent
+        return Path(description_paths[0]).parent
