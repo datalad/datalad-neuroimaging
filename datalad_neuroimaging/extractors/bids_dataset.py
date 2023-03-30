@@ -147,25 +147,51 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
 
     def get_required_content(self):
         # TODO: logging
-        bids_dir = _find_bids_root(self.dataset.path)
-
-        for filename in REQUIRED_BIDS_FILES:
-            rslt = self.dataset.get(
-                bids_dir / filename, on_failure="ignore", return_type="list"
-            )
-            if "status" in rslt[0] and rslt[0]["status"] == "impossible":
-                msg = (f"The file '{filename}' should be part of the BIDS "
-                "dataset in order for the 'bids_dataset' extractor to function "
-                "correctly")
-                raise FileNotFoundError(msg)
-        return True
+        # bids_dir = _find_bids_root(self.dataset.path)
+        for f in REQUIRED_BIDS_FILES:
+            f_abs = self.dataset.pathobj / f
+            if f_abs.exists() or f_abs.is_symlink():
+                result = self.dataset.get(f_abs, result_renderer="disabled")
+                failure_count = 0
+                for res in result:
+                    if res["status"] in ("error", "impossible"):
+                        failure_count += 1
+                if failure_count > 0:
+                    yield dict(
+                        path=self.dataset.path,
+                        action="meta_extract",
+                        type="dataset",
+                        status="error",
+                        message=("required file content not retrievable: %s", f),
+                    )
+                else:
+                    yield dict(
+                        path=self.dataset.path,
+                        action="meta_extract",
+                        type="dataset",
+                        status="ok",
+                        message=("required file(s) retrieved"),
+                    )
+            else:
+                yield dict(
+                    path=self.dataset.path,
+                    action="meta_extract",
+                    type="dataset",
+                    status="impossible",
+                    message=(
+                        "metadata source is not available in %s: %s",
+                        self.dataset.path,
+                        f,
+                    ),
+                )
+        return
 
     def extract(self, _=None) -> ExtractorResult:
         log_progress(
             lgr.info,
             "extractorsbidsdataset",
             f"Start bids_dataset metadata extraction from {self.dataset.path}",
-            total=2,
+            total=1,
             label="bids_dataset metadata extraction",
             unit=" Dataset",
         )
