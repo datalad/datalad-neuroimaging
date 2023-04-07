@@ -74,7 +74,7 @@ BIDSCONTEXT = {
     "type": vocabulary_id,
 }
 
-REQUIRED_BIDS_FILES = ["dataset_description.json", "participants.tsv"]
+REQUIRED_BIDS_FILES = ["dataset_description.json"]
 
 DATASET = "dataset"
 
@@ -147,25 +147,51 @@ class BIDSDatasetExtractor(DatasetMetadataExtractor):
 
     def get_required_content(self):
         # TODO: logging
-        bids_dir = _find_bids_root(self.dataset.path)
-
-        for filename in REQUIRED_BIDS_FILES:
-            rslt = self.dataset.get(
-                bids_dir / filename, on_failure="ignore", return_type="list"
-            )
-            if "status" in rslt[0] and rslt[0]["status"] == "impossible":
-                msg = (f"The file '{filename}' should be part of the BIDS "
-                "dataset in order for the 'bids_dataset' extractor to function "
-                "correctly")
-                raise FileNotFoundError(msg)
-        return True
+        # bids_dir = _find_bids_root(self.dataset.path)
+        for f in REQUIRED_BIDS_FILES:
+            f_abs = self.dataset.pathobj / f
+            if f_abs.exists() or f_abs.is_symlink():
+                result = self.dataset.get(f_abs, result_renderer="disabled")
+                failure_count = 0
+                for res in result:
+                    if res["status"] in ("error", "impossible"):
+                        failure_count += 1
+                if failure_count > 0:
+                    yield dict(
+                        path=self.dataset.path,
+                        action="meta_extract",
+                        type="dataset",
+                        status="error",
+                        message=("required file content not retrievable: %s", f),
+                    )
+                else:
+                    yield dict(
+                        path=self.dataset.path,
+                        action="meta_extract",
+                        type="dataset",
+                        status="ok",
+                        message=("required file(s) retrieved"),
+                    )
+            else:
+                yield dict(
+                    path=self.dataset.path,
+                    action="meta_extract",
+                    type="dataset",
+                    status="impossible",
+                    message=(
+                        "metadata source is not available in %s: %s",
+                        self.dataset.path,
+                        f,
+                    ),
+                )
+        return
 
     def extract(self, _=None) -> ExtractorResult:
         log_progress(
             lgr.info,
             "extractorsbidsdataset",
             f"Start bids_dataset metadata extraction from {self.dataset.path}",
-            total=2,
+            total=1,
             label="bids_dataset metadata extraction",
             unit=" Dataset",
         )
@@ -219,7 +245,8 @@ class BIDSmeta(object):
         3. Extract information about entities
         4. Extract variable collection information on multiple levels
            (dataset, subject, session, run). The dataset level
-           collection will grab variables from participants.tsv
+           collection will grab variables from participants.tsv if
+           available.
         5. Add context to metadata output
         """
         # STEP 1: Extract metadata from `dataset_description.json`
@@ -280,7 +307,8 @@ class BIDSmeta(object):
         """Get variable collection information from BIDSLayout"""
         # Extract variable collection information on multiple levels
         # levels (dataset, subject, session, run). The dataset level
-        # collection will grab variables from participants.tsv
+        # collection will grab variables from participants.tsv if
+        # available
         variables = {}
         for ent in BIDS_COLLECTION_ENTITIES:
             try:
@@ -298,19 +326,19 @@ def _find_bids_root(dataset_path) -> Path:
     """
     Find relative location of BIDS directory within datalad dataset
     """
-    participant_paths = list(Path(dataset_path).glob("**/participants.tsv"))
+    description_paths = list(Path(dataset_path).glob("**/dataset_description.json"))
     # 1 - if more than one, select first and output warning
     # 2 - if zero, output error
     # 3 - if 1, add to dataset path and set ats bids root dir
-    if len(participant_paths) == 0:
-        msg = ("The file 'participants.tsv' should be part of the BIDS dataset "
+    if len(description_paths) == 0:
+        msg = ("The file 'dataset_description.json' should be part of the BIDS dataset "
         "in order for the 'bids_dataset' extractor to function correctly")
         raise FileNotFoundError(msg)
-    elif len(participant_paths) > 1:
-        msg = (f"Multiple 'participants.tsv' files ({len(participant_paths)}) "
+    elif len(description_paths) > 1:
+        msg = (f"Multiple 'dataset_description.json' files ({len(description_paths)}) "
         f"were found in the recursive filetree of {dataset_path}, selecting "
         "first path.")
         lgr.warning(msg)
-        return Path(participant_paths[0]).parent
+        return Path(description_paths[0]).parent
     else:
-        return Path(participant_paths[0]).parent
+        return Path(description_paths[0]).parent
