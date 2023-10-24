@@ -9,11 +9,19 @@ This is a high level and scarce summary of the changes between releases.  We
 would recommend to consult log of the [DataLad git
 repository](http://github.com/datalad/datalad-neuroimaging) for more details.
 
-## 0.3.3 (Okt 28, 2022) -- Oktoberfest
+## 0.3.4 (Oct 24, 2023) -- Make BIDS great again
+
+- BIDS metadata extractor(s): do not require `participants.tsv` file to be present
+  (it is RECOMMENDED not REQUIRED in BIDS)
+- `cfg_bids` procedure: do not annex any `README*`, `LICENSE`, or
+  `.bids-validator-config.json` files
+- documentation: fix builds on RTD
+
+## 0.3.3 (Oct 28, 2022) -- Oktoberfest
 
 - raise dependency on datalad-deprecated which was prematurely released
 
-## 0.3.2 (Okt 25, 2022) -- ... but grandparents always are
+## 0.3.2 (Oct 25, 2022) -- ... but grandparents always are
 
 - increase dependency on datalad to 0.16.7
 - depend on datalad-metalad and datalad-deprecated for both styles of metadata
