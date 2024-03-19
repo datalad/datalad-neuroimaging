@@ -1,3 +1,18 @@
+
+<a id='changelog-0.3.5'></a>
+# 0.3.5 (2024-03-19)
+
+## 🐛 Bug Fixes
+
+- Add codespell config and workflow, and use it to typos found throughout the codebase.  [PR #131](https://github.com/datalad/datalad-neuroimaging/pull/131) (by [@yarikoptic](https://github.com/yarikoptic))
+
+## 📝 Documentation
+
+- Fixup intersphinx_mapping for python.  [PR #132](https://github.com/datalad/datalad-neuroimaging/pull/132) (by [@yarikoptic](https://github.com/yarikoptic))
+
+## 🏠 Internal
+
+- Set up releasing workflows.  Fixes [#127](https://github.com/datalad/datalad-neuroimaging/issues/127) via [PR #130](https://github.com/datalad/datalad-neuroimaging/pull/130) (by [@jwodder](https://github.com/jwodder))
 ## 0.3.4 (Oct 24, 2023) -- Make BIDS great again
 
 - BIDS metadata extractor(s): do not require `participants.tsv` file to be present
