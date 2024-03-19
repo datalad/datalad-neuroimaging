@@ -40,8 +40,8 @@ vocabulary = {
 
 unit_map = {
     'meter': ('meter', 'uo:0000008'),
-    'millimeter': ('millimiter', 'uo:0000016'),
-    'mm': ('millimiter', 'uo:0000016'),
+    'millimeter': ('millimeter', 'uo:0000016'),
+    'mm': ('millimeter', 'uo:0000016'),
     'micron': ('micrometer', 'uo:0000017'),
     'second': ('second', 'uo:0000010'),
     'sec': ('second', 'uo:0000010'),
