@@ -39,7 +39,7 @@ target = {
     "datatype": "int16",
     "dim": [4, 91, 109, 91, 2, 1, 1, 1],
     "pixdim": [-1.0, 2.0, 2.0, 2.0, 6.0, 1.0, 1.0, 1.0],
-    "xyz_unit": "millimiter (uo:0000016)",
+    "xyz_unit": "millimeter (uo:0000016)",
     "t_unit": "second (uo:0000010)",
     "cal_min": 3000.0,
     "cal_max": 8000.0,
