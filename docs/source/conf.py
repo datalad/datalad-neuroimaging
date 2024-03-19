@@ -133,7 +133,7 @@ pygments_style = 'sphinx'
 todo_include_todos = True
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
 # smart quotes are incompatible with the RST flavor of the generated manpages
 # but see `smartquotes_action` for more fine-grained control, in case
