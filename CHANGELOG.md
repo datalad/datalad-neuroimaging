@@ -1,14 +1,3 @@
-     ____            _             _                   _ 
-    |  _ \    __ _  | |_    __ _  | |       __ _    __| |
-    | | | |  / _` | | __|  / _` | | |      / _` |  / _` |
-    | |_| | | (_| | | |_  | (_| | | |___  | (_| | | (_| |
-    |____/   \__,_|  \__|  \__,_| |_____|  \__,_|  \__,_|
-                                               Neuroimaging
-
-This is a high level and scarce summary of the changes between releases.  We
-would recommend to consult log of the [DataLad git
-repository](http://github.com/datalad/datalad-neuroimaging) for more details.
-
 ## 0.3.4 (Oct 24, 2023) -- Make BIDS great again
 
 - BIDS metadata extractor(s): do not require `participants.tsv` file to be present
