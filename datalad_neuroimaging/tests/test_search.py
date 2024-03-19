@@ -52,14 +52,14 @@ except (ImportError, SkipTest):
 @known_failure_osx
 @with_tempfile
 def test_our_metadataset_search(tdir=None):
-    # TODO renable when a dataset with new aggregated metadata is
+    # TODO re-enable when a dataset with new aggregated metadata is
     # available at some public location
     raise SkipTest
     # smoke test for basic search operations on our super-megadataset
     # expensive operation but ok
     #ds = install(
     #    path=tdir,
-    #    # TODO renable test when /// metadata actually conforms to the new metadata
+    #    # TODO re-enable test when /// metadata actually conforms to the new metadata
     #    #source="///",
     #    source="smaug:/mnt/btrfs/datasets-meta6-4/datalad/crawl",
     #    result_xfm='datasets', return_type='item-or-list')

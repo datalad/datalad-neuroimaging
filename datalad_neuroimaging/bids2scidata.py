@@ -85,7 +85,7 @@ ontology_map = {
 # (datalad_term, isatab_term)
 # if datalad term is None, it needs to come from somewhere else -> special case
 # if datalad term is '', it comes from the filename
-# case 1: the defintion for a term value comes from another metadata field
+# case 1: the definition for a term value comes from another metadata field
 # (datalad_term, isatab_term, datalad_valuedef
 # case 2: we take the value as-is and define a unit for it
 # (datalad_term, isatab_term, isatab_unitvalue, isatab_unitdef
@@ -300,7 +300,7 @@ def _get_assay_df(
     # main assays
     # we cannot use a dict to collect the data before going to
     # a data frame, because we will have multiple columns with
-    # the same name carrying the ontology info for preceeding
+    # the same name carrying the ontology info for preceding
     # columns
     # --> prefix with some index, create dataframe and rename
     # the column names in the dataframe with the prefix stripped

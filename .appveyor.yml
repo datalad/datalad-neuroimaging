@@ -184,7 +184,7 @@ test_script:
   - cmd: md __testhome__
   - sh: mkdir __testhome__
   - cd __testhome__
-  # run test selecion (--traverse-namespace needed from Python 3.8 onwards)
+  # run test selection (--traverse-namespace needed from Python 3.8 onwards)
   - cmd: python -m pytest -s -v -m "not (turtle)" --doctest-modules --cov=datalad_neuroimaging --pyargs %DTS%
   - sh:  python -m pytest -s -v -m "not (turtle)" --doctest-modules --cov=datalad_neuroimaging --pyargs ${DTS}
 
