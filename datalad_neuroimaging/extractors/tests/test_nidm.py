@@ -46,7 +46,7 @@ def test_nidm(path=None):
     # aggregation done without whining
     assert_status('ok', res)
     res = ds.metadata(reporton='datasets')
-    # ATM we do not forsee file-based metadata to come back from NIDM
+    # ATM we do not foresee file-based metadata to come back from NIDM
     assert_result_count(res, 1)
     # kill version info
     core = res[0]['metadata']['datalad_core']
