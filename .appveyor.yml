@@ -142,7 +142,7 @@ install:
   - sh: "[ \"x$PY\" != x ] && . ${HOME}/venv${PY}/bin/activate || virtualenv -p 3 ${HOME}/dlvenv && . ${HOME}/dlvenv/bin/activate; ln -s \"$VIRTUAL_ENV\" \"${HOME}/VENV\""
   - cmd: "set PATH=C:\\Python%PY%;C:\\Python%PY%\\Scripts;%PATH%"
   # deploy the datalad installer, override version via DATALAD_INSTALLER_VERSION
-  - pip install --upgrade pip
+  - python -m pip install --upgrade pip
   - cmd:
       IF DEFINED DATALAD_INSTALLER_VERSION (
       python -m pip install "datalad-installer%DATALAD_INSTALLER_VERSION%"
