@@ -65,7 +65,7 @@ environment:
       DTS: datalad_neuroimaging
       APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu2204
       PY: 3.10
-      INSTALL_SYSPKGS: python3-virtualenv dcm2niix
+      INSTALL_SYSPKGS: python3-virtualenv dcm2niix libffi7
       # system git-annex is way too old, use better one
       INSTALL_GITANNEX: git-annex -m deb-url --url http://snapshot.debian.org/archive/debian/20210906T204127Z/pool/main/g/git-annex/git-annex_8.20210903-1_amd64.deb
       CODECOV_BINARY: https://uploader.codecov.io/latest/linux/codecov
@@ -155,7 +155,7 @@ install:
   # Install git-annex on windows, otherwise INSTALL_SYSPKGS can be used
   # deploy git-annex, if desired
   - cmd: IF DEFINED INSTALL_GITANNEX datalad-installer --sudo ok %INSTALL_GITANNEX%
-  - sh: "[ -n \"${INSTALL_GITANNEX}\" ] && datalad-installer --sudo ok ${INSTALL_GITANNEX}"
+  - sh: "[ -n \"${INSTALL_GITANNEX}\" ] && datalad-installer -E ${HOME}/dlinstaller_env.sh --sudo ok ${INSTALL_GITANNEX}"
   # in case of a snapshot installation, use the following approach to adjust
   # the PATH as necessary
   #- sh: "[ -n \"${INSTALL_GITANNEX}\" ] && datalad-installer -E ${HOME}/dlinstaller_env.sh --sudo ok ${INSTALL_GITANNEX}"
@@ -177,6 +177,7 @@ build_script:
 
 
 before_test:
+  - sh: source ${HOME}/dlinstaller_env.sh 
   # simple call to see if datalad and git-annex are installed properly
   - datalad wtf
 
