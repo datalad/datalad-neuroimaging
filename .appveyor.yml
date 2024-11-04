@@ -61,12 +61,13 @@ environment:
     # is a need for debugging
 
     # Ubuntu core tests
-    - ID: Ubu20
+    - ID: Ubu22
       DTS: datalad_neuroimaging
-      APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu2004
+      APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu2204
+      PY: 3.9
       INSTALL_SYSPKGS: python3-virtualenv dcm2niix
       # system git-annex is way too old, use better one
-      INSTALL_GITANNEX: git-annex -m deb-url --url http://snapshot.debian.org/archive/debian/20210906T204127Z/pool/main/g/git-annex/git-annex_8.20210903-1_amd64.deb
+      INSTALL_GITANNEX: git-annex -m snapshot
       CODECOV_BINARY: https://uploader.codecov.io/latest/linux/codecov
     # Windows core tests
     - ID: WinP39core
@@ -76,13 +77,13 @@ environment:
       PY: 39-x64
       INSTALL_GITANNEX: git-annex -m datalad/packages
     # MacOS core tests
-    - ID: MacP38core
+    - ID: MacP39core
       DTS: datalad_neuroimaging
       APPVEYOR_BUILD_WORKER_IMAGE: macos-monterey
-      PY: 3.8
-      INSTALL_GITANNEX: git-annex
+      PY: 3.9
+      INSTALL_GITANNEX: git-annex -m datalad/packages
       DATALAD_LOCATIONS_SOCKETS: /Users/appveyor/DLTMP/sockets
-      CODECOV_BINARY: https://uploader.codecov.io/latest/macos/codecov
+      CODECOV_BINARY: https://cli.codecov.io/v0.7.4/macos/codecov
 
 matrix:
   allow_failures:
@@ -141,6 +142,7 @@ install:
   - sh: "[ \"x$PY\" != x ] && . ${HOME}/venv${PY}/bin/activate || virtualenv -p 3 ${HOME}/dlvenv && . ${HOME}/dlvenv/bin/activate; ln -s \"$VIRTUAL_ENV\" \"${HOME}/VENV\""
   - cmd: "set PATH=C:\\Python%PY%;C:\\Python%PY%\\Scripts;%PATH%"
   # deploy the datalad installer, override version via DATALAD_INSTALLER_VERSION
+  - python -m pip install --upgrade pip
   - cmd:
       IF DEFINED DATALAD_INSTALLER_VERSION (
       python -m pip install "datalad-installer%DATALAD_INSTALLER_VERSION%"
@@ -149,11 +151,11 @@ install:
       )
   - sh: python -m pip install datalad-installer${DATALAD_INSTALLER_VERSION:-}
   # Missing system software
-  - sh: "[ -n \"$INSTALL_SYSPKGS\" ] && ( [ \"x${APPVEYOR_BUILD_WORKER_IMAGE}\" = \"xmacOS\" ] && brew install -q ${INSTALL_SYSPKGS} || { sudo apt-get update -y && sudo apt-get install --no-install-recommends -y ${INSTALL_SYSPKGS}; } ) || true"
+  - sh: tools/appveyor/install-syspkgs $INSTALL_SYSPKGS
   # Install git-annex on windows, otherwise INSTALL_SYSPKGS can be used
   # deploy git-annex, if desired
   - cmd: IF DEFINED INSTALL_GITANNEX datalad-installer --sudo ok %INSTALL_GITANNEX%
-  - sh: "[ -n \"${INSTALL_GITANNEX}\" ] && datalad-installer --sudo ok ${INSTALL_GITANNEX}"
+  - sh: "[ -n \"${INSTALL_GITANNEX}\" ] && datalad-installer -E ${HOME}/dlinstaller_env.sh --sudo ok ${INSTALL_GITANNEX}"
   # in case of a snapshot installation, use the following approach to adjust
   # the PATH as necessary
   #- sh: "[ -n \"${INSTALL_GITANNEX}\" ] && datalad-installer -E ${HOME}/dlinstaller_env.sh --sudo ok ${INSTALL_GITANNEX}"
@@ -175,6 +177,7 @@ build_script:
 
 
 before_test:
+  - sh: source ${HOME}/dlinstaller_env.sh 
   # simple call to see if datalad and git-annex are installed properly
   - datalad wtf
 

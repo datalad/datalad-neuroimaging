@@ -14,30 +14,29 @@ import os.path as op
 import logging
 lgr = logging.getLogger('datalad.metadata.extractors.dicom')
 from datalad.log import log_progress
+from datalad.support.exceptions import CapturedException
+from datalad.support.external_versions import external_versions
 
-try:
-    # renamed for 1.0 release
-    import pydicom as dcm
-    from pydicom.errors import InvalidDicomError
+import pydicom as dcm
+from pydicom.errors import InvalidDicomError
+
+NOT_IMPLEMENTED_TYPES = tuple() # (FileDataset,)
+if external_versions["pydicom"] >= "3":
+    # everything is a FileDataset now, so we will decide based on have a UID
+    pass
+else:
     from pydicom.dicomdir import DicomDir
-except ImportError:  # pragma: no cover
-    import dicom as dcm
-    from dicom.errors import InvalidDicomError
-    from dicom.dicomdir import DicomDir
+    NOT_IMPLEMENTED_TYPES = (DicomDir,)
 
 try:
     from collections.abc import MutableSequence
 except ImportError:
     from collections import MutableSequence
 
-from distutils.version import LooseVersion
 from datalad_deprecated.metadata.definitions import vocabulary_id
 from datalad_deprecated.metadata.extractors.base import BaseMetadataExtractor
 
-
-# pydicom 2.0.0 renamed PersonName3 to PersonName:
-PersonName = dcm.valuerep.PersonName3 \
-    if LooseVersion(dcm.__version__) < "2.0.0" else dcm.valuerep.PersonName
+PersonName = dcm.valuerep.PersonName
 # Data types we care to extract/handle
 _SCALAR_TYPES = (
     int, float, string_types, dcm.valuerep.DSfloat, dcm.valuerep.IS,
@@ -156,17 +155,21 @@ class MetadataExtractor(BaseMetadataExtractor):
                 continue
 
             try:
-                d = dcm.read_file(absfp, defer_size=1000, stop_before_pixels=True)
-            except InvalidDicomError:
+                d = dcm.dcmread(absfp, defer_size=1000, stop_before_pixels=True)
+            except InvalidDicomError as exc:
                 # we can only ignore
-                lgr.debug('"%s" does not look like a DICOM file, skipped', f)
+                lgr.debug('"%s" does not look like a DICOM file, skipped: %s',
+                          absfp,
+                          CapturedException(exc))
                 continue
 
-            if isinstance(d, DicomDir):
-                lgr.debug("%s appears to be a DICOMDIR file. Extraction not yet"
-                          " implemented, skipped", f)
+            if NOT_IMPLEMENTED_TYPES and isinstance(d, NOT_IMPLEMENTED_TYPES):
+                lgr.debug("%s appears to be a DICOMDIR or alike: got %s. Extraction not yet"
+                          " implemented, skipped", f, d)
                 continue
-
+            elif not hasattr(d, 'SeriesInstanceUID'):
+                lgr.debug("%s does not have SeriesInstanceUID, skipped", f)
+                continue
             ddict = None
             if content:
                 ddict = _struct2dict(d)

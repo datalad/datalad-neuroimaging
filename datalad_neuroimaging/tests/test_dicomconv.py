@@ -56,4 +56,6 @@ def test_dicom_metadata_aggregation(path=None):
 def test_validate_bids_fixture():
     bids_ds = get_bids_dataset()
     # dicom source dataset is absent
-    eq_(len(bids_ds.subdatasets(fulfilled=True, return_type='list')), 0)
+    # yoh: disabled since makes little sense (now?) since dataset is subdataset
+    # as of 978772e9468a5ae30de309cc6ac4370795de75cc etc in 2018
+    # eq_(len(bids_ds.subdatasets(fulfilled=True, return_type='list')), 0)
