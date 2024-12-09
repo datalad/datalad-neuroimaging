@@ -1,4 +1,11 @@
 
+<a id='changelog-0.3.6'></a>
+# 0.3.6 (2024-12-09)
+
+## 🐛 Bug Fixes
+
+- BF: Explicitly cast to simple float from numpy.float32 which is now returned by smth (nibabel?).  [PR #134](https://github.com/datalad/datalad-neuroimaging/pull/134) (by [@yarikoptic](https://github.com/yarikoptic))
+
 <a id='changelog-0.3.5'></a>
 # 0.3.5 (2024-03-19)
 
