@@ -179,7 +179,7 @@ class MetadataExtractor(BaseMetadataExtractor):
                     spatial_unit))
             # TODO does not see the light of day
             meta['spatial_resolution(mm)'] = \
-                [(i * spatial_unit_conversion) for i in header.get_zooms()[:3]]
+                [(float(i * spatial_unit_conversion)) for i in header.get_zooms()[:3]]
             # time
             if len(header.get_zooms()) > 3:
                 # got a 4th dimension
@@ -194,7 +194,7 @@ class MetadataExtractor(BaseMetadataExtractor):
                     'micron': 0.000001}.get(rts_unit, 1.0)
                 if rts_unit not in ('hz', 'ppm', 'rads'):
                     meta['temporal_spacing(s)'] = \
-                        header.get_zooms()[3] * rts_unit_conversion
+                        float(header.get_zooms()[3] * rts_unit_conversion)
 
             contentmeta.append((f, meta))
 
