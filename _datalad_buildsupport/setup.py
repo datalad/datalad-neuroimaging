@@ -13,8 +13,9 @@ from os.path import (
     dirname,
     join as opj,
 )
-from setuptools import Command, DistutilsOptionError
+from setuptools import Command
 from setuptools.config import read_configuration
+from setuptools.errors import OptionError
 
 import versioneer
 
@@ -51,11 +52,11 @@ class BuildManPage(Command):
 
     def finalize_options(self):
         if self.manpath is None:
-            raise DistutilsOptionError('\'manpath\' option is required')
+            raise OptionError('\'manpath\' option is required')
         if self.rstpath is None:
-            raise DistutilsOptionError('\'rstpath\' option is required')
+            raise OptionError('\'rstpath\' option is required')
         if self.parser is None:
-            raise DistutilsOptionError('\'parser\' option is required')
+            raise OptionError('\'parser\' option is required')
         mod_name, func_name = self.parser.split(':')
         fromlist = mod_name.split('.')
         try:
@@ -202,7 +203,7 @@ class BuildConfigInfo(Command):
 
     def finalize_options(self):
         if self.rstpath is None:
-            raise DistutilsOptionError('\'rstpath\' option is required')
+            raise OptionError('\'rstpath\' option is required')
         self.announce('Generating configuration documentation')
 
     def run(self):

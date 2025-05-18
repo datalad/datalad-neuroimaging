@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 43.0.0", "wheel"]
+requires = ["setuptools >= 59.0.0", "wheel"]
 
 [tool.codespell]
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file
