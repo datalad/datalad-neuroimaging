@@ -9,7 +9,6 @@
 """DICOM metadata extractor"""
 from __future__ import absolute_import
 
-from six import string_types
 import os.path as op
 import logging
 lgr = logging.getLogger('datalad.metadata.extractors.dicom')
@@ -39,7 +38,7 @@ from datalad_deprecated.metadata.extractors.base import BaseMetadataExtractor
 PersonName = dcm.valuerep.PersonName
 # Data types we care to extract/handle
 _SCALAR_TYPES = (
-    int, float, string_types, dcm.valuerep.DSfloat, dcm.valuerep.IS,
+    int, float, str, dcm.valuerep.DSfloat, dcm.valuerep.IS,
     PersonName)
 # Since pydicom 1.0 MultiValue is no longer subclass of list
 # but of collections{.abc,}.MutableSequence . To make sure we

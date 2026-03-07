@@ -22,7 +22,7 @@ from os.path import exists
 from os.path import curdir
 from datalad import cfg
 from datalad.dochelpers import exc_str
-from datalad.utils import assure_unicode
+from datalad.utils import ensure_unicode
 from datalad.support.external_versions import external_versions
 from datalad_deprecated.metadata.extractors.base import BaseMetadataExtractor
 from datalad_deprecated.metadata.definitions import vocabulary_id
@@ -101,7 +101,7 @@ class MetadataExtractor(BaseMetadataExtractor):
             # explicitly provided to possibly override longer README, let's just
             # load README
             with open(README_fname, 'rb') as f:
-                desc = assure_unicode(f.read())
+                desc = ensure_unicode(f.read())
             meta['description'] = desc.strip()
 
         # special case
@@ -204,12 +204,12 @@ class MetadataExtractor(BaseMetadataExtractor):
 def yield_participant_info(bids):
     for bidsvars in bids.get_collections(
             level='dataset')[0].to_df().to_dict(orient='records'):
-        props = dict(id=assure_unicode(bidsvars.pop('subject')))
+        props = dict(id=ensure_unicode(bidsvars.pop('subject')))
         for p in bidsvars:
             # take away some ambiguity
-            normk = assure_unicode(p).lower()
+            normk = ensure_unicode(p).lower()
             hk = content_metakey_map.get(normk, normk)
-            val = assure_unicode(bidsvars[p])
+            val = ensure_unicode(bidsvars[p])
             if hk in ('sex', 'gender'):
                 if hasattr(val, 'lower'):
                     val = val.lower()

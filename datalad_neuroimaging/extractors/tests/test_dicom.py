@@ -43,7 +43,7 @@ from . import datalad_extracts_annex_key
 @with_tempfile(mkdir=True)
 def test_dicom(path=None):
     ds = Dataset(path).create()
-    ds.config.add('datalad.metadata.nativetype', 'dicom', where='dataset')
+    ds.config.add('datalad.metadata.nativetype', 'dicom', scope='branch')
     copy(
         op.join(op.dirname(op.dirname(op.dirname(__file__))), 'tests', 'data', 'files', 'dicom.dcm'),
         path)
@@ -94,7 +94,7 @@ def test_dicom(path=None):
          if k not in DicomExtractor._unique_exclude})
 
     # buuuut, if we switch of file-based metadata storage
-    ds.config.add('datalad.metadata.aggregate-content-dicom', 'false', where='dataset')
+    ds.config.add('datalad.metadata.aggregate-content-dicom', 'false', scope='branch')
     ds.aggregate_metadata()
     res = ds.metadata(reporton='datasets')
 

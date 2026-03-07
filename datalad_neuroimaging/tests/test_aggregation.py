@@ -66,7 +66,7 @@ def test_nested_metadata(path=None):
                 key=lambda x: x['id'])):
             assert_dict_equal(i[0], i[1])
     # we can turn off this kind of auto-summary
-    ds.config.add('datalad.metadata.generate-unique-bids', 'false', where='dataset')
+    ds.config.add('datalad.metadata.generate-unique-bids', 'false', scope='branch')
     ds.aggregate_metadata()
     meta = ds.metadata('.', reporton='datasets', return_type='item-or-list')['metadata']
     # protect next test a little, in case we enhance our core extractor in the future

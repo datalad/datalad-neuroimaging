@@ -66,7 +66,7 @@ target = {
 @with_tempfile(mkdir=True)
 def test_nifti(path=None):
     ds = Dataset(path).create()
-    ds.config.add('datalad.metadata.nativetype', 'nifti1', where='dataset')
+    ds.config.add('datalad.metadata.nativetype', 'nifti1', scope='branch')
     copy(
         opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'files', 'nifti1.nii.gz'),
         path)

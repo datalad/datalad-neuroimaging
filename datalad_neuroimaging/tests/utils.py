@@ -129,9 +129,9 @@ def get_bids_dataset():
             check=False)
 
     bids_ds.config.add('datalad.metadata.nativetype', 'bids',
-                       where='dataset', reload=False)
+                       scope='branch', reload=False)
     bids_ds.config.add('datalad.metadata.nativetype', 'nifti1',
-                       where='dataset', reload=True)
+                       scope='branch', reload=True)
     # XXX need to `add` specifically to make it work in direct mode
     #bids_ds.save(message='Metadata type config')
     bids_ds.save('.', message='Metadata type config')
