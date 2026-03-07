@@ -3,7 +3,7 @@ requires = ["setuptools >= 59.0.0", "wheel"]
 
 [tool.codespell]
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file
-skip = '.git,versioneer.py'
+skip = '.git,versioneer.py,.cache,objects,.venv,.tox,.npm'
 check-hidden = true
 # ignore-regex = ''
 # ignore-words-list = ''
