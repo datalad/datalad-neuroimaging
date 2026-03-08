@@ -144,7 +144,10 @@ def get_bids_dataset():
     # loose dicom datasets
     bids_ds.drop(
         [structdicom_ds.path, funcdicom_ds.path],
-        what='all', reckless='kill')
+        what='all',
+        reckless='kill',
+        recursive=True,  # just because datalad insists to provide it!
+    )
     # no need for recursion, we already have the dicom dataset's
     # stuff on record
     aggregate_metadata(dataset=bids_ds, recursive=False, incremental=True)
