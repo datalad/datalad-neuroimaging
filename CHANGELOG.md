@@ -1,4 +1,11 @@
 
+<a id='changelog-0.3.8'></a>
+# 0.3.8 (2026-03-08)
+
+## 🐛 Bug Fixes
+
+- Minor facelift (drop six, start using 3.10 in github ci) address datalad deprecations by using current API.  [PR #138](https://github.com/datalad/datalad-neuroimaging/pull/138) (by [@yarikoptic](https://github.com/yarikoptic))
+
 <a id='changelog-0.3.7'></a>
 # 0.3.7 (2025-05-18)
 
