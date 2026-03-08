@@ -1,5 +1,6 @@
 .pybuild/
 .coverage
+.local
 /.tox
 *.egg-info
 *.py[coe]

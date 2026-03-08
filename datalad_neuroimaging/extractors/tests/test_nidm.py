@@ -32,7 +32,7 @@ from . import datalad_extracts_annex_key
 @with_tempfile(mkdir=True)
 def test_nidm(path=None):
     ds = Dataset(path).create()
-    ds.config.add('datalad.metadata.nativetype', 'nidm', where='dataset')
+    ds.config.add('datalad.metadata.nativetype', 'nidm', scope='branch')
     # imagine filling the dataset up with something that NIDM info could be
     copy(
         opj(dirname(dirname(dirname(__file__))), 'tests', 'data', 'files', 'nifti1.nii.gz'),

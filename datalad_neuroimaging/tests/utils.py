@@ -1,3 +1,4 @@
+import logging
 import os.path as op
 from os.path import dirname
 from os.path import join as opj
@@ -23,6 +24,8 @@ from datalad_deprecated.metadata.metadata import Metadata
 
 aggregate_metadata = AggregateMetaData.__call__
 metadata = Metadata.__call__
+
+lgr = logging.getLogger("datalad.tests.utils")
 
 
 def get_sourcerepo():
@@ -55,12 +58,15 @@ def get_bids_dataset():
     srcrepo = get_sourcerepo()
     bids_ds = Dataset(path=opj(
         srcrepo.path, 'datalad_neuroimaging', 'tests', 'data', 'bids'))
+    lgr.debug("get_bids_dataset for srcrepo=%r and bids_ds=%r", srcrepo, bids_ds)
     if bids_ds.is_installed():
+        lgr.debug("get_bids_dataset: reusing existing")
         return bids_ds
     try:
         import heudiconv
     except ImportError:
-        raise SkipTest
+        raise SkipTest("No heudiconv installed, needed to establish test dataset")
+    lgr.debug("get_bids_dataset: constructing")
     # make one
     bids_ds.create()
     # place dicoms in the mandated shadow tree
@@ -126,19 +132,22 @@ def get_bids_dataset():
             [p for p in (opj('sourcedata', 'sub-02', scanlabel),
                          opj('sourcedata', 'README'))
              if op.lexists(opj(bids_ds.path, p))],
-            check=False)
+            reckless='availability')
 
     bids_ds.config.add('datalad.metadata.nativetype', 'bids',
-                       where='dataset', reload=False)
+                       scope='branch', reload=False)
     bids_ds.config.add('datalad.metadata.nativetype', 'nifti1',
-                       where='dataset', reload=True)
+                       scope='branch', reload=True)
     # XXX need to `add` specifically to make it work in direct mode
     #bids_ds.save(message='Metadata type config')
     bids_ds.save('.', message='Metadata type config')
     # loose dicom datasets
-    bids_ds.uninstall(
+    bids_ds.drop(
         [structdicom_ds.path, funcdicom_ds.path],
-        check=False)
+        what='all',
+        reckless='kill',
+        recursive=True,  # just because datalad insists to provide it!
+    )
     # no need for recursion, we already have the dicom dataset's
     # stuff on record
     aggregate_metadata(dataset=bids_ds, recursive=False, incremental=True)

@@ -92,8 +92,8 @@ def test_within_ds_file_search(path=None):
     except ImportError:
         raise SkipTest
     ds = Dataset(path).create(force=True)
-    ds.config.add('datalad.metadata.nativetype', 'nifti1', where='dataset')
-    #ds.config.add('datalad.runtime.raiseonerror', 'yes', where='dataset')
+    ds.config.add('datalad.metadata.nativetype', 'nifti1', scope='branch')
+    #ds.config.add('datalad.runtime.raiseonerror', 'yes', scope='branch')
     makedirs(opj(path, 'stim'))
     for src, dst in (
             ('nifti1.nii.gz', opj('sub-01', 'func', 'sub-01_task-some_bold.nii.gz')),

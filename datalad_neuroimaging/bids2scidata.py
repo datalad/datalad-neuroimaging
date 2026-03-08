@@ -34,13 +34,13 @@ from datalad.interface.base import Interface
 from datalad.interface.base import build_doc
 from datalad.support.param import Parameter
 from datalad.distribution.dataset import datasetmethod
-from datalad.interface.utils import eval_results
+from datalad.interface.base import eval_results
 from datalad.distribution.dataset import EnsureDataset
 from datalad.support.constraints import EnsureNone
-from datalad.utils import assure_list
+from datalad.utils import ensure_list
 from datalad_deprecated.metadata.metadata import Metadata
-from six.moves.urllib.parse import urlsplit
-from six.moves.urllib.parse import urlunsplit
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 from posixpath import split as posixsplit
 
 
@@ -432,8 +432,8 @@ def convert(
     # for study description)
     dsbidsmeta = getprop(dsmeta, ['metadata', 'bids'], {})
     info['name'] = dsbidsmeta.get('shortdescription', dsbidsmeta.get('name', 'TODO'))
-    info['author'] = '\t'.join(assure_list(dsbidsmeta.get('author', [])))
-    info['keywords'] = '\t'.join(assure_list(dsbidsmeta.get('tag', [])))
+    info['author'] = '\t'.join(ensure_list(dsbidsmeta.get('author', [])))
+    info['keywords'] = '\t'.join(ensure_list(dsbidsmeta.get('tag', [])))
     # generate: s_study.txt
     study_df = _get_study_df(dsmeta)
     if study_df.empty:
@@ -551,7 +551,7 @@ def convert(
 
     # post-proc assay-props for output
     for prop in assay_props:
-        info[prop] = '\t'.join(assure_list(info[prop]))
+        info[prop] = '\t'.join(ensure_list(info[prop]))
 
     info['protocol_name'] = '\t'.join(protocols.keys())
     for k in ('type', 'term', 'termsrc'):

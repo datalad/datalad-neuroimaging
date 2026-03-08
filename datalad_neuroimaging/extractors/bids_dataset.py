@@ -279,7 +279,7 @@ class BIDSmeta(object):
             self.dataset.get(README_fname)
             # read text from file
             try:
-                file_text = ensure_unicode(README_fname.read_text()).strip()
+                file_text = ensure_unicode(README_fname.read_bytes()).strip()
             except:
                 file_text = ""
             # Append dict with file text + extension to list
