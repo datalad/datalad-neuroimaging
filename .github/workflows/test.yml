@@ -54,4 +54,7 @@ jobs:
       - name: Install git-annex
         if: startsWith(matrix.tox-env, 'py')
         run: pip install git-annex
+      - name: Install dcm2niix
+        if: startsWith(matrix.tox-env, 'py')
+        run: sudo apt-get install -y dcm2niix
       - run: tox -e ${{ matrix.tox-env }}
