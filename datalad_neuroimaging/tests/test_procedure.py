@@ -1,4 +1,4 @@
-import datalad.interface.run_procedure
+import datalad.local.run_procedure
 from datalad.distribution.dataset import Dataset
 from datalad.tests.utils_pytest import (
     eq_,
