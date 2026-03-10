@@ -1,4 +1,11 @@
 
+<a id='changelog-0.3.9'></a>
+# 0.3.9 (2026-03-10)
+
+## 🐛 Bug Fixes
+
+- BF: Fix deprecated RunProcedure import in test_procedure.  [PR #140](https://github.com/datalad/datalad-neuroimaging/pull/140) (by [@yarikoptic](https://github.com/yarikoptic))
+
 <a id='changelog-0.3.8'></a>
 # 0.3.8 (2026-03-08)
 
