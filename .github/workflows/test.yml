@@ -1,0 +1,60 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      envs: ${{ steps.get-envs.outputs.envs }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install tox
+      - id: get-envs
+        run: |
+          envs=$(tox -l | jq -R . | jq -sc .)
+          echo "envs=$envs" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tox-env: ${{ fromJSON(needs.generate-matrix.outputs.envs) }}
+    name: tox -e ${{ matrix.tox-env }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up git identity
+        run: |
+          git config --global user.email "test@github.land"
+          git config --global user.name "GitHub Almighty"
+      - name: Determine Python version
+        id: python
+        run: |
+          env="${{ matrix.tox-env }}"
+          if [[ "$env" =~ ^py([0-9])([0-9]+)$ ]]; then
+            echo "version=${BASH_REMATCH[1]}.${BASH_REMATCH[2]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=3.x" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ steps.python.outputs.version }}
+      - run: pip install tox tox-uv
+      - name: Install git-annex
+        if: startsWith(matrix.tox-env, 'py')
+        run: pip install git-annex
+      - name: Install dcm2niix
+        if: startsWith(matrix.tox-env, 'py')
+        run: sudo apt-get install -y dcm2niix
+      - run: tox -e ${{ matrix.tox-env }}
